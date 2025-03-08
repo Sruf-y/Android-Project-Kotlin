@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#9E9E9E"
+    android:effectColor="@color/transparent">
+
+
+
+    <!-- Content background -->
+    <item>
+        <shape>
+            <corners android:radius="13dp" />
+            <solid android:color="@color/liftedBackgrounds" />
+        </shape>
+    </item>
+</ripple>

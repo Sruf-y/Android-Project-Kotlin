@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- WHILE PRESSED -->
+    <item android:state_pressed="true" >
+        <shape>
+            <gradient
+                android:endColor="@color/green"
+                android:startColor="@color/blue_light"
+                android:angle="270" />
+            <stroke
+                android:width="3dp"
+                android:color="@color/gray" />
+
+            <corners
+                android:radius="500dp" />
+            <padding
+                android:left="10dp"
+                android:top="10dp"
+                android:right="10dp"
+                android:bottom="10dp" />
+        </shape>
+    </item>
+    <!-- NO IDEA WHAT STATE THIS IS YET -->
+
+
+    <!-- DEFAULT STATE, UNPRESSED -->
+    <item>
+        <shape>
+
+
+            <gradient
+                android:endColor="@color/blue"
+                android:startColor="@color/blue_light"
+                android:angle="270" />
+            <stroke
+                android:width="3dp"
+                android:color="@color/gray" />
+
+            <corners
+                android:radius="500dp" />
+            <padding
+                android:left="10dp"
+                android:top="10dp"
+                android:right="10dp"
+                android:bottom="10dp" />
+        </shape>
+    </item>
+
+
+</selector>

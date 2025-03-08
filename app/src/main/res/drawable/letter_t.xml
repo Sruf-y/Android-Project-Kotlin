@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/invertedBackgrounds"
+    android:effectColor="@color/invertedBackgrounds"
+    android:radius="17.5dp">
+    <item>
+        <selector android:enterFadeDuration="100" android:exitFadeDuration="100" >
+
+            <item android:state_checked="true">
+                <layer-list>
+                    <item>
+                        <shape android:shape="oval">
+                            <stroke android:color="@color/activated" android:width="2dp"/>
+                            <size android:width="32dp" android:height="32dp"/>
+                        </shape>
+                    </item>
+
+                    <item>
+                        <vector
+                            android:width="27dp"
+                            android:height="27dp"
+                            android:viewportWidth="50"
+                            android:viewportHeight="48">
+                            <path android:strokeColor="@color/invertedBackgrounds"
+                                android:strokeWidth="4"
+                                android:strokeLineCap="round"
+                                android:pathData="M25,15 L25,32" />
+                            <path android:strokeColor="@color/invertedBackgrounds"
+                                android:strokeWidth="4"
+                                android:strokeLineCap="round"
+                                android:pathData="M17,15 h15" />
+                        </vector>
+                    </item>
+                </layer-list>
+            </item>
+
+
+
+            <item>
+                <layer-list>
+                    <item>
+                        <shape android:shape="oval">
+                            <stroke android:color="@color/transparent" android:width="2dp"/>
+                            <size android:width="32dp" android:height="32dp"/>
+                        </shape>
+                    </item>
+
+                    <item>
+                        <vector
+                            android:width="27dp"
+                            android:height="27dp"
+                            android:viewportWidth="50"
+                            android:viewportHeight="48">
+                            <path android:strokeColor="@color/inactive"
+                                android:strokeWidth="3"
+                                android:strokeLineCap="round"
+                                android:pathData="M25,15 v17" />
+                            <path android:strokeColor="@color/inactive"
+                                android:strokeWidth="3"
+                                android:strokeLineCap="round"
+                                android:pathData="M17,15 h15" />
+                        </vector>
+                    </item>
+                </layer-list>
+            </item>
+        </selector>
+    </item>
+
+</ripple>

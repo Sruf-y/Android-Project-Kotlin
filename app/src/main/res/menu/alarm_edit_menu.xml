@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/turnOn"
+        android:icon="@drawable/rounded_alarm_on_24"
+        android:title="Turn On" />
+    <item
+        android:id="@+id/turnOff"
+        android:icon="@drawable/rounded_alarm_off_24"
+        android:title="Turn Off"/>
+    <item
+        android:id="@+id/Delete"
+        android:icon="@drawable/rounded_delete_24"
+        android:title="Delete"/>
+</menu>

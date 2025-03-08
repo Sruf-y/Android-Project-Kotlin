@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgrounds"
+    tools:context=".AlarmActivity"
+
+
+    >
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:background="@drawable/checkbox_round_button"
+        android:backgroundTint="#7397CE"
+        android:clickable="false"
+        android:defaultFocusHighlightEnabled="false"
+        android:focusableInTouchMode="false"
+        android:focusedByDefault="false"
+        android:longClickable="false"
+        app:layout_constraintBottom_toBottomOf="@+id/floatingActionButton"
+        app:layout_constraintEnd_toEndOf="@+id/floatingActionButton"
+        app:layout_constraintStart_toStartOf="@+id/floatingActionButton"
+        app:layout_constraintTop_toTopOf="@+id/floatingActionButton" />
+
+    <TextView
+        android:id="@+id/auxtextview"
+        android:layout_width="275dp"
+        android:layout_height="184dp"
+        android:gravity="center"
+        android:text="Unnamed allarm"
+        android:textColor="@color/invertedBackgrounds"
+        android:textSize="34sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.129" />
+
+    <view
+        android:id="@+id/floatingActionButton"
+        class="com.example.myapplication2.AccessibleExpandingFAB"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:clickable="true"
+        android:foreground="@drawable/baseline_access_time_24"
+        android:foregroundGravity="center"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/auxtextview"
+        app:layout_wrapBehaviorInParent="included" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

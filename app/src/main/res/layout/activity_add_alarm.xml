@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    android:background="@color/backgrounds"
+    tools:context=".addAlarmActivity">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:weightSum="2"
+        app:layout_constraintBottom_toTopOf="@+id/whereButtonsAre"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/chooseStuff"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <NumberPicker
+                android:id="@+id/numberPicker"
+                android:layout_width="match_parent"
+                android:layout_height="290dp"
+                android:layout_weight="1"
+                android:selectionDividerHeight="0dp"
+                android:theme="@style/NumberPickerStyle" />
+
+            <NumberPicker
+                android:id="@+id/numberPicker2"
+                android:layout_width="match_parent"
+                android:layout_height="290dp"
+                android:layout_weight="1"
+                android:selectionDividerHeight="0dp"
+                android:theme="@style/NumberPickerStyle" />
+
+            <NumberPicker
+                android:id="@+id/numberPicker3"
+                android:layout_width="match_parent"
+                android:layout_height="290dp"
+                android:layout_weight="1"
+                android:descendantFocusability="blocksDescendants"
+                android:selectionDividerHeight="0dp"
+                android:theme="@style/NumberPickerStyle2" />
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ScrollView
+                android:id="@+id/stuff_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/liftedBackgrounds">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:divider="@drawable/horizontal_divider"
+                    android:dividerPadding="0dp"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="10dp"
+                    android:showDividers="middle">
+
+                    <androidx.compose.ui.platform.ComposeView
+                        android:id="@+id/thing2inscroller"
+                        android:layout_width="match_parent"
+                        android:layout_height="170dp"
+                        android:clickable="true" />
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="170dp">
+
+                        <EditText
+                            android:id="@+id/EditAlarmTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:hint="Alarm name:"
+                            android:inputType="text"
+                            android:textColor="@color/invertedBackgrounds"
+                            android:textColorHint="@color/invertedLiftedBackgrounds"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="1.0" />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/constraintLayout"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.39">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="35dp"
+                                android:orientation="horizontal"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <com.google.android.material.checkbox.MaterialCheckBox
+                                    android:id="@+id/lunea"
+                                    android:layout_width="32dp"
+                                    android:layout_height="35dp"
+                                    android:layout_weight="1"
+                                    android:background="@color/liftedBackgrounds"
+                                    android:button="@drawable/letter_m"
+                                    android:checked="false"
+                                    android:drawablePadding="5dp" />
+
+                                <com.google.android.material.checkbox.MaterialCheckBox
+                                    android:id="@+id/marti"
+                                    android:layout_width="32dp"
+                                    android:layout_height="35dp"
+                                    android:layout_weight="1"
+                                    android:background="@color/transparent"
+                                    android:button="@drawable/letter_t" />
+
+                                <com.google.android.material.checkbox.MaterialCheckBox
+                                    android:id="@+id/miercuri"
+                                    android:layout_width="32dp"
+                                    android:layout_height="35dp"
+                                    android:layout_weight="1"
+                                    android:background="@color/transparent"
+                                    android:button="@drawable/letter_t" />
+
+                                <com.google.android.material.checkbox.MaterialCheckBox
+                                    android:id="@+id/joi"
+                                    android:layout_width="32dp"
+                                    android:layout_height="35dp"
+                                    android:layout_weight="1"
+                                    android:background="@color/transparent"
+                                    android:button="@drawable/letter_w" />
+
+                                <com.google.android.material.checkbox.MaterialCheckBox
+                                    android:id="@+id/vineri"
+                                    android:layout_width="32dp"
+                                    android:layout_height="35dp"
+                                    android:layout_weight="1"
+                                    android:background="@color/transparent"
+                                    android:button="@drawable/letter_f" />
+
+                                <com.google.android.material.checkbox.MaterialCheckBox
+                                    android:id="@+id/sambata"
+                                    android:layout_width="32dp"
+                                    android:layout_height="35dp"
+                                    android:layout_weight="1"
+                                    android:background="@color/transparent"
+                                    android:button="@drawable/letter_s" />
+
+                                <com.google.android.material.checkbox.MaterialCheckBox
+                                    android:id="@+id/duminica"
+                                    android:layout_width="32dp"
+                                    android:layout_height="35dp"
+                                    android:layout_weight="1"
+                                    android:background="@color/transparent"
+                                    android:button="@drawable/letter_sunday" />
+                            </LinearLayout>
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <ImageView
+                            android:id="@+id/calendarClick"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/ripple_circle"
+                            android:backgroundTint="@color/liftedBackgrounds"
+                            android:backgroundTintMode="screen"
+                            android:clickable="true"
+                            android:padding="9dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="1.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:srcCompat="@drawable/rounded_calendar_month_24" />
+
+                        <TextView
+                            android:id="@+id/textView"
+                            android:layout_width="216dp"
+                            android:layout_height="33dp"
+                            android:gravity="center_vertical"
+                            android:text="TextView"
+                            android:textColor="@color/invertedBackgrounds"
+                            android:textSize="14sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.14"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.051" />
+
+                        <Switch
+                            android:id="@+id/is_timed_alarm"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:enabled="false"
+                            android:thumb="@drawable/switch_thumb"
+                            android:track="@drawable/switch_track"
+                            app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
+                            app:layout_constraintEnd_toStartOf="@+id/calendarClick"
+                            app:layout_constraintStart_toEndOf="@+id/textView"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.31" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </LinearLayout>
+            </ScrollView>
+
+            <View
+                android:id="@+id/overlayAbove"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:clickable="false"
+                android:foreground="@drawable/overlay"
+                android:foregroundGravity="center|fill"
+                android:foregroundTint="@color/backgrounds"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/calend_back"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#BA000000"
+        android:backgroundTintMode="add"
+        android:clickable="true"
+        android:translationY="700dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <CalendarView
+            android:id="@+id/calendarView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="#6B608DBA"
+            android:focusable="auto"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.23000002" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/whereButtonsAre"
+        android:layout_width="match_parent"
+        android:layout_height="60.dp"
+        android:gravity="fill"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        app:layout_wrapBehaviorInParent="horizontal_only">
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/backgrounds"
+            android:clickable="true"
+            android:text="Cancel"
+            android:textColor="@color/invertedBackgrounds"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button5"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/backgrounds"
+            android:clickable="true"
+            android:text="Save"
+            android:textColor="@color/invertedBackgrounds"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

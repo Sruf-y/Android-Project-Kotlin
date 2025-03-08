@@ -1,0 +1,198 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardView2"
+    android:layout_width="match_parent"
+    android:layout_height="110dp"
+    android:layout_marginHorizontal="13dp"
+
+
+    android:layout_marginVertical="6dp"
+    android:background="@drawable/alarm_background"
+    android:clickable="true"
+    android:longClickable="true"
+    app:cardCornerRadius="13dp"
+    app:cardElevation="15dp">
+
+    <TextView
+        android:id="@+id/AMPM"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AM"
+        android:textColor="@color/inactive"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/allarmTime"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/allarmTime"
+        app:layout_constraintTop_toTopOf="@+id/allarmTime"
+        app:layout_constraintVertical_bias="0.77" />
+
+    <Switch
+        android:id="@+id/state"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+
+        android:paddingEnd="20dp"
+        android:thumb="@drawable/switch_thumb"
+        android:track="@drawable/switch_track"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/allarmTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="18:00"
+        android:textColor="@color/inactive"
+        android:textSize="35sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.05"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/alarmTitle"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/alarmTitle"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:text="TextView"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/allarmTime"
+        app:layout_constraintStart_toStartOf="@+id/allarmTime"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.26" />
+
+    <CheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="24dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:background="@null"
+        android:button="@drawable/checkbox_round_button"
+        android:checked="false"
+        android:clickable="false"
+        android:textColor="#FFFFFF"
+        android:textColorLink="#D55555"
+        android:translationX="-34dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <LinearLayout
+        android:id="@+id/days"
+        android:layout_width="115dp"
+        android:layout_height="17dp"
+        android:orientation="horizontal"
+        android:scaleX="1"
+        android:scaleY="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.33"
+        app:layout_constraintStart_toEndOf="@+id/allarmTime"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/smallLuni"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@drawable/letter_m"
+            android:clickable="false"
+            android:scaleX="0.8"
+            android:scaleY="0.8" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/smallMarti"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@drawable/letter_t"
+            android:clickable="false"
+            android:scaleX="0.8"
+            android:scaleY="0.8" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/smallMiercuri"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@drawable/letter_t"
+            android:clickable="false"
+            android:scaleX="0.8"
+            android:scaleY="0.8" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/smallJoi"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@drawable/letter_w"
+            android:clickable="false"
+            android:scaleX="0.8"
+            android:scaleY="0.8" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/smallVineri"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@drawable/letter_f"
+            android:clickable="false"
+            android:scaleX="0.8"
+            android:scaleY="0.8" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/smallSambata"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@drawable/letter_s"
+            android:clickable="false"
+            android:scaleX="0.8"
+            android:scaleY="0.8" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/smallDuminica"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@drawable/letter_sunday"
+            android:clickable="false"
+            android:scaleX="0.8"
+            android:scaleY="0.8" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/istimed"
+        android:layout_width="21dp"
+        android:layout_height="22dp"
+        android:clickable="false"
+        android:foreground="@drawable/baseline_access_time_24"
+        android:foregroundTint="@color/invertedLightTextBackgrounds"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/state"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.97"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/state"
+        app:layout_constraintVertical_bias="0.017" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

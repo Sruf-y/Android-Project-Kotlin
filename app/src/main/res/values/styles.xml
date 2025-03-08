@@ -1,0 +1,56 @@
+<resources>
+    <style name="AndreiButonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:background">@drawable/rounder_corners</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:text">Text</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
+        <!-- <item name="android:textAlignment">center</item> -->
+    </style>
+
+
+    <style name="AndreiTile" parent="Widget.MaterialComponents.Button">
+        <item name="android:background">@drawable/square_cute</item>
+        <item name="android:backgroundTint">@color/blue_light</item>
+        <item name="android:textColor">@color/invertedBackgrounds</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:text">Text</item>
+        <item name="android:width">150dp</item>
+        <item name="android:height">90dp</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
+        <!-- <item name="android:textAlignment">center</item> -->
+    </style>
+
+    <style name="DefaultButtonAndrei">
+        <item name="android:background">@drawable/default_button_andrei</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="BottomAppBarAndrei">
+        <item name="android:background">@color/transparent</item>
+    </style>
+
+    <style name="CardView_" parent="Base.CardView">
+        <item name="android:layout_height">50dp</item>
+    </style>
+
+    <style name="NumberPickerStyle">
+        <!--<item name="android:selectionDivider">@null</item>-->
+        <item name="android:textColor">@color/invertedBackgrounds</item>
+        <item name="android:textSize">40sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="NumberPickerStyle2">
+        <!--<item name="android:selectionDivider">@null</item>-->
+        <item name="android:textColor">@color/invertedBackgrounds</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="BottomNavBar_ActiveIndicator">
+        <item name="android:background">@color/invertedBackgrounds</item>
+    </style>
+</resources>

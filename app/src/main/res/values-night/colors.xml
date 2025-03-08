@@ -1,0 +1,84 @@
+<resources>
+    <color name="activated">#00ABFF</color>
+    <color name="inactive">#565656</color>
+    <color name="backgrounds">#000000</color>
+    <color name="liftedBackgrounds">#1D1D1D</color>
+    <color name="invertedBackgrounds">#FFFFFF</color>
+    <color name="invertedLightTextBackgrounds">#ADADAD</color>
+    <color name="invertedLiftedBackgrounds">#A8A8A8</color>
+
+
+    <!-- Primary Colors -->
+    <color name="color_primary">#6200EE</color>
+    <color name="color_primary_dark">#3700B3</color>
+    <color name="color_accent">#03DAC5</color>
+
+    <!-- Neutral Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="gray_light">#D3D3D3</color>
+    <color name="gray">#808080</color>
+    <color name="gray_dark">#404040</color>
+
+    <!-- Red Shades -->
+    <color name="red_light">#FFCDD2</color>
+    <color name="red">#F44336</color>
+    <color name="red_dark">#B71C1C</color>
+
+    <!-- Blue Shades -->
+    <color name="blue_light">#BBDEFB</color>
+    <color name="blue">#1E88E5</color>
+    <color name="blue_dark">#0D47A1</color>
+
+    <!-- Green Shades -->
+    <color name="green_light">#C8E6C9</color>
+    <color name="green">#4CAF50</color>
+    <color name="green_dark">#1B5E20</color>
+
+    <!-- Yellow Shades -->
+    <color name="yellow_light">#FFF9C4</color>
+    <color name="yellow">#FFEB3B</color>
+    <color name="yellow_dark">#F57F17</color>
+
+    <!-- Orange Shades -->
+    <color name="orange_light">#FFE0B2</color>
+    <color name="orange">#FF9800</color>
+    <color name="orange_dark">#E65100</color>
+
+    <!-- Purple Shades -->
+    <color name="purple_light">#E1BEE7</color>
+    <color name="purple">#9C27B0</color>
+    <color name="purple_dark">#4A148C</color>
+
+    <!-- Pink Shades -->
+    <color name="pink_light">#F8BBD0</color>
+    <color name="pink">#E91E63</color>
+    <color name="pink_dark">#880E4F</color>
+
+    <!-- Brown Shades -->
+    <color name="brown_light">#D7CCC8</color>
+    <color name="brown">#795548</color>
+    <color name="brown_dark">#3E2723</color>
+
+    <!-- Cyan Shades -->
+    <color name="cyan_light">#B2EBF2</color>
+    <color name="cyan">#00BCD4</color>
+    <color name="cyan_dark">#006064</color>
+
+    <!-- Teal Shades -->
+    <color name="teal_light">#B2DFDB</color>
+    <color name="teal">#009688</color>
+    <color name="teal_dark">#004D40</color>
+
+    <!-- Miscellaneous -->
+    <color name="amber">#FFC107</color>
+    <color name="indigo">#3F51B5</color>
+    <color name="lime">#CDDC39</color>
+    <color name="deep_orange">#FF5722</color>
+    <color name="deep_purple">#673AB7</color>
+
+    <!-- Transparent Colors -->
+    <color name="transparent">#00000000</color>
+    <color name="semi_transparent">#88000000</color>
+
+</resources>
