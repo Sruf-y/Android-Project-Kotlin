@@ -22,6 +22,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import Adaptors.Utils.Companion.dP
 import Classes_Ojects.alarmViewModel
 import Functions.HideKeyboard
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.compose.ui.platform.ComposeView
 import com.google.android.material.checkbox.MaterialCheckBox
 import java.time.LocalDateTime
@@ -109,7 +111,17 @@ class addAlarmActivity : AppCompatActivity() {
 
 
 
-
+        textedit.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                // Clear focus and hide the keyboard
+                textedit.clearFocus()
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(textedit.windowToken, 0)
+                true // Consume the event
+            } else {
+                false // Let the system handle other actions
+            }
+        }
 
 
 

@@ -18,6 +18,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -28,6 +30,7 @@ fun HideKeyboard(){
     //val keyboardController= LocalSoftwareKeyboardController.current
     var text by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusmanager = LocalFocusManager.current
 
     Column(
         modifier = Modifier
@@ -44,6 +47,7 @@ fun HideKeyboard(){
                 onDone = {
                     // Hide the keyboard when the "Done" action is performed
                     keyboardController?.hide()
+                    focusmanager.clearFocus()
                 }
             ),
             modifier = Modifier.fillMaxWidth()

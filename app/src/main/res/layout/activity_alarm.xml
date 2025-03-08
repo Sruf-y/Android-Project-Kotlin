@@ -44,7 +44,7 @@
 
     <view
         android:id="@+id/floatingActionButton"
-        class="com.example.myapplication2.AccessibleExpandingFAB"
+        class="com.example.composepls.AccessibleExpandingFAB"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:clickable="true"

@@ -3,6 +3,7 @@ package com.example.composepls
 import Adaptors.CustomRecyclerView
 import Adaptors.alarmAdapter
 import Classes_Ojects.alarmViewModel
+import Classes_Ojects.liveNextAlarm
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -18,6 +19,8 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.composepls.ora_am_or_pm
 import com.google.android.material.appbar.AppBarLayout
@@ -25,6 +28,7 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.w3c.dom.Text
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -62,7 +66,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
     private lateinit var appbar: AppBarLayout
     private lateinit var coordinator: CoordinatorLayout
 
-
+    val livenextalarm:liveNextAlarm by viewModels()
 
 
 
@@ -104,10 +108,25 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
         recycleview.adapter?.notifyDataSetChanged()
 
         requireView().findViewById<MaterialCheckBox>(R.id.allcheck).isChecked=false
+
+        exactTimeofIt.text=""
         //defaults
 
 
+        //live data example here
+        livenextalarm.next_alarm_in.observe(viewLifecycleOwner){
+            alarmtime->
 
+            val timewhen=update_main_text(requireView())
+            val formated_time= NextAlarmTextSet(requireView(),timewhen)
+
+            nextAlarm.text=formated_time
+            val formatter = DateTimeFormatter.ofPattern("HH:mm\ndd/MM/yyyy")
+            val formattedDate = timewhen.format(formatter)
+
+            if(timewhen.isAfter(LocalDateTime.now()))
+                exactTimeofIt.text="${formattedDate}"
+        }
 
 
 
@@ -397,6 +416,18 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
         }
         alarmDataList[position].active=bol
+
+
+        // update the big text above
+        val timewhen=update_main_text(requireView())
+        val formated_time= NextAlarmTextSet(requireView(),timewhen)
+
+        nextAlarm.text=formated_time
+        val formatter = DateTimeFormatter.ofPattern("HH:mm\ndd/MM/yyyy")
+        val formattedDate = timewhen.format(formatter)
+
+        if(timewhen.isAfter(LocalDateTime.now()))
+            exactTimeofIt.text="${formattedDate}"
     }
 
 
@@ -440,9 +471,6 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
 
 
-
-
-
         // restores the state of the recyclerview and the collapsing appbar
         recycleview.layoutManager?.onRestoreInstanceState(recycleState)
         appbar.post {
@@ -463,7 +491,9 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
 
         //set the time for main text
+
         update_main_text(requireView())
+
 
 
 
@@ -516,6 +546,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
                         newAllarm.SoundTime
                     )
                 )
+                saveAsJson(requireContext(),"alarm_list", alarmDataList)
             } else // s-a editat o alarma
             {
                 if (editingAlarm >= 0) {
@@ -550,35 +581,22 @@ fun setAllarms(){
 
 }
 
-fun update_main_text(view:View){
-    val nextAlarm:TextView=view.findViewById(R.id.nextAllarm)
-    val right_now:LocalDateTime= LocalDateTime.now()
-    var incoming_alarm_in =right_now.plusDays(365)
+
+
+fun NextAlarmTextSet(view:View,incoming_alarm_in:LocalDateTime):String{
+    val nextalarm:TextView = view.findViewById(R.id.nextAllarm)
     val minitextview:TextView=view.findViewById(R.id.whatexacttime)
+    val right_now=LocalDateTime.now()
+    var setTextPlease=1
 
-    // this refreshes allarms's next sound
-    var setTextPlease: Int = 0
-    if (alarmDataList.size > 0)
+    if(LocalDateTime.now().isAfter(incoming_alarm_in))
+        setTextPlease=0
 
+    var endtext:String="No alarm set."
 
-
-            for (i in alarmDataList.size-1 downTo 0) {
-                alarmDataList[i].SoundTime =
-                    assign_time(alarmDataList[i], alarmDataList[i].type[0] > 10, false)
-
-                Log.i("MYTAG", "Alarm ${i}: ${alarmDataList[i].SoundTime}")
-
-                if (alarmDataList[i].active && alarmDataList[i].SoundTime.isBefore(incoming_alarm_in)) {
-                    incoming_alarm_in = alarmDataList[i].SoundTime
-                    setTextPlease = 1
-                }
-            }
-
-
-    //up to here is the refresh
     if(setTextPlease==0)
     {
-        nextAlarm.text="No alarm set."
+
         minitextview.text=""
     }
     else
@@ -604,13 +622,49 @@ fun update_main_text(view:View){
         if(minutes>0){nextalarmtext+="$minutes minute";track++}
         if(minutes>1){nextalarmtext+="s"}
 
-        nextAlarm.text=nextalarmtext
+        nextalarm.text=nextalarmtext
+        endtext=nextalarmtext
 
-        val formatter = DateTimeFormatter.ofPattern("HH:mm\ndd/MM/yyyy")
-        val formattedDate = incoming_alarm_in.format(formatter)
 
-        minitextview.text="${formattedDate}"
+
+
     }
+    return endtext
+}
+
+fun update_main_text(view:View):LocalDateTime{
+    val nextAlarm:TextView=view.findViewById(R.id.nextAllarm)
+    val right_now:LocalDateTime= LocalDateTime.now()
+    var incoming_alarm_in =right_now.minusDays(1)
+    val minitextview:TextView=view.findViewById(R.id.whatexacttime)
+
+    var nrOfPorniteAlarme=0
+
+    // this refreshes allarms's next sound
+    if (alarmDataList.size > 0) {
+        incoming_alarm_in =right_now.plusDays(365)
+        for (i in alarmDataList.size - 1 downTo 0) {
+            alarmDataList[i].SoundTime =
+                assign_time(alarmDataList[i], alarmDataList[i].type[0] > 10, false)
+
+            Log.i("MYTAG", "Alarm ${i}: ${alarmDataList[i].SoundTime}")
+
+            if (alarmDataList[i].active && alarmDataList[i].SoundTime.isBefore(incoming_alarm_in)) {
+                incoming_alarm_in = alarmDataList[i].SoundTime
+                nrOfPorniteAlarme+=1
+            }
+        }
+    }
+    if(nrOfPorniteAlarme==0)
+    {
+        incoming_alarm_in=LocalDateTime.now()
+    }
+
+
+    //from here on out is the simple setting of the text
+    NextAlarmTextSet(view,incoming_alarm_in)
+
+    return incoming_alarm_in
 
 }
 
