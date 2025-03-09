@@ -27,7 +27,7 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
 
 
     interface OnSwitchListener {
-        fun onSwitch(position: Int,itemviewholder: ItemViewHolder)
+        fun onSwitchPress(position: Int,itemviewholder: ItemViewHolder)
     }
     interface onCardClickListener{
         fun oncardClick(position:Int,itemviewholder: ItemViewHolder)
@@ -321,7 +321,7 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
             }
 
             holder.swich.setOnClickListener {
-                listener.onSwitch(position, holder)
+                listener.onSwitchPress(position, holder)
             }
 
             holder.itemView.setOnClickListener{

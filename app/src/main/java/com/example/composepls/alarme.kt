@@ -74,17 +74,12 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
         super.onViewCreated(view, savedInstanceState)
 
         //set values here
-
         val localContext = requireContext();
         val plusButton: ImageView = requireView().findViewById(R.id.plusButton)
         val optionsButton: ImageView = requireView().findViewById(R.id.optionsButton)
         nextAlarm = requireView().findViewById(R.id.nextAllarm)
         exactTimeofIt = requireView().findViewById(R.id.whatexacttime)
-
         recycleview = requireView().findViewById(R.id.mylist);
-
-
-
         recycleview.layoutManager = LinearLayoutManager(requireContext());
 
         sf = localContext.getSharedPreferences("My SF", MODE_PRIVATE);
@@ -106,9 +101,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
         }
         nrOfChecks=0
         recycleview.adapter?.notifyDataSetChanged()
-
         requireView().findViewById<MaterialCheckBox>(R.id.allcheck).isChecked=false
-
         exactTimeofIt.text=""
         //defaults
 
@@ -232,15 +225,12 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
         // all button
         requireView().findViewById<ConstraintLayout>(R.id.clickAll).setOnClickListener{
-
             requireView().findViewById<MaterialCheckBox>(R.id.allcheck).isChecked=!requireView().findViewById<MaterialCheckBox>(R.id.allcheck).isChecked
-
             nrOfChecks=0
             for(i in 0..<alarmDataList.size)
             {
                 alarmDataList[i].editChecker=requireView().findViewById<MaterialCheckBox>(R.id.allcheck).isChecked
                 nrOfChecks+= alarmDataList[i].editChecker.toInt()
-
             }
             recycleview.adapter?.notifyDataSetChanged()
         }
@@ -402,7 +392,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
     }
 
     // switch from active to inactive allarm
-    override fun onSwitch(position: Int,view: alarmAdapter.ItemViewHolder) {
+    override fun onSwitchPress(position: Int,view: alarmAdapter.ItemViewHolder) {
         val bol:Boolean = view.swich.isChecked
         if (bol ==true){
             view.timp.setTextColor(requireContext().getColor(R.color.white))

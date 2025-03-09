@@ -15,8 +15,8 @@ data class alarmViewModel(
     var minute: Int = 0,
     var aM: String = "AM",
     var active: Boolean = true,
-    var type: ArrayList<Int> = ArrayList<Int>(15).apply { repeat(15) { add(0) }; this[8]=LocalDateTime.now().dayOfMonth;this[9]=LocalDateTime.now().month.value;this[10]=LocalDateTime.now().year },
-    var properties: ArrayList<String> = ArrayList<String>(5).apply { repeat(5) { add("") } },
+    var type: ArrayList<Int> = ArrayList<Int>(15).apply { repeat(12) { add(0) }; this[8]=LocalDateTime.now().dayOfMonth;this[9]=LocalDateTime.now().month.value;this[10]=LocalDateTime.now().year },
+    var properties: ArrayList<String> = ArrayList<String>(5).apply { repeat(6) { add("") } },
     var editChecker: Boolean = false,
     var SoundTime: LocalDateTime // This is the only required parameter
 ) : Serializable
@@ -29,9 +29,7 @@ class liveNextAlarm:ViewModel(){
     val next_alarm_in:LiveData<LocalDateTime>
         get()=_next_alarm
 
-    fun updateAlarmTime(newtime:LocalDateTime){
-        _next_alarm.value=newtime
-    }
+
 
     private val handler = Handler(Looper.getMainLooper())
 
