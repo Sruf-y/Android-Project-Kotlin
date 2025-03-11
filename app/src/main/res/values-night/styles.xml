@@ -53,4 +53,13 @@
     <style name="BottomNavBar_ActiveIndicator">
         <item name="android:background">@color/invertedBackgrounds</item>
     </style>
+
+    <style name="roundedImageViewRounded">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="BotofanTextStyle">
+        <item name="android:textColor">@color/invertedLiftedBackgrounds</item>
+    </style>
 </resources>

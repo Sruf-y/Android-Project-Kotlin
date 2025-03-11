@@ -5,13 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.snackbar.Snackbar
 import android.app.ActivityOptions
 import android.content.Context
 import android.content.SharedPreferences
@@ -22,26 +19,13 @@ import android.provider.Settings
 import android.transition.TransitionInflater
 import android.view.View
 import android.view.Window
-import android.view.WindowInsets
-import android.view.WindowInsetsAnimation
-import android.view.WindowInsetsAnimationController
-import android.view.WindowInsetsController
-import android.view.animation.Animation
-import android.window.OnBackInvokedDispatcher
 import androidx.activity.addCallback
+import androidx.annotation.NavigationRes
 import androidx.annotation.RequiresApi
-import androidx.appcompat.view.WindowCallbackWrapper
 import androidx.appcompat.widget.Toolbar
-import androidx.compose.ui.util.lerp
-import androidx.core.content.ContextCompat
-import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.math.MathUtils.lerp
-import com.google.android.material.search.SearchView.Behavior
 
 
 @TargetApi(33)
@@ -69,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        setBarToSwipeUp(window)
+        setSystemBarToSwipeUp(window)
         adjustViewsForKeyboard(navBar);
 
 
@@ -120,7 +104,7 @@ class MainActivity : AppCompatActivity() {
             }
             else
             {
-                onBackPressedDispatcher.onBackPressed()
+                finish();
             }
 
         }
@@ -212,7 +196,7 @@ class MainActivity : AppCompatActivity() {
 
 
 @RequiresApi(Build.VERSION_CODES.R)
-fun setBarToSwipeUp(window:Window){
+fun setSystemBarToSwipeUp(window:Window){
     //val imecontroller = this.window.insetsController
     //imecontroller?.systemBarsBehavior
 

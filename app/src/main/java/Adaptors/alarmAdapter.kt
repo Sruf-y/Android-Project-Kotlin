@@ -16,6 +16,9 @@ import androidx.recyclerview.widget.RecyclerView
 import Adaptors.Utils.Companion.dP
 import com.example.composepls.R
 import Classes_Ojects.alarmViewModel
+import android.view.animation.LinearInterpolator
+
+
 import com.example.composepls.doingselection
 import com.example.composepls.toBool
 import com.google.android.material.checkbox.MaterialCheckBox
@@ -155,7 +158,7 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
                 holder.isTimed.visibility=View.INVISIBLE
             }
 
-            
+
 
 
 
@@ -195,103 +198,117 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
             when(doingselection)
             {
                 0->{
-                    holder.mySelector.isChecked=itemCard.editChecker
-                    holder.mySelector.translationX=-34.dP.toFloat()
-                    holder.swich.translationX=0.dP.toFloat()
-                    holder.timp.translationX=0.dP.toFloat()
-                    holder.title.translationX=0.dP.toFloat()
-                    holder.am.translationX=0.dP.toFloat()
-                    holder.days.translationX=0.dP.toFloat()
+
+                    //needs defaults
+
+                    holder.mySelector.isChecked = itemCard.editChecker
+                    holder.mySelector.translationX = -34.dP.toFloat()
+                    holder.swich.translationX = 0.dP.toFloat()
+                    holder.timp.translationX = 0.dP.toFloat()
+                    holder.title.translationX = 0.dP.toFloat()
+                    holder.am.translationX = 0.dP.toFloat()
+                    holder.days.translationX = 0.dP.toFloat()
+
 
 
                 }
                 1->{
-                    holder.timp.animate()
-                        .setDuration(200)
-                        .translationX(34.dP.toFloat())
-                        .apply {}
-                        .start()
 
-                    holder.title.animate()
-                        .setDuration(200)
-                        .translationX(34.dP.toFloat())
-                        .apply {}
-                        .start()
+                        holder.timp.animateLinearMovement(
+                            holder.timp,
+                            34.dP.toFloat(),
+                            null,
+                            200,
+                            0
+                        )
 
-                    holder.am.animate()
-                        .setDuration(200)
-                        .translationX(34.dP.toFloat())
-                        .apply {}
-                        .start()
+                        holder.title.animateLinearMovement(
+                            holder.title,
+                            34.dP.toFloat(),
+                            null,
+                            200,
+                            0
+                        )
 
-                    holder.swich.animate()
-                        .setDuration(200)
-                        .translationX(80.dP.toFloat())
-                        .apply {
+                        holder.am.animateLinearMovement(holder.am, 34.dP.toFloat(), null, 200, 0)
 
-                    }.start()
 
-                    holder.mySelector.fadeIn()
-                    holder.mySelector.animate()
-                        .setDuration(200)
-                        .translationX(0.dP.toFloat())
-                        .apply {}
-                        .start()
+                        holder.swich.animateLinearMovement(
+                            holder.swich,
+                            80.dP.toFloat(),
+                            null,
+                            200,
+                            -1
+                        )
 
-                    holder.days.animate()
-                        .setDuration(200)
-                        .translationX(55.dP.toFloat())
-                        .apply {}
-                        .start()
+
+                        holder.mySelector.animateLinearMovement(
+                            holder.mySelector,
+                            0.dP.toFloat(),
+                            null,
+                            200,
+                            1
+                        )
+
+
+                        holder.days.animateLinearMovement(
+                            holder.days,
+                            55.dP.toFloat(),
+                            null,
+                            200,
+                            0
+                        )
 
 
                 }
+                423421->{
+                    //do nothing, you're in a state already
+
+                    holder.mySelector.isChecked = itemCard.editChecker
+                    holder.mySelector.translationX = 0.dP.toFloat()
+                    holder.swich.translationX = 80.dP.toFloat()
+                    holder.timp.translationX = 34.dP.toFloat()
+                    holder.title.translationX = 34.dP.toFloat()
+                    holder.am.translationX = 34.dP.toFloat()
+                    holder.days.translationX = 55.dP.toFloat()
+                }
+
                 2->{
-                    holder.timp.animate()
-                        .setDuration(200)
-                        .translationX(0.dP.toFloat())
-                        .apply {}
-                        .start()
 
-                    holder.title.animate()
-                        .setDuration(200)
-                        .translationX(0.dP.toFloat())
-                        .apply {}
-                        .start()
-
-                    holder.am.animate()
-                        .setDuration(200)
-                        .translationX(0.dP.toFloat())
-                        .apply {}
-                        .start()
+                        holder.timp.animateLinearMovement(holder.timp, 0.dP.toFloat(), null, 200, 0)
 
 
-                    holder.swich.animate()
-                        .setDuration(200)
-                        .translationX(0.dP.toFloat())
-                        .apply {}
-                        .start()
-
-                    holder.mySelector.fadeOut()
-                    holder.mySelector.animate()
-                        .setDuration(200)
-                        .translationX(-34.dP.toFloat())
-                        .apply {
-
-                        }
-                        .start()
-
-                    holder.days.animate()
-                        .translationX(0.dP.toFloat())
-                        .setDuration(200)
-                        .apply{}
-                        .start()
+                        holder.title.animateLinearMovement(
+                            holder.title,
+                            0.dP.toFloat(),
+                            null,
+                            200,
+                            0
+                        )
 
 
+                        holder.am.animateLinearMovement(holder.am, 0.dP.toFloat(), null, 200, 0)
 
-                    mList[position].editChecker=false
-                    holder.mySelector.isChecked=false
 
+                        holder.swich.animateLinearMovement(
+                            holder.swich,
+                            0.dP.toFloat(),
+                            null,
+                            200,
+                            1
+                        )
+
+
+                        holder.mySelector.animateLinearMovement(
+                            holder.mySelector,
+                            -34.dP.toFloat(),
+                            null,
+                            200,
+                            -1
+                        )
+
+
+                        holder.days.animateLinearMovement(holder.days, 0.dP.toFloat(), null, 200, 0)
 
 
                 }
@@ -372,6 +389,7 @@ class Utils {
 }
 
 
+
 fun View.fadeOut(duration: Long = 100) {
     animate()
         .alpha(0f) // Fade out to 0 opacity
@@ -379,6 +397,7 @@ fun View.fadeOut(duration: Long = 100) {
         .withEndAction {
             this.visibility = View.GONE // Optional: Hide the view after fade-out
         }
+        .start()
 }
 
 fun View.fadeIn(duration:Long=100)
@@ -389,4 +408,95 @@ fun View.fadeIn(duration:Long=100)
         .withEndAction{
             this.visibility=View.VISIBLE
         }
+        .start()
+}
+
+fun View.animateTransition(x_or_null:Float?=null, y_or_null: Float? =null,duration:Long=100)
+{
+    animate()
+        .setDuration(duration)
+        .apply {
+            var a=0;
+            if(x_or_null!=null)
+            {
+                a+=1;
+            }
+            if(y_or_null!=null)
+            {
+                a+=10
+            }
+
+
+            when(a){
+                0->{}
+                1->{
+                    this.translationX(x_or_null as Float)
+                }
+                10->{
+                    this.translationX(y_or_null as Float)
+                }
+                11->{
+                    this.translationX(x_or_null as Float)
+                    this.translationY(y_or_null as Float)
+                }
+                else->{}
+            }
+            this.setDuration(duration)
+        }
+        .start()
+
+}
+
+fun View.animateLinearMovement(view:View,x_or_null:Float?=null, y_or_null: Float? =null,duration:Long=100,fade_in_out_0:Int=0)
+{
+    animate()
+        .setDuration(duration)
+        .apply {
+            var a=0;
+            if(x_or_null!=null)
+            {
+                a+=1;
+            }
+            if(y_or_null!=null)
+            {
+                a+=10
+            }
+
+
+            when(a){
+                0->{}
+                1->{
+                    this.translationX(x_or_null as Float)
+                }
+                10->{
+                    this.translationY(y_or_null as Float)
+                }
+                11->{
+                    this.translationX(x_or_null as Float)
+                    this.translationY(y_or_null as Float)
+                }
+                else->{}
+            }
+
+            if(fade_in_out_0>0)
+            {
+                this.alpha(1F)
+                this.withEndAction{
+                    view.visibility=View.VISIBLE
+                }
+
+
+            }
+            else if(fade_in_out_0<0)
+            {
+                this.alpha(0F)
+                this.withEndAction {
+                    view.visibility = View.INVISIBLE // or View.GONE
+                }
+            }
+
+        }
+
+        .start()
+
 }

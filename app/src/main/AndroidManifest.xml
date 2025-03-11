@@ -27,7 +27,6 @@
         <activity
             android:name=".addAlarmActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"
             android:exported="false" />
 
         <receiver

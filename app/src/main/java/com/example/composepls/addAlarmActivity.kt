@@ -68,11 +68,11 @@ class addAlarmActivity : AppCompatActivity() {
         //setBarToSwipeUp(window)
         //adjustViewsForKeyboard(wherebuttonsarea)
 
-        val composeview:ComposeView = findViewById(R.id.thing2inscroller)
-
-        composeview.setContent {
-            HideKeyboard()
-        }
+//        val composeview:ComposeView = findViewById(R.id.thing2inscroller)
+//
+//        composeview.setContent {
+//            HideKeyboard()
+//        }
 
 
 
@@ -146,6 +146,8 @@ class addAlarmActivity : AppCompatActivity() {
             hourPicker.value=6
             minutePicker.value=0
             amPicker.value=0
+
+            is_delayed.visibility=View.INVISIBLE
             is_delayed.isChecked=false
             is_delayed.isEnabled=false
 
@@ -190,6 +192,7 @@ class addAlarmActivity : AppCompatActivity() {
 
             // load the delay if there is any
             if(newAllarm.type[0]>10){
+                is_delayed.visibility=View.VISIBLE
                 is_delayed.isEnabled=true
                 is_delayed.isChecked=true
 
@@ -243,9 +246,6 @@ class addAlarmActivity : AppCompatActivity() {
             else if(checknumber==0) // one time only
             {
                 newAllarm.type[0]=1
-
-
-
             }
             else // chosen days
             {
@@ -261,7 +261,6 @@ class addAlarmActivity : AppCompatActivity() {
             if(is_delayed.isChecked)
             {
                 newAllarm.type[0]+=10
-
             }
 
 
@@ -278,6 +277,7 @@ class addAlarmActivity : AppCompatActivity() {
 
         calendar_click.setOnClickListener{
 
+            is_delayed.visibility=View.VISIBLE
             is_delayed.isEnabled=true
             is_delayed.isChecked=true
 
@@ -311,11 +311,12 @@ class addAlarmActivity : AppCompatActivity() {
 
         calendar_background.setOnClickListener {
 
+            is_delayed.visibility=View.VISIBLE
             is_delayed.isEnabled=true
             is_delayed.isChecked=true
 
             calendar_background.animate()
-                .translationY(700.dP.toFloat()) // Animate to this position
+                .translationY(800.dP.toFloat()) // Animate to this position
                 .setDuration(300) // Set duration to 2 seconds
                 .start()
 
@@ -327,6 +328,7 @@ class addAlarmActivity : AppCompatActivity() {
             newAllarm.type[9]=month+1
             newAllarm.type[10]=year
 
+            is_delayed.visibility=View.VISIBLE
             is_delayed.isEnabled=true
             is_delayed.isChecked=true
             selected_a_new_day=1
@@ -336,7 +338,10 @@ class addAlarmActivity : AppCompatActivity() {
         }
 
         is_delayed.setOnClickListener{
+
             is_delayed.isEnabled=false
+            is_delayed.visibility=View.INVISIBLE
+
             selected_a_new_day=-1
 
             val today=LocalDateTime.now()
@@ -361,8 +366,6 @@ class addAlarmActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback() {
             // Handle the back press
 
-
-
             if (calendar_background.translationY == 0.dP.toFloat()) {
 
                 val tomorrow = LocalDateTime.now()
@@ -377,6 +380,7 @@ class addAlarmActivity : AppCompatActivity() {
                     newAllarm.type[10] = tomorrow.year
                 }
 
+                is_delayed.visibility=View.VISIBLE
                 is_delayed.isEnabled = true
                 is_delayed.isChecked = true
 
@@ -384,13 +388,20 @@ class addAlarmActivity : AppCompatActivity() {
                     .translationY(700.dP.toFloat()) // Animate to this position
                     .setDuration(300) // Set duration to 2 seconds
                     .start()
-            } else {
+            }
+            else if(currentFocus!=null){
+                //this deletes focus if anything has it
+                val aux:View = currentFocus as View
+                aux.clearFocus()
+            }
+            else{
                 checkZileleSaptamanii()
                 newAllarm.SoundTime=assign_time(newAllarm,is_delayed.isChecked,true)
                 // Allow the system to handle the back press
                 finish()
             }
         }
+
 
 
 

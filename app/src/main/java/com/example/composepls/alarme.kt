@@ -108,7 +108,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
         //live data example here
         livenextalarm.next_alarm_in.observe(viewLifecycleOwner){
-            alarmtime->
+                alarmtime->
 
             val timewhen=update_main_text(requireView())
             val formated_time= NextAlarmTextSet(requireView(),timewhen)
@@ -151,7 +151,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
             doingselection=0
             nrOfChecks=0
             setFab(false)
-        val intent = Intent(requireContext(), addAlarmActivity::class.java)
+            val intent = Intent(requireContext(), addAlarmActivity::class.java)
             startActivity(intent);
         }
         optionsButton.setOnClickListener{
@@ -478,7 +478,10 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
         //updates the list if an alarm has been added
         checkReturnFromAddAlarm()
 
-
+        for(i in alarmDataList)
+        {
+            i.editChecker=false
+        }
 
         //set the time for main text
 
