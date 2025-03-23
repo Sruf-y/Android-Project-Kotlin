@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:color="#9E9E9E"
-    android:effectColor="@color/transparent">
+    android:radius="200dp"
+    >
 
 
 
     <!-- Content background -->
-    <item>
+    <item android:id="@+id/mask">
         <shape>
             <corners android:radius="13dp" />
             <solid android:color="@color/liftedBackgrounds" />
         </shape>
     </item>
+
 </ripple>

@@ -284,17 +284,7 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
 
 
                 }
-                423421->{
-                    //do nothing, you're in a state already
 
-                    holder.mySelector.isChecked = itemCard.editChecker
-                    holder.mySelector.translationX = 0.dP.toFloat()
-                    holder.swich.translationX = 80.dP.toFloat()
-                    holder.timp.translationX = 34.dP.toFloat()
-                    holder.title.translationX = 34.dP.toFloat()
-                    holder.am.translationX = 34.dP.toFloat()
-                    holder.days.translationX = 55.dP.toFloat()
-                }
 
                 2->{
 
