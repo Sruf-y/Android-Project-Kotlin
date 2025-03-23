@@ -33,14 +33,6 @@ class AlarmActivity : AppCompatActivity(),AccessibleExpandingFAB.OnActivationSta
         fab.setOnActivationStateChangedListener(this)
 
 
-
-
-
-
-
-
-
-
     }
 
     override fun onActivationStateChanged(isActivated: Boolean) {

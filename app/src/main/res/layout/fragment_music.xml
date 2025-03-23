@@ -22,7 +22,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.075"
         app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
-        tools:srcCompat="@drawable/outline_error_outline_24" />
+        tools:srcCompat="@drawable/outline_error_outline_24"
+        tools:visibility="gone" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="336dp"
@@ -31,8 +32,7 @@
         android:backgroundTint="#878787"
         android:elevation="30dp"
         tools:layout_editor_absoluteX="11dp"
-        tools:layout_editor_absoluteY="102dp"
-        tools:visibility="gone">
+        tools:layout_editor_absoluteY="102dp">
 
         <TextView
             android:id="@+id/textView2"
@@ -95,8 +95,7 @@
         app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
         tools:layout_editor_absoluteX="174dp"
         tools:layout_editor_absoluteY="226dp"
-        tools:srcCompat="@drawable/outline_notifications_24"
-        tools:visibility="gone" />
+        tools:srcCompat="@tools:sample/avatars" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="213dp"
@@ -148,7 +147,8 @@
         android:textColor="#FF0303"
         android:textSize="34sp"
         tools:layout_editor_absoluteX="70dp"
-        tools:layout_editor_absoluteY="217dp" />
+        tools:layout_editor_absoluteY="217dp"
+        tools:visibility="gone" />
 
     <TextView
         android:id="@+id/textView7"
@@ -159,5 +159,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="295dp" />
+        tools:layout_editor_absoluteY="295dp"
+        tools:visibility="gone" />
 </androidx.constraintlayout.widget.ConstraintLayout>

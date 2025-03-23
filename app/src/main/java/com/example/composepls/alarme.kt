@@ -19,15 +19,19 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.composepls.ora_am_or_pm
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.delay
 import org.w3c.dom.Text
 import java.io.File
 import java.time.LocalDateTime
@@ -40,6 +44,7 @@ var editingAlarm:Int=-1//which alarm i'm editing
 
 var doingselection:Int =0 // 0=default, before starting selection, 1= doing selection in proccess, 3= stop selection->0
 var nrOfChecks=0;//the 2 values for checking and unchecking allarms when editing one or more
+var doingSelection2:Boolean=false
 
 var sharedString:String =""
 var alarmDataList = ArrayList<alarmViewModel>();
@@ -72,6 +77,10 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        val displayList:ArrayList<alarmViewModel> =ArrayList<alarmViewModel>()
+        displayList.addAll(ArrayList(alarmDataList))
 
         //set values here
         val localContext = requireContext();
@@ -236,6 +245,23 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
         }
 
 
+
+
+        val swiperefreshlayout:SwipeRefreshLayout=requireView().findViewById(R.id.SwipeRefresh)
+
+        swiperefreshlayout.setOnRefreshListener {
+            displayList.clear()
+            displayList.addAll(ArrayList(alarmDataList))
+            alarmDataList.clear()
+            alarmDataList.addAll(ArrayList(displayList))
+
+            recycleview.adapter!!.notifyDataSetChanged()
+
+            swiperefreshlayout.isRefreshing=false
+
+
+        }
+
     }
 
 
@@ -252,6 +278,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
     }
 
     override fun onCardLongPress(position: Int, view: alarmAdapter.ItemViewHolder) {
+
 
 
         if (alarmDataList[position].editChecker) {
@@ -286,7 +313,11 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
                 // Transition from doingselection == 0 to doingselection == 1
                 setFab(true) // Enable FAB
                 doingselection = 1
+
+
                 recycleview.adapter?.notifyDataSetChanged()
+
+
             }
             else
             {
@@ -296,7 +327,9 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
             if (nrOfChecks > 0) {
                 // Update the specific item that changed
                 setFab(true) // Keep FAB enabled
+                doingSelection2=true
                 recycleview.adapter?.notifyItemChanged(position)
+
             } else {
                 // termin selectia
                 requireView().findViewById<TextView>(R.id.textAlarms).visibility=View.VISIBLE
@@ -308,13 +341,16 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
                 setFab(false) // Disable FAB
                 doingselection = 2 // Intermediate state
                 recycleview.adapter?.notifyDataSetChanged()
+
+
+                doingSelection2=false
             }
         }
 
 
-
-
-
+        // setarea culorii din afara adaptorului, este posibil!
+        //view.card.background= ContextCompat.getDrawable(view.itemView.context, R.color.blue)
+        //recycleview.adapter?.notifyItemChanged(position)
 
 
 
@@ -366,6 +402,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
             if (nrOfChecks > 0) {
                 // Update the specific item that changed
                 setFab(true) // Keep FAB enabled
+                doingSelection2=true
                 recycleview.adapter?.notifyItemChanged(position)
             } else {
                 // termin selectia
@@ -379,6 +416,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
                 // No checks, retract and reset to doingselection == 0
                 setFab(false) // Disable FAB
                 doingselection = 2 // Intermediate state
+                doingSelection2=false
                 recycleview.adapter?.notifyDataSetChanged()
 
             }

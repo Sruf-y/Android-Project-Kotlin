@@ -10,16 +10,19 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import Adaptors.Utils.Companion.dP
 import com.example.composepls.R
 import Classes_Ojects.alarmViewModel
-import android.view.animation.LinearInterpolator
+import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.example.composepls.alarmDataList
+import com.example.composepls.doingSelection2
 
 
 import com.example.composepls.doingselection
+
 import com.example.composepls.toBool
 import com.google.android.material.checkbox.MaterialCheckBox
 
@@ -99,8 +102,16 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
 
+
+
         if (holder is ItemViewHolder) {
             val itemCard = mList[position]
+
+
+
+
+
+
 
             var timptext:String=itemCard.ora.toString()
             if(itemCard.ora==0){
@@ -193,7 +204,8 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
 
 
 
-
+            if(doingselection==2)
+                holder.card.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.alarm_background)
 
             when(doingselection)
             {
@@ -214,6 +226,7 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
                 }
                 1->{
 
+                    if(!doingSelection2) {
                         holder.timp.animateLinearMovement(
                             holder.timp,
                             34.dP.toFloat(),
@@ -258,6 +271,16 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
                             200,
                             0
                         )
+                    }
+                    else{
+                        holder.mySelector.isChecked = itemCard.editChecker
+                        holder.mySelector.translationX = 0.dP.toFloat()
+                        holder.swich.translationX = 80.dP.toFloat()
+                        holder.timp.translationX = 34.dP.toFloat()
+                        holder.title.translationX = 34.dP.toFloat()
+                        holder.am.translationX = 34.dP.toFloat()
+                        holder.days.translationX = 55.dP.toFloat()
+                    }
 
 
                 }
