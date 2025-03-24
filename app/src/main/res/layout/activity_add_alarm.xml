@@ -208,9 +208,12 @@
                                         android:backgroundTintMode="screen"
                                         android:clickable="true"
                                         android:padding="9dp"
+                                        app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
                                         app:layout_constraintEnd_toEndOf="parent"
                                         app:layout_constraintHorizontal_bias="1.0"
                                         app:layout_constraintStart_toStartOf="parent"
+                                        app:layout_constraintTop_toTopOf="parent"
+                                        app:layout_constraintVertical_bias="0.0"
                                         app:srcCompat="@drawable/rounded_calendar_month_24" />
 
                                     <TextView
@@ -227,19 +230,6 @@
                                         app:layout_constraintStart_toStartOf="parent"
                                         app:layout_constraintTop_toTopOf="parent"
                                         app:layout_constraintVertical_bias="0.051" />
-
-                                    <Switch
-                                        android:id="@+id/is_timed_alarm"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:enabled="false"
-                                        android:thumb="@drawable/switch_thumb"
-                                        android:track="@drawable/switch_track"
-                                        app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
-                                        app:layout_constraintEnd_toStartOf="@+id/calendarClick"
-                                        app:layout_constraintStart_toEndOf="@+id/textView"
-                                        app:layout_constraintTop_toTopOf="parent"
-                                        app:layout_constraintVertical_bias="0.31" />
 
                                 </androidx.constraintlayout.widget.ConstraintLayout>
 

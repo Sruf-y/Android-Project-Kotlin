@@ -22,8 +22,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import Adaptors.Utils.Companion.dP
 import Classes_Ojects.alarmViewModel
 import Functions.HideKeyboard
+import android.content.res.ColorStateList
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
 import com.google.android.material.checkbox.MaterialCheckBox
 import java.time.LocalDateTime
@@ -46,7 +48,6 @@ class addAlarmActivity : AppCompatActivity() {
     lateinit var calendar_background:ConstraintLayout
     lateinit var calendar: CalendarView
     lateinit var calendar_click: ImageView
-    lateinit var is_delayed: Switch
 
     lateinit var saveButton:Button
     lateinit var cancelButton:Button
@@ -97,7 +98,6 @@ class addAlarmActivity : AppCompatActivity() {
         calendar=findViewById(R.id.calendarView)
         calendar_background=findViewById(R.id.calend_back)
         calendar_click=findViewById(R.id.calendarClick)
-        is_delayed=findViewById(R.id.is_timed_alarm)
 
 
 //        val auxbutton:Button = findViewById(R.id.newbuttondeletelater)
@@ -148,9 +148,11 @@ class addAlarmActivity : AppCompatActivity() {
             minutePicker.value=0
             amPicker.value=0
 
-            is_delayed.visibility=View.INVISIBLE
-            is_delayed.isChecked=false
-            is_delayed.isEnabled=false
+            // delay off
+            calendar_click.backgroundTintList= ColorStateList.valueOf(getColor(R.color.liftedBackgrounds))
+
+
+
 
 
         }
@@ -193,19 +195,19 @@ class addAlarmActivity : AppCompatActivity() {
 
             // load the delay if there is any
             if(newAllarm.type[0]>10){
-                is_delayed.visibility=View.VISIBLE
-                is_delayed.isEnabled=true
-                is_delayed.isChecked=true
+
+
+
 
                 calendar.minDate=Calendar.getInstance().timeInMillis
                 val cal_aux=Calendar.getInstance()
                 cal_aux.set(newAllarm.SoundTime.year,newAllarm.SoundTime.monthValue-1, newAllarm.SoundTime.dayOfMonth)
                 calendar.date = cal_aux.timeInMillis
 
-
+                calendar_click.backgroundTintList=ColorStateList.valueOf(getColor(R.color.activated))
             }
             else{ // alarma fara delay
-                is_delayed.visibility=View.INVISIBLE
+                ColorStateList.valueOf(getColor(R.color.liftedBackgrounds))
             }
 
 
@@ -215,12 +217,12 @@ class addAlarmActivity : AppCompatActivity() {
         }
 
         checkZileleSaptamanii()
-        newAllarm.SoundTime= assign_time(newAllarm,is_delayed.isChecked,true)
+        newAllarm.SoundTime= assign_time(newAllarm,calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)),true)
 
         cancelButton.setOnClickListener{
             newAllarm.type[11]=-1
             checkZileleSaptamanii()
-            newAllarm.SoundTime=assign_time(newAllarm,is_delayed.isChecked,true)
+            newAllarm.SoundTime=assign_time(newAllarm,calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)),true)
             finish()
         }
 
@@ -262,7 +264,7 @@ class addAlarmActivity : AppCompatActivity() {
 
 
             // save delay
-            if(is_delayed.isChecked)
+            if(calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)))
             {
                 newAllarm.type[0]+=10
             }
@@ -273,51 +275,102 @@ class addAlarmActivity : AppCompatActivity() {
             else
                 newAllarm.properties[0]=""
             checkZileleSaptamanii()
-            newAllarm.SoundTime=assign_time(newAllarm,is_delayed.isChecked,true)
+            newAllarm.SoundTime=assign_time(newAllarm,calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)),true)
 
 
             finish()
         }
 
-        calendar_click.setOnClickListener{
+        fun Activate_CalendarClick(){
+            calendar_click.backgroundTintList=ColorStateList.valueOf(getColor(R.color.activated))
 
-            is_delayed.visibility=View.VISIBLE
-            is_delayed.isEnabled=true
-            is_delayed.isChecked=true
-
-            selected_a_new_day=0
-            val tomorrow= Calendar.getInstance();
+            selected_a_new_day = 0
+            val tomorrow = Calendar.getInstance();
 
 
 
 
-            calendar.minDate=tomorrow.timeInMillis
+            calendar.minDate = tomorrow.timeInMillis
 
-            if(newAllarm.type[0]>10){
+            if (newAllarm.type[0] > 10) {
 
 
-
-                val cal_aux=Calendar.getInstance()
-                calendar.minDate=Calendar.getInstance().timeInMillis
-                cal_aux.set(newAllarm.SoundTime.year,newAllarm.SoundTime.month.value-1, newAllarm.SoundTime.dayOfMonth)
+                val cal_aux = Calendar.getInstance()
+                calendar.minDate = Calendar.getInstance().timeInMillis
+                cal_aux.set(
+                    newAllarm.SoundTime.year,
+                    newAllarm.SoundTime.month.value - 1,
+                    newAllarm.SoundTime.dayOfMonth
+                )
                 calendar.date = cal_aux.timeInMillis
 
             }
 
-            calendar_background.animate()
-                .translationY(0.dP.toFloat())
-                .setDuration(300)
-                .start()
 
 
+        }
+        fun Deactivate_CalendarClick(){
+            calendar_click.backgroundTintList=ColorStateList.valueOf(getColor(R.color.liftedBackgrounds))
+
+            selected_a_new_day = -1
+
+            val today = LocalDateTime.now()
+            newAllarm.type[8] = today.dayOfMonth
+            newAllarm.type[9] = today.monthValue
+            newAllarm.type[10] = today.year
+
+            newAllarm.ora = hourPicker.value
+            newAllarm.minute = minutePicker.value
+            if (amPicker.value == 0)
+                newAllarm.aM = "AM"
+            else
+                newAllarm.aM = "PM"
+
+            checkZileleSaptamanii()
+            assign_time(
+                newAllarm,
+                calendar_click.backgroundTintList == ColorStateList.valueOf(getColor(R.color.liftedBackgrounds)),
+                false
+            )
+        }
+
+        calendar_click.setOnClickListener{
+
+            if(calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated))) {
+
+                calendar_background.animate()
+                    .translationY(0.dP.toFloat())
+                    .setDuration(300)
+                    .start()
+            }
+            else {
+
+                Activate_CalendarClick()
+
+                calendar_background.animate()
+                    .translationY(0.dP.toFloat())
+                    .setDuration(300)
+                    .start()
+
+            }
+
+        }
+        calendar_click.setOnLongClickListener {
+
+            if(calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated))) {
+                Deactivate_CalendarClick()
+
+                Toast.makeText(this,"Delay off",Toast.LENGTH_SHORT).show()
+            }
+
+
+            true
         }
 
 
         calendar_background.setOnClickListener {
 
-            is_delayed.visibility=View.VISIBLE
-            is_delayed.isEnabled=true
-            is_delayed.isChecked=true
+            calendar_click.backgroundTintList=ColorStateList.valueOf(getColor(R.color.activated))
 
             calendar_background.animate()
                 .translationY(800.dP.toFloat()) // Animate to this position
@@ -332,38 +385,14 @@ class addAlarmActivity : AppCompatActivity() {
             newAllarm.type[9]=month+1
             newAllarm.type[10]=year
 
-            is_delayed.visibility=View.VISIBLE
-            is_delayed.isEnabled=true
-            is_delayed.isChecked=true
+            calendar_click.backgroundTintList=ColorStateList.valueOf(getColor(R.color.activated))
             selected_a_new_day=1
 
 
 
         }
 
-        is_delayed.setOnClickListener{
 
-            is_delayed.isEnabled=false
-            is_delayed.visibility=View.INVISIBLE
-
-            selected_a_new_day=-1
-
-            val today=LocalDateTime.now()
-            newAllarm.type[8] = today.dayOfMonth
-            newAllarm.type[9] = today.monthValue
-            newAllarm.type[10] = today.year
-
-            newAllarm.ora= hourPicker.value
-            newAllarm.minute= minutePicker.value
-            if(amPicker.value==0)
-                newAllarm.aM="AM"
-            else
-                newAllarm.aM="PM"
-
-            checkZileleSaptamanii()
-            assign_time(newAllarm,is_delayed.isChecked,false)
-
-        }
 
 
 
@@ -374,7 +403,7 @@ class addAlarmActivity : AppCompatActivity() {
 
                 val tomorrow = LocalDateTime.now()
 
-                if(is_delayed.isChecked)
+                if(calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)))
                 {
                     selected_a_new_day=1
                 }
@@ -384,9 +413,7 @@ class addAlarmActivity : AppCompatActivity() {
                     newAllarm.type[10] = tomorrow.year
                 }
 
-                is_delayed.visibility=View.VISIBLE
-                is_delayed.isEnabled = true
-                is_delayed.isChecked = true
+                calendar_click.backgroundTintList=ColorStateList.valueOf(getColor(R.color.activated))
 
                 calendar_background.animate()
                     .translationY(700.dP.toFloat()) // Animate to this position
@@ -400,7 +427,7 @@ class addAlarmActivity : AppCompatActivity() {
             }
             else{
                 checkZileleSaptamanii()
-                newAllarm.SoundTime=assign_time(newAllarm,is_delayed.isChecked,true)
+                newAllarm.SoundTime=assign_time(newAllarm,calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)),true)
                 // Allow the system to handle the back press
                 finish()
             }
@@ -454,7 +481,7 @@ class addAlarmActivity : AppCompatActivity() {
             else->newAllarm.type[0]=2
         }
 
-        if(is_delayed.isChecked)
+        if(calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)))
             newAllarm.type[0]+=10
 
         return checknumber
