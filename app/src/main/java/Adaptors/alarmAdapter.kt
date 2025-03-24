@@ -251,7 +251,7 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
                             80.dP.toFloat(),
                             null,
                             200,
-                            -1
+                            0
                         )
 
 
@@ -260,7 +260,7 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
                             0.dP.toFloat(),
                             null,
                             200,
-                            1
+                            0
                         )
 
 
@@ -308,7 +308,7 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
                             0.dP.toFloat(),
                             null,
                             200,
-                            1
+                            0
                         )
 
 
@@ -317,7 +317,7 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
                             -34.dP.toFloat(),
                             null,
                             200,
-                            -1
+                            0
                         )
 
 

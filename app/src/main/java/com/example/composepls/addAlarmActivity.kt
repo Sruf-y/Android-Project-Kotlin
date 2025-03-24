@@ -99,6 +99,7 @@ class addAlarmActivity : AppCompatActivity() {
         calendar_click=findViewById(R.id.calendarClick)
         is_delayed=findViewById(R.id.is_timed_alarm)
 
+
 //        val auxbutton:Button = findViewById(R.id.newbuttondeletelater)
 //        auxbutton.setOnClickListener{
 //            val intent= Intent(this,AlarmActivity::class.java)
@@ -202,6 +203,9 @@ class addAlarmActivity : AppCompatActivity() {
                 calendar.date = cal_aux.timeInMillis
 
 
+            }
+            else{ // alarma fara delay
+                is_delayed.visibility=View.INVISIBLE
             }
 
 
