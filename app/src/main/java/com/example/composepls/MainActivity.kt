@@ -17,15 +17,22 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.transition.TransitionInflater
+import android.view.Gravity
 import android.view.View
 import android.view.Window
+import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.annotation.NavigationRes
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 
 
 @TargetApi(33)
@@ -244,14 +251,33 @@ fun uninstall(context: Context, packageName:String){
     context.startActivity(uninstall);
 }
 
-//fun customSnack(whereToShowIt: View, context: Context, message: String){
-//    val snack = Snackbar.make(whereToShowIt,message, Snackbar.LENGTH_SHORT);
-//    snack.view.setBackgroundColor(ContextCompat.getColor(context,R.color.gray_dark));
-//    val snackText = snack.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text);
-//    snackText.setTextColor(ContextCompat.getColor(context,R.color.white));
-//
-//    snack.show();
-//}
+fun CustomSnack(whereToShowIt: View, message: String){
+    val snack = Snackbar.make(whereToShowIt,message, Snackbar.LENGTH_SHORT)
+    snack.animationMode=Snackbar.ANIMATION_MODE_FADE
+    snack.apply {
+        view.setOnClickListener {
+            dismiss()
+        }
+
+        behavior=object:BaseTransientBottomBar.Behavior() {
+            override fun canSwipeDismissView(child: View): Boolean {
+                return true
+            }
+        }
+
+        (view.layoutParams as FrameLayout.LayoutParams).apply {
+            width= ActionBar.LayoutParams.WRAP_CONTENT;
+            gravity= Gravity.END or Gravity.BOTTOM;
+        }
+
+        view.apply {
+            setBackgroundColor( ContextCompat.getColor(context,R.color.gray))
+
+            setAnchorView(whereToShowIt)
+
+        }
+    }.show()
+}
 
 fun customToast(whereToShowIt: View, context: Context, message: String) {
     val tost = Toast.makeText(context, message, Toast.LENGTH_SHORT);

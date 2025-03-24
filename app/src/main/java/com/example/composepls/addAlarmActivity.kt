@@ -23,11 +23,21 @@ import Adaptors.Utils.Companion.dP
 import Classes_Ojects.alarmViewModel
 import Functions.HideKeyboard
 import android.content.res.ColorStateList
+import android.content.res.Resources
+import android.service.autofill.OnClickAction
+import android.view.Gravity
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.appcompat.app.ActionBar
+import androidx.compose.material3.Snackbar
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.translationMatrix
 import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -358,9 +368,11 @@ class addAlarmActivity : AppCompatActivity() {
         calendar_click.setOnLongClickListener {
 
             if(calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated))) {
+
                 Deactivate_CalendarClick()
 
-                Toast.makeText(this,"Delay off",Toast.LENGTH_SHORT).show()
+                CustomSnack(calendar_click,"Delay Off")
+
             }
 
 
