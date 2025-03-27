@@ -4,6 +4,8 @@ import Adaptors.CustomRecyclerView
 import Adaptors.alarmAdapter
 import Classes_Ojects.alarmViewModel
 import Classes_Ojects.liveNextAlarm
+import Functions.loadFromJson
+import Functions.saveAsJson
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -721,25 +723,3 @@ fun update_aux_text(){
 
 
 
-
-fun saveAsJson(context: Context, filename:String, data:Any) {
-    val json=Gson().toJson(data);
-    val filepath=context.filesDir.toString()+"/"+filename+".json"
-
-    File(filepath).writeText(json)
-}
-
-inline fun <reified T> loadFromJson(context:Context,filename: String,data: T): T {
-
-    val filepath=context.filesDir.toString()+"/"+filename+".json"
-    val file=File(filepath)
-
-    if(file.exists()) {
-        val loadedFile = file.readText()
-        val type = object:TypeToken<T>(){}.type
-        val readData:T = Gson().fromJson(loadedFile, type)
-
-        return readData
-    }
-    return data
-}

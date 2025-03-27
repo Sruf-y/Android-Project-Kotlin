@@ -27,7 +27,8 @@
         <activity
             android:name=".addAlarmActivity"
             android:screenOrientation="portrait"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
 
         <receiver
             android:name="Signals_Receivers.wakeupReceiver"

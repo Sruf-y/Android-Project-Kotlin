@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import Adaptors.Utils.Companion.dP
 import Classes_Ojects.alarmViewModel
+import Functions.CustomSnack
 import Functions.HideKeyboard
 import android.content.res.ColorStateList
 import android.content.res.Resources
@@ -35,6 +36,7 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.translationMatrix
+import androidx.core.widget.NestedScrollView
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -84,10 +86,6 @@ class addAlarmActivity : AppCompatActivity() {
 //        composeview.setContent {
 //            HideKeyboard()
 //        }
-
-
-
-
 
 
 

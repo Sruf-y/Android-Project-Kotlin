@@ -1,5 +1,6 @@
 package com.example.composepls
 
+import Functions.setSystemBarToSwipeUp
 import android.annotation.TargetApi
 import android.content.Intent
 import android.os.Bundle
@@ -125,6 +126,8 @@ class MainActivity : AppCompatActivity() {
             .inflateTransition((android.R.transition.no_transition))
     }
 
+    private fun adjustViewsForKeyboard(view: com.google.android.material.bottomnavigation.BottomNavigationView) {}
+
     override fun onStart() {
         super.onStart()
 
@@ -199,112 +202,5 @@ class MainActivity : AppCompatActivity() {
 
 }
 
-
-
-
-@RequiresApi(Build.VERSION_CODES.R)
-fun setSystemBarToSwipeUp(window:Window){
-    //val imecontroller = this.window.insetsController
-    //imecontroller?.systemBarsBehavior
-
-    val barscontroller = WindowInsetsControllerCompat(window,window.decorView)
-
-    barscontroller.systemBarsBehavior=WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-
-    barscontroller.hide(WindowInsetsCompat.Type.navigationBars())
-
-    //val notificationbarcontroller=window.insetsController
-    //notificationbarcontroller?.hide(WindowInsetsCompat.Type.statusBars())
-
-
-}
-
-fun adjustViewsForKeyboard(view:View){
-    ViewCompat.setOnApplyWindowInsetsListener(view){v,insets->
-        val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
-
-        val systembarInsets=insets.getInsets(WindowInsetsCompat.Type.systemBars())
-
-        v.setPadding(0,0,0,systembarInsets.bottom)
-
-        insets
-    }
-}
-
-
-
-
-fun disable(button:Button){
-    button.isEnabled=false;
-}
-fun enable(button:Button){
-    button.isEnabled=true;
-}
-
-fun uninstall(context: Context, packageName:String){
-    Log.i("MYTAG","Main activity destroy");
-
-    val packageName = packageName // Get the current app's package name
-    val uninstall = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-        data = Uri.parse("package:$packageName")
-    }
-    context.startActivity(uninstall);
-}
-
-fun CustomSnack(whereToShowIt: View, message: String){
-    val snack = Snackbar.make(whereToShowIt,message, Snackbar.LENGTH_SHORT)
-    snack.animationMode=Snackbar.ANIMATION_MODE_FADE
-    snack.apply {
-        view.setOnClickListener {
-            dismiss()
-        }
-
-        behavior=object:BaseTransientBottomBar.Behavior() {
-            override fun canSwipeDismissView(child: View): Boolean {
-                return true
-            }
-        }
-
-        (view.layoutParams as FrameLayout.LayoutParams).apply {
-            width= ActionBar.LayoutParams.WRAP_CONTENT;
-            gravity= Gravity.END or Gravity.BOTTOM;
-        }
-
-        view.apply {
-            setBackgroundColor( ContextCompat.getColor(context,R.color.gray))
-
-            setAnchorView(whereToShowIt)
-
-        }
-    }.show()
-}
-
-fun customToast(whereToShowIt: View, context: Context, message: String) {
-    val tost = Toast.makeText(context, message, Toast.LENGTH_SHORT);
-
-
-    tost.show();
-}
-
-
-
-fun sendPageToLeft(context: Context):Bundle{
-
-    val aux = ActivityOptions.makeCustomAnimation(
-        context,
-        R.anim.slide_from_right,
-        R.anim.slide_to_left
-    )
-    return aux.toBundle();
-}
-
-fun sendPageToRight(context: Context):Bundle{
-    val aux= ActivityOptions.makeCustomAnimation(
-        context,
-        R.anim.slide_from_left,
-        R.anim.slide_to_right
-    )
-    return aux.toBundle();
-}
 
 
