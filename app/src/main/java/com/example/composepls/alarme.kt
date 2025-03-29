@@ -7,6 +7,16 @@ import DataClasses_Ojects.LiveData
 import DataClasses_Ojects.LiveTime
 import Functions.loadFromJson
 import Functions.saveAsJson
+import GlobalValues.alarmDataList
+import GlobalValues.doingSelection2
+import GlobalValues.doingselection
+import GlobalValues.editingAlarm
+import GlobalValues.newAllarm
+import GlobalValues.nrOfChecks
+import GlobalValues.pleasemakethiswork
+import GlobalValues.recycleState
+import GlobalValues.sharedString
+import GlobalValues.verticaloffset
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -32,20 +42,9 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 
-var editingAlarm: Int = -1//which alarm i'm editing
 
 
-var doingselection: Int =
-    0 // 0=default, before starting selection, 1= doing selection in proccess, 3= stop selection->0
-var nrOfChecks = 0;//the 2 values for checking and unchecking allarms when editing one or more
-var doingSelection2: Boolean = false
 
-var sharedString: String = ""
-var alarmDataList = ArrayList<Alarma_Item>();
-var recycleState: Parcelable? = null
-var verticaloffset: Int = 0
-
-var newAllarm: Alarma_Item = Alarma_Item(SoundTime = LocalDateTime.now())
 
 open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchListener,
     alarmAdapter.onCardClickListener,
@@ -69,7 +68,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        Log.i("TESTS",pleasemakethiswork.toString())
 
         val displayList: ArrayList<Alarma_Item> = ArrayList<Alarma_Item>()
         displayList.addAll(ArrayList(alarmDataList))
