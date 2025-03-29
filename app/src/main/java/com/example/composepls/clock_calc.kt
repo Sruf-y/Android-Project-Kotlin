@@ -1,5 +1,7 @@
 package com.example.composepls
 
+import GlobalVars.doingselection
+import GlobalVars.sharedString
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -20,5 +22,9 @@ class clock_calc : Fragment(R.layout.fragment_clock_calc) {
             val txt: TextView =requireView().findViewById(R.id.lista_de_alarme)
             txt.text= sharedString
         }
+
+
     }
+
+
 }
