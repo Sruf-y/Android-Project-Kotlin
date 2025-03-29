@@ -129,10 +129,10 @@ fun adjustViewsForKeyboard(view:View){
 
 
 
-fun disable(button:Button){
+fun disable(button:View){
     button.isEnabled=false;
 }
-fun enable(button:Button){
+fun enable(button:View){
     button.isEnabled=true;
 }
 

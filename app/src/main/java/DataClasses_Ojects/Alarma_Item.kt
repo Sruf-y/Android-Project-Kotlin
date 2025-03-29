@@ -1,16 +1,11 @@
-package Classes_Ojects
+package DataClasses_Ojects
 
 
-import android.os.Handler
-import android.os.Looper
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import java.io.Serializable
 import java.time.LocalDateTime
 
 
-data class alarmViewModel(
+data class Alarma_Item(
     var ora: Int = 0,
     var minute: Int = 0,
     var aM: String = "AM",
@@ -22,36 +17,7 @@ data class alarmViewModel(
 ) : Serializable
 
 
-class liveNextAlarm:ViewModel(){
 
-    private val _next_alarm = MutableLiveData<LocalDateTime>()
-
-    val next_alarm_in:LiveData<LocalDateTime>
-        get()=_next_alarm
-
-
-
-    private val handler = Handler(Looper.getMainLooper())
-
-    private val runnable = object : Runnable {
-        override fun run() {
-            // Update the alarm time every second
-            _next_alarm.value = LocalDateTime.now()
-            handler.postDelayed(this, 1000)
-        }
-    }
-
-    init {
-        // Start the periodic updates
-        handler.post(runnable)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        // Stop the Handler when the ViewModel is cleared
-        handler.removeCallbacks(runnable)
-    }
-}
 
 //<x x x x x x x x x x x...>
 //

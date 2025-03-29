@@ -12,12 +12,10 @@ import android.widget.Switch
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import Adaptors.Utils.Companion.dP
+import Utilities.Utils.Companion.dP
 import com.example.composepls.R
-import Classes_Ojects.alarmViewModel
-import androidx.cardview.widget.CardView
+import DataClasses_Ojects.Alarma_Item
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.example.composepls.alarmDataList
 import com.example.composepls.doingSelection2
 
 
@@ -27,7 +25,7 @@ import com.example.composepls.toBool
 import com.google.android.material.checkbox.MaterialCheckBox
 
 
-class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListener, val listener2: onCardClickListener, val listener3: onCardLongPressListener):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class alarmAdapter(val mList:List<Alarma_Item>, val listener: OnSwitchListener, val listener2: onCardClickListener, val listener3: onCardLongPressListener):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
 
@@ -341,7 +339,7 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
 
 
 
-
+            //how to block trag on a swith
 
             holder.swich.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_MOVE) {
@@ -349,6 +347,7 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
                 }
                 false // Allow other interactions (click)
             }
+
 
             holder.swich.setOnClickListener {
                 listener.onSwitchPress(position, holder)
@@ -387,19 +386,7 @@ class alarmAdapter(val mList:List<alarmViewModel>, val listener: OnSwitchListene
 
 
 
-class Utils {
-    companion object {
-        val Int.dP: Int
-            get() = (this * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
 
-        val Float.dP: Int
-            get() = (this * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
-
-        val Double.dP:Int
-            get() = (this * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
-
-    }
-}
 
 
 

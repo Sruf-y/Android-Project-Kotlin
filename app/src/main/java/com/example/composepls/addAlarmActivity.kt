@@ -14,32 +14,23 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.NumberPicker
-import android.widget.Switch
 import androidx.activity.addCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import Adaptors.Utils.Companion.dP
-import Classes_Ojects.alarmViewModel
+import Utilities.Utils.Companion.dP
+import DataClasses_Ojects.Alarma_Item
+import DataClasses_Ojects.ViewAttributes
 import Functions.CustomSnack
-import Functions.HideKeyboard
+import android.content.Context
 import android.content.res.ColorStateList
-import android.content.res.Resources
-import android.service.autofill.OnClickAction
-import android.view.Gravity
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.FrameLayout
-import android.widget.Toast
-import androidx.appcompat.app.ActionBar
-import androidx.compose.material3.Snackbar
-import androidx.compose.ui.platform.ComposeView
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.translationMatrix
-import androidx.core.widget.NestedScrollView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.postDelayed
+import androidx.lifecycle.Lifecycle
 import com.google.android.material.checkbox.MaterialCheckBox
-import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -70,11 +61,11 @@ class addAlarmActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         //enableEdgeToEdge()
         setContentView(R.layout.activity_add_alarm)
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-//            insets
-//        }
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         val wherebuttonsarea = findViewById<LinearLayout>(R.id.whereButtonsAre)
 
@@ -86,6 +77,7 @@ class addAlarmActivity : AppCompatActivity() {
 //        composeview.setContent {
 //            HideKeyboard()
 //        }
+        val context:Context = this;
 
 
 
@@ -157,7 +149,7 @@ class addAlarmActivity : AppCompatActivity() {
             amPicker.value=0
 
             // delay off
-            calendar_click.backgroundTintList= ColorStateList.valueOf(getColor(R.color.liftedBackgrounds))
+            ViewAttributes(calendar_click).BackgroundTint().Set(context,R.color.liftedBackgrounds)
 
 
 
@@ -212,7 +204,8 @@ class addAlarmActivity : AppCompatActivity() {
                 cal_aux.set(newAllarm.SoundTime.year,newAllarm.SoundTime.monthValue-1, newAllarm.SoundTime.dayOfMonth)
                 calendar.date = cal_aux.timeInMillis
 
-                calendar_click.backgroundTintList=ColorStateList.valueOf(getColor(R.color.activated))
+                ViewAttributes(calendar_click).BackgroundTint().Set(this,R.color.activated)
+
             }
             else{ // alarma fara delay
                 ColorStateList.valueOf(getColor(R.color.liftedBackgrounds))
@@ -225,12 +218,12 @@ class addAlarmActivity : AppCompatActivity() {
         }
 
         checkZileleSaptamanii()
-        newAllarm.SoundTime= assign_time(newAllarm,calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)),true)
+        newAllarm.SoundTime= assign_time(newAllarm,ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated),true)
 
         cancelButton.setOnClickListener{
             newAllarm.type[11]=-1
             checkZileleSaptamanii()
-            newAllarm.SoundTime=assign_time(newAllarm,calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)),true)
+            newAllarm.SoundTime=assign_time(newAllarm,ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated),true)
             finish()
         }
 
@@ -272,7 +265,7 @@ class addAlarmActivity : AppCompatActivity() {
 
 
             // save delay
-            if(calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)))
+            if(ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated))
             {
                 newAllarm.type[0]+=10
             }
@@ -283,14 +276,14 @@ class addAlarmActivity : AppCompatActivity() {
             else
                 newAllarm.properties[0]=""
             checkZileleSaptamanii()
-            newAllarm.SoundTime=assign_time(newAllarm,calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)),true)
+            newAllarm.SoundTime=assign_time(newAllarm,ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated),true)
 
 
             finish()
         }
 
         fun Activate_CalendarClick(){
-            calendar_click.backgroundTintList=ColorStateList.valueOf(getColor(R.color.activated))
+            ViewAttributes(calendar_click).BackgroundTint().Set(this,R.color.activated)
 
             selected_a_new_day = 0
             val tomorrow = Calendar.getInstance();
@@ -318,7 +311,9 @@ class addAlarmActivity : AppCompatActivity() {
 
         }
         fun Deactivate_CalendarClick(){
-            calendar_click.backgroundTintList=ColorStateList.valueOf(getColor(R.color.liftedBackgrounds))
+            ViewAttributes(calendar_click).BackgroundTint().Set(this,R.color.liftedBackgrounds)
+
+
 
             selected_a_new_day = -1
 
@@ -337,23 +332,26 @@ class addAlarmActivity : AppCompatActivity() {
             checkZileleSaptamanii()
             assign_time(
                 newAllarm,
-                calendar_click.backgroundTintList == ColorStateList.valueOf(getColor(R.color.liftedBackgrounds)),
+                ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.liftedBackgrounds),
                 false
             )
         }
 
         calendar_click.setOnClickListener{
 
-            if(calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated))) {
-
-                calendar_background.animate()
-                    .translationY(0.dP.toFloat())
-                    .setDuration(300)
-                    .start()
+            if(ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated)) {
+//                calendar_background.visibility=View.VISIBLE
+//
+//                calendar_background.animate()
+//                    .translationY(0.dP.toFloat())
+//                    .setDuration(300)
+//                    .start()
             }
             else {
 
                 Activate_CalendarClick()
+
+                calendar_background.visibility=View.VISIBLE
 
                 calendar_background.animate()
                     .translationY(0.dP.toFloat())
@@ -365,11 +363,11 @@ class addAlarmActivity : AppCompatActivity() {
         }
         calendar_click.setOnLongClickListener {
 
-            if(calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated))) {
+            if(ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated)) {
 
                 Deactivate_CalendarClick()
 
-                CustomSnack(calendar_click,"Delay Off")
+                //CustomSnack(calendar_click,"Delay Off")
 
             }
 
@@ -380,12 +378,14 @@ class addAlarmActivity : AppCompatActivity() {
 
         calendar_background.setOnClickListener {
 
-            calendar_click.backgroundTintList=ColorStateList.valueOf(getColor(R.color.activated))
+            ViewAttributes(calendar_click).BackgroundTint().Set(this,R.color.activated)
 
             calendar_background.animate()
                 .translationY(800.dP.toFloat()) // Animate to this position
                 .setDuration(300) // Set duration to 2 seconds
                 .start()
+            calendar_background.postDelayed(300,{calendar_background.visibility=View.GONE })
+
 
 
         }
@@ -395,7 +395,7 @@ class addAlarmActivity : AppCompatActivity() {
             newAllarm.type[9]=month+1
             newAllarm.type[10]=year
 
-            calendar_click.backgroundTintList=ColorStateList.valueOf(getColor(R.color.activated))
+            ViewAttributes(calendar_click).BackgroundTint().Set(this,R.color.activated)
             selected_a_new_day=1
 
 
@@ -413,7 +413,7 @@ class addAlarmActivity : AppCompatActivity() {
 
                 val tomorrow = LocalDateTime.now()
 
-                if(calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)))
+                if(ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated))
                 {
                     selected_a_new_day=1
                 }
@@ -423,12 +423,14 @@ class addAlarmActivity : AppCompatActivity() {
                     newAllarm.type[10] = tomorrow.year
                 }
 
-                calendar_click.backgroundTintList=ColorStateList.valueOf(getColor(R.color.activated))
+                ViewAttributes(calendar_click).BackgroundTint().Set(context,R.color.activated)
 
                 calendar_background.animate()
-                    .translationY(700.dP.toFloat()) // Animate to this position
+                    .translationY(800.dP.toFloat()) // Animate to this position
                     .setDuration(300) // Set duration to 2 seconds
                     .start()
+
+                calendar_background.visibility=View.VISIBLE
             }
             else if(currentFocus!=null){
                 //this deletes focus if anything has it
@@ -437,7 +439,7 @@ class addAlarmActivity : AppCompatActivity() {
             }
             else{
                 checkZileleSaptamanii()
-                newAllarm.SoundTime=assign_time(newAllarm,calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)),true)
+                newAllarm.SoundTime=assign_time(newAllarm, ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated),true)
                 // Allow the system to handle the back press
                 finish()
             }
@@ -490,8 +492,8 @@ class addAlarmActivity : AppCompatActivity() {
             7-> newAllarm.type[0]=3
             else->newAllarm.type[0]=2
         }
-
-        if(calendar_click.backgroundTintList==ColorStateList.valueOf(getColor(R.color.activated)))
+        val context:Context = this
+        if(ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated))
             newAllarm.type[0]+=10
 
         return checknumber
@@ -505,7 +507,7 @@ class addAlarmActivity : AppCompatActivity() {
 
 
 
-fun assign_time(data: alarmViewModel, is_delayed: Boolean, afisare_diferenta: Boolean): LocalDateTime {
+fun assign_time(data: Alarma_Item, is_delayed: Boolean, afisare_diferenta: Boolean): LocalDateTime {
     val today = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS) // Remove milliseconds
 
 
@@ -560,7 +562,7 @@ fun assign_time(data: alarmViewModel, is_delayed: Boolean, afisare_diferenta: Bo
 }
 
 
-fun ora_am_or_pm(data: alarmViewModel): Int {
+fun ora_am_or_pm(data: Alarma_Item): Int {
 
 
     if(data.aM=="AM")

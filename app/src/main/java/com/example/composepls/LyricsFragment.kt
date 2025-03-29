@@ -1,6 +1,6 @@
 package com.example.composepls
 
-import Adaptors.Utils.Companion.dP
+import Utilities.Utils.Companion.dP
 import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.fragment.app.Fragment
