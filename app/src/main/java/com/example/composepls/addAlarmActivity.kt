@@ -22,8 +22,8 @@ import Utilities.Utils.Companion.dP
 import DataClasses_Ojects.Alarma_Item
 import DataClasses_Ojects.ViewAttributes
 import Functions.CustomSnack
-import GlobalVars.editingAlarm
-import GlobalVars.newAllarm
+import GlobalValues.editingAlarm
+import GlobalValues.newAllarm
 import android.content.Context
 import android.content.res.ColorStateList
 import android.view.inputmethod.EditorInfo
@@ -81,7 +81,7 @@ class addAlarmActivity : AppCompatActivity() {
 //        }
         val context:Context = this;
 
-        println("addALARME     "+editingAlarm.toString())
+
 
 
         cancelButton=findViewById(R.id.button3)

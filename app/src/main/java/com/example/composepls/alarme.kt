@@ -7,13 +7,16 @@ import DataClasses_Ojects.LiveData
 import DataClasses_Ojects.LiveTime
 import Functions.loadFromJson
 import Functions.saveAsJson
-import GlobalVars.alarmDataList
-import GlobalVars.doingSelection2
-import GlobalVars.doingselection
-import GlobalVars.newAllarm
-import GlobalVars.nrOfChecks
-import GlobalVars.sharedString
-import GlobalVars.verticaloffset
+import GlobalValues.alarmDataList
+import GlobalValues.doingSelection2
+import GlobalValues.doingselection
+import GlobalValues.editingAlarm
+import GlobalValues.newAllarm
+import GlobalValues.nrOfChecks
+import GlobalValues.pleasemakethiswork
+import GlobalValues.recycleState
+import GlobalValues.sharedString
+import GlobalValues.verticaloffset
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -37,15 +40,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import android.content.ClipData
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
-import java.util.Collections
-
-
-
-
-
 
 
 
@@ -55,12 +49,11 @@ import java.util.Collections
 open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchListener,
     alarmAdapter.onCardClickListener,
     alarmAdapter.onCardLongPressListener {
-    var editingAlarm: Int = -1//which alarm i'm editing
+
 
     lateinit var sf: SharedPreferences;
     lateinit var editor: SharedPreferences.Editor;
 
-    var recycleState: Parcelable? = null
 
     private lateinit var nextAlarm: TextView
     private lateinit var exactTimeofIt: TextView
@@ -75,7 +68,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        Log.i("TESTS",pleasemakethiswork.toString())
 
         val displayList: ArrayList<Alarma_Item> = ArrayList<Alarma_Item>()
         displayList.addAll(ArrayList(alarmDataList))
@@ -147,9 +140,6 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
                 requireView().findViewById<MaterialCheckBox>(R.id.allcheck).isChecked = false
                 requireView().findViewById<ConstraintLayout>(R.id.clickAll).isClickable = false
             }
-            else{
-
-            }
         }
 
         val backbutton = requireActivity().onBackPressedDispatcher
@@ -171,7 +161,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
 
         plusButton.setOnClickListener {
-            isEditing.Update(true)
+            isEditing.Update(false)
             val intent = Intent(requireContext(), addAlarmActivity::class.java)
             startActivity(intent);
         }
@@ -253,28 +243,6 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
     }
 
-
-    private var cardMovementAdapter = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP.or(
-        ItemTouchHelper.DOWN),0){
-
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            target: RecyclerView.ViewHolder
-        ): Boolean {
-            val startPosition =viewHolder.adapterPosition
-            val endPosition = target.adapterPosition
-
-            return true
-        }
-
-        override fun onSwiped(
-            viewHolder: RecyclerView.ViewHolder,
-            direction: Int
-        ) {
-            TODO("Not yet implemented")
-        }
-    }
 
     fun setFab(visibility: Boolean) {
         if (visibility) {
@@ -384,7 +352,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
 
 
-        if (doingselection != 1) {
+        if (doingselection!=1) {
             if (nrOfChecks > 0) {
                 // Transition from doingselection == 0 to doingselection == 1
                 setFab(true) // Enable FAB
@@ -393,12 +361,12 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
             } else {
                 editingAlarm = position
                 newAllarm = alarmDataList[position]
-                println("alarme     "+editingAlarm.toString())
+
                 val intent = Intent(requireContext(), addAlarmActivity::class.java)
                 startActivity(intent);
 
             }
-        } else {
+        } else{
             if (nrOfChecks > 0) {
                 // Update the specific item that changed
 
@@ -433,7 +401,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
             view.timp.setTextColor(requireContext().getColor(R.color.white))
             view.am.setTextColor(requireContext().getColor(R.color.white))
 
-        } else {
+        } else{
             view.timp.setTextColor(requireContext().getColor(R.color.inactive))
             view.am.setTextColor(requireContext().getColor(R.color.inactive))
 
@@ -656,7 +624,7 @@ fun update_main_text(view: View): LocalDateTime {
             alarmDataList[i].SoundTime =
                 assign_time(alarmDataList[i], alarmDataList[i].type[0] > 10, false)
 
-
+            Log.i("MYTAG", "Alarm ${i}: ${alarmDataList[i].SoundTime}")
 
             if (alarmDataList[i].active && alarmDataList[i].SoundTime.isBefore(incoming_alarm_in)) {
                 incoming_alarm_in = alarmDataList[i].SoundTime

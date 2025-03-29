@@ -15,9 +15,11 @@ import androidx.recyclerview.widget.RecyclerView
 import Utilities.Utils.Companion.dP
 import com.example.composepls.R
 import DataClasses_Ojects.Alarma_Item
-import GlobalVars.doingselection
-import GlobalVars.doingSelection2
+import GlobalValues.doingSelection2
+import GlobalValues.doingselection
 import androidx.constraintlayout.widget.ConstraintLayout
+
+
 
 import com.example.composepls.toBool
 import com.google.android.material.checkbox.MaterialCheckBox
