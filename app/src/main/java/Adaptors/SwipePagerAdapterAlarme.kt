@@ -1,8 +1,6 @@
 package Adaptors
 
 
-import android.os.Bundle
-import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.composepls.alarme

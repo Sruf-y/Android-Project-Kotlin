@@ -7,20 +7,18 @@ import DataClasses_Ojects.LiveData
 import DataClasses_Ojects.LiveTime
 import Functions.loadFromJson
 import Functions.saveAsJson
-import GlobalValues.alarmDataList
-import GlobalValues.doingSelection2
-import GlobalValues.doingselection
-import GlobalValues.editingAlarm
-import GlobalValues.newAllarm
-import GlobalValues.nrOfChecks
-import GlobalValues.pleasemakethiswork
-import GlobalValues.recycleState
-import GlobalValues.sharedString
-import GlobalValues.verticaloffset
+import GlobalValues.Alarme.alarmDataList
+import GlobalValues.Alarme.doingSelection2
+import GlobalValues.Alarme.doingselection
+import GlobalValues.Alarme.editingAlarm
+import GlobalValues.Alarme.newAllarm
+import GlobalValues.Alarme.nrOfChecks
+import GlobalValues.Alarme.recycleState
+import GlobalValues.Alarme.sharedString
+import GlobalValues.Alarme.verticaloffset
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.Parcelable
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -40,10 +38,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-
-
-
-
 
 
 open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchListener,
@@ -68,7 +62,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.i("TESTS",pleasemakethiswork.toString())
+
 
         val displayList: ArrayList<Alarma_Item> = ArrayList<Alarma_Item>()
         displayList.addAll(ArrayList(alarmDataList))
@@ -226,7 +220,6 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
 
         val swiperefreshlayout: SwipeRefreshLayout = requireView().findViewById(R.id.SwipeRefresh)
-
         swiperefreshlayout.setOnRefreshListener {
             displayList.clear()
             displayList.addAll(ArrayList(alarmDataList))
@@ -241,7 +234,9 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
         }
 
+
     }
+
 
 
     fun setFab(visibility: Boolean) {
@@ -276,7 +271,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
         //recycleview.adapter?.notifyDataSetChanged()
 
 
-        if (doingselection == 0 || doingselection == 2) {
+        if (doingselection!=1) {
             if (nrOfChecks > 0) {
                 // incep selectia
                 requireView().findViewById<TextView>(R.id.textAlarms).visibility = View.INVISIBLE
@@ -295,7 +290,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
             } else {
 
             }
-        } else if (doingselection == 1) {
+        } else{
             if (nrOfChecks > 0) {
                 // Update the specific item that changed
                 setFab(true) // Keep FAB enabled
@@ -352,7 +347,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
 
 
-        if (doingselection!=1) {
+        if (doingselection != 1) {
             if (nrOfChecks > 0) {
                 // Transition from doingselection == 0 to doingselection == 1
                 setFab(true) // Enable FAB
@@ -366,7 +361,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
                 startActivity(intent);
 
             }
-        } else{
+        } else {
             if (nrOfChecks > 0) {
                 // Update the specific item that changed
 
@@ -401,7 +396,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
             view.timp.setTextColor(requireContext().getColor(R.color.white))
             view.am.setTextColor(requireContext().getColor(R.color.white))
 
-        } else{
+        } else {
             view.timp.setTextColor(requireContext().getColor(R.color.inactive))
             view.am.setTextColor(requireContext().getColor(R.color.inactive))
 
@@ -492,7 +487,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
 
         //sorts the list
-        alarmDataList.sortWith(compareBy<Alarma_Item> { ora_am_or_pm(it) }.thenBy { it.minute })
+        alarmDataList.sortWith(compareBy<Alarma_Item> { it.SoundTime.toLocalTime() })
         recycleview.adapter?.notifyDataSetChanged()
 
 

@@ -21,9 +21,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import Utilities.Utils.Companion.dP
 import DataClasses_Ojects.Alarma_Item
 import DataClasses_Ojects.ViewAttributes
-import Functions.CustomSnack
-import GlobalValues.editingAlarm
-import GlobalValues.newAllarm
+import GlobalValues.Alarme.editingAlarm
+import GlobalValues.Alarme.newAllarm
 import android.content.Context
 import android.content.res.ColorStateList
 import android.view.inputmethod.EditorInfo
@@ -31,7 +30,6 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.postDelayed
-import androidx.lifecycle.Lifecycle
 import com.google.android.material.checkbox.MaterialCheckBox
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -79,27 +77,27 @@ class addAlarmActivity : AppCompatActivity() {
 //        composeview.setContent {
 //            HideKeyboard()
 //        }
-        val context:Context = this;
+        val context: Context = this;
 
 
 
 
-        cancelButton=findViewById(R.id.button3)
-        saveButton=findViewById(R.id.button5)
-        hourPicker=findViewById(R.id.numberPicker)
-        minutePicker=findViewById(R.id.numberPicker2)
-        amPicker=findViewById(R.id.numberPicker3)
-        Luni=findViewById(R.id.lunea)
-        Marti=findViewById(R.id.marti)
-        Miercuri=findViewById(R.id.miercuri)
-        Joi=findViewById(R.id.joi)
-        Vineri=findViewById(R.id.vineri)
-        Sambata=findViewById(R.id.sambata)
-        Duminica=findViewById(R.id.duminica)
-        textedit= findViewById(R.id.EditAlarmTitle)
-        calendar=findViewById(R.id.calendarView)
-        calendar_background=findViewById(R.id.calend_back)
-        calendar_click=findViewById(R.id.calendarClick)
+        cancelButton = findViewById(R.id.button3)
+        saveButton = findViewById(R.id.button5)
+        hourPicker = findViewById(R.id.numberPicker)
+        minutePicker = findViewById(R.id.numberPicker2)
+        amPicker = findViewById(R.id.numberPicker3)
+        Luni = findViewById(R.id.lunea)
+        Marti = findViewById(R.id.marti)
+        Miercuri = findViewById(R.id.miercuri)
+        Joi = findViewById(R.id.joi)
+        Vineri = findViewById(R.id.vineri)
+        Sambata = findViewById(R.id.sambata)
+        Duminica = findViewById(R.id.duminica)
+        textedit = findViewById(R.id.EditAlarmTitle)
+        calendar = findViewById(R.id.calendarView)
+        calendar_background = findViewById(R.id.calend_back)
+        calendar_click = findViewById(R.id.calendarClick)
 
 
 //        val auxbutton:Button = findViewById(R.id.newbuttondeletelater)
@@ -107,10 +105,10 @@ class addAlarmActivity : AppCompatActivity() {
 //            val intent= Intent(this,AlarmActivity::class.java)
 //            startActivity(intent)
 //        }
-        var selected_a_new_day=-1
-        newAllarm.type[11]=-1
+        var selected_a_new_day = -1
+        newAllarm.type[11] = -1
 
-        newAllarm.SoundTime=LocalDateTime.now()
+        newAllarm.SoundTime = LocalDateTime.now()
 
 
 
@@ -130,45 +128,39 @@ class addAlarmActivity : AppCompatActivity() {
 
 
 
-        hourPicker.minValue=0
-        hourPicker.maxValue=11
-        val displayedValues1 = Array(12) { i -> if (i == 0) "12" else i.toString() }
-        hourPicker.displayedValues=displayedValues1
-        minutePicker.minValue=0
-        minutePicker.maxValue=59
-        val displayedValues = Array(60) { i -> String.format("%02d", i) }
-        minutePicker.displayedValues = displayedValues
-        amPicker.minValue=0;
-        amPicker.maxValue=1;
-        amPicker.displayedValues= arrayOf("AM","PM");
+        hourPicker.minValue = 0
+        hourPicker.maxValue = 11
+        minutePicker.minValue = 0
+        minutePicker.maxValue = 59
+
+        amPicker.minValue = 0;
+        amPicker.maxValue = 1;
+        amPicker.displayedValues = arrayOf("AM", "PM");
 
 
         //setari valori initiale
-        if(editingAlarm==-1) //not editing an allarm so it's making a new one
+        if (editingAlarm == -1) //not editing an allarm so it's making a new one
         {
-            hourPicker.value=6
-            minutePicker.value=0
-            amPicker.value=0
+            hourPicker.value = 6
+            minutePicker.value = 0
+            amPicker.value = 0
 
             // delay off
-            ViewAttributes(calendar_click).BackgroundTint().Set(context,R.color.liftedBackgrounds)
+            ViewAttributes(calendar_click).BackgroundTint().Set(context, R.color.liftedBackgrounds)
 
 
-
-
-
-        }
-        else {
+        } else {
             // daca editez o alarma care exista deja, i preiau valorile
 
             textedit.setText(newAllarm.properties[0])
 
-            when(newAllarm.type[0]%10){
-                1->{
+            when (newAllarm.type[0] % 10) {
+                1 -> {
                     //need to make it so some text displays when the allarm will sound, otherwise if nothing was selected in calendar, next time the date comes
 
                 }
-                2->{
+
+                2 -> {
 
                     Luni.isChecked = newAllarm.type[1].toBool()
                     Marti.isChecked = newAllarm.type[2].toBool()
@@ -179,16 +171,16 @@ class addAlarmActivity : AppCompatActivity() {
                     Duminica.isChecked = newAllarm.type[7].toBool()
 
 
-
                 }
-                3->{
-                    Luni.isChecked=true
-                    Marti.isChecked=true
-                    Miercuri.isChecked=true
-                    Joi.isChecked=true
-                    Vineri.isChecked=true
-                    Sambata.isChecked=true
-                    Duminica.isChecked=true
+
+                3 -> {
+                    Luni.isChecked = true
+                    Marti.isChecked = true
+                    Miercuri.isChecked = true
+                    Joi.isChecked = true
+                    Vineri.isChecked = true
+                    Sambata.isChecked = true
+                    Duminica.isChecked = true
 
 
                 }
@@ -196,67 +188,97 @@ class addAlarmActivity : AppCompatActivity() {
             }
 
             // load the delay if there is any
-            if(newAllarm.type[0]>10){
+            if (newAllarm.type[0] > 10) {
 
 
-
-
-                calendar.minDate=Calendar.getInstance().timeInMillis
-                val cal_aux=Calendar.getInstance()
-                cal_aux.set(newAllarm.SoundTime.year,newAllarm.SoundTime.monthValue-1, newAllarm.SoundTime.dayOfMonth)
+                calendar.minDate = Calendar.getInstance().timeInMillis
+                val cal_aux = Calendar.getInstance()
+                cal_aux.set(
+                    newAllarm.SoundTime.year,
+                    newAllarm.SoundTime.monthValue - 1,
+                    newAllarm.SoundTime.dayOfMonth
+                )
                 calendar.date = cal_aux.timeInMillis
 
-                ViewAttributes(calendar_click).BackgroundTint().Set(this,R.color.activated)
+                ViewAttributes(calendar_click).BackgroundTint().Set(this, R.color.activated)
 
-            }
-            else{ // alarma fara delay
+            } else { // alarma fara delay
                 ColorStateList.valueOf(getColor(R.color.liftedBackgrounds))
             }
 
 
             hourPicker.value = newAllarm.ora
-            minutePicker.value= newAllarm.minute
-            amPicker.value= if(newAllarm.aM=="AM") 0 else 1
+            minutePicker.value = newAllarm.minute
+            amPicker.value = if (newAllarm.aM == "AM") 0 else 1
         }
 
+        val displayedValues1 = Array(12) { i -> if (i == 0) "12" else i.toString() }
+        hourPicker.displayedValues = displayedValues1
+        val displayedValues = Array(60) { i -> String.format("%02d", i) }
+        minutePicker.displayedValues = displayedValues
         checkZileleSaptamanii()
-        newAllarm.SoundTime= assign_time(newAllarm,ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated),true)
 
-        cancelButton.setOnClickListener{
-            newAllarm.type[11]=-1
+        newAllarm.SoundTime = assign_time(
+            newAllarm,
+            ViewAttributes(calendar_click).BackgroundTint().Compare(context, R.color.activated),
+            true
+        )
+
+
+        cancelButton.setOnClickListener {
+            newAllarm.type[11] = -1
             checkZileleSaptamanii()
-            newAllarm.SoundTime=assign_time(newAllarm,ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated),true)
+            newAllarm.SoundTime = assign_time(
+                newAllarm,
+                ViewAttributes(calendar_click).BackgroundTint()
+                    .Compare(context, R.color.activated),
+                true
+            )
             finish()
         }
 
-        saveButton.setOnClickListener{
 
-            var checknumber=0
-            newAllarm.type[11]=1
-            newAllarm.ora= hourPicker.value
-            newAllarm.minute= minutePicker.value
-            if(amPicker.value==0)
-                newAllarm.aM="AM"
+
+        saveButton.setOnClickListener {
+
+            var checknumber = 0
+            newAllarm.type[11] = 1
+            newAllarm.ora = hourPicker.value
+            newAllarm.minute = minutePicker.value
+            if (amPicker.value == 0)
+                newAllarm.aM = "AM"
             else
-                newAllarm.aM="PM"
+                newAllarm.aM = "PM"
 
-            if(Luni.isChecked){checknumber++}
-            if(Marti.isChecked){checknumber++}
-            if(Miercuri.isChecked){checknumber++}
-            if(Joi.isChecked){checknumber++}
-            if(Vineri.isChecked){checknumber++}
-            if(Sambata.isChecked){checknumber++}
-            if(Duminica.isChecked){checknumber++}
+            if (Luni.isChecked) {
+                checknumber++
+            }
+            if (Marti.isChecked) {
+                checknumber++
+            }
+            if (Miercuri.isChecked) {
+                checknumber++
+            }
+            if (Joi.isChecked) {
+                checknumber++
+            }
+            if (Vineri.isChecked) {
+                checknumber++
+            }
+            if (Sambata.isChecked) {
+                checknumber++
+            }
+            if (Duminica.isChecked) {
+                checknumber++
+            }
 
-            if(checknumber==7) //everyday
+            if (checknumber == 7) //everyday
             {
-                newAllarm.type[0]=3
-            }
-            else if(checknumber==0) // one time only
+                newAllarm.type[0] = 3
+            } else if (checknumber == 0) // one time only
             {
-                newAllarm.type[0]=1
-            }
-            else // chosen days
+                newAllarm.type[0] = 1
+            } else // chosen days
             {
                 newAllarm.type[0] = 2
 
@@ -267,22 +289,28 @@ class addAlarmActivity : AppCompatActivity() {
 
 
             // save delay
-            if(ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated))
-            {
-                newAllarm.type[0]+=10
+            if (ViewAttributes(calendar_click).BackgroundTint()
+                    .Compare(context, R.color.activated)
+            ) {
+                newAllarm.type[0] += 10
             }
 
 
-            if(textedit.text.toString().isNotBlank())
-                newAllarm.properties[0]=textedit.text.toString()
+            if (textedit.text.toString().isNotBlank())
+                newAllarm.properties[0] = textedit.text.toString()
             else
-                newAllarm.properties[0]=""
+                newAllarm.properties[0] = ""
             checkZileleSaptamanii()
-            newAllarm.SoundTime=assign_time(newAllarm,ViewAttributes(calendar_click).BackgroundTint().Compare(context,R.color.activated),true)
+            newAllarm.SoundTime = assign_time(
+                newAllarm,
+                ViewAttributes(calendar_click).BackgroundTint().Compare(context, R.color.activated),
+                true
+            )
 
 
             finish()
         }
+
 
         fun Activate_CalendarClick(){
             ViewAttributes(calendar_click).BackgroundTint().Set(this,R.color.activated)

@@ -11,7 +11,6 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.Window
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -34,7 +33,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -49,6 +47,50 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
+
+
+// example of recyclerview configuration to add in order to be able tomove items around
+//
+//
+//override fun onViewCreated(.............){
+//    val itemTouchHelper= ItemTouchHelper(CardMovementCallback)
+//    itemTouchHelper.attachToRecyclerView(recycleview)
+//}
+//
+//private val CardMovementCallback = object: ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),0){
+//    override fun onMove(
+//        recyclerView: RecyclerView,
+//        viewHolder: RecyclerView.ViewHolder,
+//        target: RecyclerView.ViewHolder
+//    ): Boolean {
+//        val startPosition = viewHolder.adapterPosition
+//        val endPosition = target.adapterPosition
+//        Collections.swap(alarmDataList,startPosition,endPosition)
+//        recycleview.adapter?.notifyItemMoved(startPosition,endPosition)
+//        return true
+//    }
+//
+//    override fun onSwiped(
+//        viewHolder: RecyclerView.ViewHolder,
+//        direction: Int
+//    ) {
+//        TODO("Not yet implemented")
+//    }
+//
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @Composable
@@ -129,12 +171,6 @@ fun adjustViewsForKeyboard(view:View){
 
 
 
-fun disable(button:View){
-    button.isEnabled=false;
-}
-fun enable(button:View){
-    button.isEnabled=true;
-}
 
 fun uninstall(context: Context, packageName:String){
     Log.i("MYTAG","Main activity destroy");

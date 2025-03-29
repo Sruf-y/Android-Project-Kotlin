@@ -1,6 +1,5 @@
 package Adaptors
 
-import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -15,8 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import Utilities.Utils.Companion.dP
 import com.example.composepls.R
 import DataClasses_Ojects.Alarma_Item
-import GlobalValues.doingSelection2
-import GlobalValues.doingselection
+import GlobalValues.Alarme.doingSelection2
+import GlobalValues.Alarme.doingselection
 import androidx.constraintlayout.widget.ConstraintLayout
 
 
@@ -213,6 +212,7 @@ class alarmAdapter(val mList:List<Alarma_Item>, val listener: OnSwitchListener, 
 
                     holder.mySelector.isChecked = itemCard.editChecker
                     holder.mySelector.translationX = -34.dP.toFloat()
+                    holder.mySelector.visibility= View.GONE
                     holder.swich.translationX = 0.dP.toFloat()
                     holder.timp.translationX = 0.dP.toFloat()
                     holder.title.translationX = 0.dP.toFloat()
@@ -260,6 +260,7 @@ class alarmAdapter(val mList:List<Alarma_Item>, val listener: OnSwitchListener, 
                             200,
                             0
                         )
+                        holder.mySelector.postDelayed({holder.mySelector.visibility= View.VISIBLE},200)
 
 
                         holder.days.animateLinearMovement(
@@ -273,6 +274,7 @@ class alarmAdapter(val mList:List<Alarma_Item>, val listener: OnSwitchListener, 
                     else{
                         holder.mySelector.isChecked = itemCard.editChecker
                         holder.mySelector.translationX = 0.dP.toFloat()
+                        holder.mySelector.visibility= View.VISIBLE
                         holder.swich.translationX = 80.dP.toFloat()
                         holder.timp.translationX = 34.dP.toFloat()
                         holder.title.translationX = 34.dP.toFloat()
@@ -317,6 +319,7 @@ class alarmAdapter(val mList:List<Alarma_Item>, val listener: OnSwitchListener, 
                             200,
                             0
                         )
+                    holder.mySelector.postDelayed({  holder.mySelector.visibility= View.GONE },200)
 
 
                         holder.days.animateLinearMovement(holder.days, 0.dP.toFloat(), null, 200, 0)
