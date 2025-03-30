@@ -47,6 +47,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 
 // example of recyclerview configuration to add in order to be able tomove items around
@@ -83,6 +85,18 @@ import java.io.File
 
 
 
+
+fun WriteStringInFile(context:Context,filename:String,message:String) {
+
+    try {
+
+        val fos:FileOutputStream = context . openFileOutput ("$filename.txt", Context.MODE_PRIVATE);
+        fos.write(message.toByteArray());
+        fos.close();
+    } catch (e:IOException ) {
+        e.printStackTrace();
+    }
+}
 
 
 
