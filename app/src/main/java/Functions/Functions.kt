@@ -136,6 +136,9 @@ class Extensions{
 
 
 
+// Keep track of ongoing animations
+private val runningAnimations = mutableMapOf<View, ValueAnimator>()
+
 fun blipImage(
     imageView: ImageView,
     @ColorRes startColor: Int,
@@ -144,6 +147,9 @@ fun blipImage(
     duration: Long = 500,
     interpolator: Interpolator = AccelerateInterpolator()
 ) {
+    // Cancel any previous animation for this ImageView
+    runningAnimations[imageView]?.cancel()
+    runningAnimations.remove(imageView)
 
     // Convert color resources to actual colors
     val startColorInt = ContextCompat.getColor(imageView.context, startColor)
@@ -164,17 +170,25 @@ fun blipImage(
         addUpdateListener { animator ->
             val currentColor = animatedValue as Int
             foreground.color = currentColor
-            foreground.invalidateSelf() // Force redraw
+            foreground.invalidateSelf()
         }
 
         addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 // Final cleanup
                 imageView.foreground = null
-                imageView.setImageBitmap(bitmap)
+                runningAnimations.remove(imageView)
+            }
+
+            override fun onAnimationCancel(animation: Animator) {
+                // Clean up if animation was cancelled
+                imageView.foreground = null
+                runningAnimations.remove(imageView)
             }
         })
 
+        // Store the animation
+        runningAnimations[imageView] = this
         start()
     }
 }
