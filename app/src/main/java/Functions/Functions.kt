@@ -8,6 +8,8 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Point
+import android.graphics.PorterDuff
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -20,6 +22,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.annotation.ColorRes
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +47,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.core.animation.AccelerateDecelerateInterpolator
+import androidx.core.animation.AccelerateInterpolator
 import androidx.core.animation.Animator
 import androidx.core.animation.AnimatorListenerAdapter
 import androidx.core.animation.DecelerateInterpolator
@@ -66,6 +71,7 @@ import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import androidx.core.graphics.drawable.toDrawable
 
 
 // example of recyclerview configuration to add in order to be able tomove items around
@@ -130,44 +136,47 @@ class Extensions{
 
 
 
-fun blipImage(imageView: ImageView,startColor:Int,endColor:Int,bitmap: Bitmap?=null,Duration: Long=500,myInterpolator:Interpolator = LinearInterpolator()) {
-    // 1. Start with fully tinted view
-    val startcolor = ContextCompat.getColor(imageView.context, startColor)
-    val endcolor = ContextCompat.getColor(imageView.context, endColor)
+fun blipImage(
+    imageView: ImageView,
+    @ColorRes startColor: Int,
+    @ColorRes endColor: Int,
+    bitmap: Bitmap? = null,
+    duration: Long = 500,
+    interpolator: Interpolator = AccelerateInterpolator()
+) {
+
+    // Convert color resources to actual colors
+    val startColorInt = ContextCompat.getColor(imageView.context, startColor)
+    val endColorInt = ContextCompat.getColor(imageView.context, endColor)
+
+    // Set initial state
     imageView.setImageBitmap(bitmap)
-    ImageViewCompat.setImageTintList(imageView, ColorStateList.valueOf(startColor))
 
+    // Create a new foreground drawable for tinting
+    val foreground = startColorInt.toDrawable()
+    imageView.foreground = foreground
 
-    // 2. Animate from color to transparent
-    imageView.postDelayed({
-        imageView.setImageBitmap(bitmap)
-    },Duration)
-    imageView.post {
-        ValueAnimator.ofArgb(startcolor, endcolor).apply {
-            duration = Duration // Longer duration for better effect
-            interpolator = myInterpolator
+    // Create and configure animator
+    ValueAnimator.ofArgb(startColorInt, endColorInt).apply {
+        this.duration = duration
+        this.interpolator = interpolator
 
-            addUpdateListener { animator ->
-                val currentColor = animatedValue as Int
-                ImageViewCompat.setImageTintList(
-                    imageView,
-                    ColorStateList.valueOf(currentColor)
-                )
+        addUpdateListener { animator ->
+            val currentColor = animatedValue as Int
+            foreground.color = currentColor
+            foreground.invalidateSelf() // Force redraw
+        }
+
+        addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                // Final cleanup
+                imageView.foreground = null
+                imageView.setImageBitmap(bitmap)
             }
+        })
 
-            addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    // 3. When animation completes, remove tint and show image
-                    imageView.clearColorFilter()
-                    imageView.setImageBitmap(bitmap)
-                }
-            })
-
-
-        }.start()
+        start()
     }
-
-
 }
 
 
