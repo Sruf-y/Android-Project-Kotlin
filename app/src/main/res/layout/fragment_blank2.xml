@@ -39,4 +39,14 @@
             app:layout_constraintVertical_bias="0.129" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <Button
+        android:id="@+id/butonEnterFileExplorer"
+        android:layout_width="148dp"
+        android:layout_height="58dp"
+        android:text="File Explorer"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/middlescreen" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

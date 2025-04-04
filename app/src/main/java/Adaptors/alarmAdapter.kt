@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
+import Functions.animateLinearMovement
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import Utilities.Utils.Companion.dP
@@ -30,13 +31,13 @@ class alarmAdapter(val mList:List<Alarma_Item>, val listener: OnSwitchListener, 
 
 
     interface OnSwitchListener {
-        fun onSwitchPress(position: Int,itemviewholder: ItemViewHolder)
+        fun onSwitchPress(position: Int,itemviewholder: myItemType)
     }
     interface onCardClickListener{
-        fun oncardClick(position:Int,itemviewholder: ItemViewHolder)
+        fun oncardClick(position:Int,itemviewholder: myItemType)
     }
     interface onCardLongPressListener{
-        fun onCardLongPress(position:Int,itemviewholder: ItemViewHolder)
+        fun onCardLongPress(position:Int,itemviewholder: myItemType)
     }
 
     //holds the header ONLY
@@ -48,7 +49,7 @@ class alarmAdapter(val mList:List<Alarma_Item>, val listener: OnSwitchListener, 
 
 
     //holds the items of the recycleview
-    class ItemViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    class myItemType(itemView: View): RecyclerView.ViewHolder(itemView) {
         val timp: TextView = itemView.findViewById(R.id.allarmTime)
         val am:TextView= itemView.findViewById(R.id.AMPM);
         val swich: Switch = itemView.findViewById(R.id.state)
@@ -92,7 +93,7 @@ class alarmAdapter(val mList:List<Alarma_Item>, val listener: OnSwitchListener, 
 
         val view=LayoutInflater.from(parent.context).inflate(R.layout.alarm_example,parent,false)
 
-        return ItemViewHolder(view);
+        return myItemType(view);
     }
 
 
@@ -101,7 +102,7 @@ class alarmAdapter(val mList:List<Alarma_Item>, val listener: OnSwitchListener, 
 
 
 
-        if (holder is ItemViewHolder) {
+        if (holder is myItemType) {
             val itemCard = mList[position]
 
 
@@ -414,92 +415,3 @@ fun View.fadeIn(duration:Long=100)
         .start()
 }
 
-fun View.animateTransition(x_or_null:Float?=null, y_or_null: Float? =null,duration:Long=100)
-{
-    animate()
-        .setDuration(duration)
-        .apply {
-            var a=0;
-            if(x_or_null!=null)
-            {
-                a+=1;
-            }
-            if(y_or_null!=null)
-            {
-                a+=10
-            }
-
-
-            when(a){
-                0->{}
-                1->{
-                    this.translationX(x_or_null as Float)
-                }
-                10->{
-                    this.translationX(y_or_null as Float)
-                }
-                11->{
-                    this.translationX(x_or_null as Float)
-                    this.translationY(y_or_null as Float)
-                }
-                else->{}
-            }
-            this.setDuration(duration)
-        }
-        .start()
-
-}
-
-fun View.animateLinearMovement(view:View,x_or_null:Float?=null, y_or_null: Float? =null,duration:Long=100,fade_in_out_0:Int=0)
-{
-    animate()
-        .setDuration(duration)
-        .apply {
-            var a=0;
-            if(x_or_null!=null)
-            {
-                a+=1;
-            }
-            if(y_or_null!=null)
-            {
-                a+=10
-            }
-
-
-            when(a){
-                0->{}
-                1->{
-                    this.translationX(x_or_null as Float)
-                }
-                10->{
-                    this.translationY(y_or_null as Float)
-                }
-                11->{
-                    this.translationX(x_or_null as Float)
-                    this.translationY(y_or_null as Float)
-                }
-                else->{}
-            }
-
-            if(fade_in_out_0>0)
-            {
-                this.alpha(1F)
-                this.withEndAction{
-                    view.visibility=View.VISIBLE
-                }
-
-
-            }
-            else if(fade_in_out_0<0)
-            {
-                this.alpha(0F)
-                this.withEndAction {
-                    view.visibility = View.INVISIBLE // or View.GONE
-                }
-            }
-
-        }
-
-        .start()
-
-}

@@ -19,6 +19,7 @@ android {
     }
 
     buildTypes {
+
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -35,6 +36,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        viewBinding =true
         compose = true
     }
 }
@@ -59,6 +61,8 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.core.animation)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.legacy.support.v4)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,5 +72,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
+
+    // https://mvnrepository.com/artifact/com.github.jai-imageio/jai-imageio-core
+    implementation("com.github.jai-imageio:jai-imageio-core:1.3.0")
 
 }

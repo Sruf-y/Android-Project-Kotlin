@@ -9,14 +9,31 @@ import android. content. Context
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.view.marginEnd
+import androidx.core.widget.ImageViewCompat
 import androidx.lifecycle.ViewModel
+import com.google.android.material.imageview.ShapeableImageView
 import org.xmlpull.v1.XmlPullParser
 
 
-class ViewAttributes(public val view:View){
+class ViewAttributes(public val view:View):Object(){
 
+
+    inner class ForegroundTint{
+        public fun Get(): ColorStateList? {
+            return view.foregroundTintList
+        }
+
+        public fun Compare(context:Context,colorId:Int):Boolean{
+            return view.foregroundTintList==ColorStateList.valueOf(getColor(context,colorId))
+        }
+
+        public fun Set(context:Context,colorId:Int){
+            view.foregroundTintList=ColorStateList.valueOf(getColor(context,colorId))
+        }
+    }
 
     inner class BackgroundTint{
         public fun Get(): ColorStateList? {
@@ -76,7 +93,37 @@ class ViewAttributes(public val view:View){
         var Right: Int
             get() {return view.right}
             set(value:Int){view.right=value}
-
+        var TopLeft: List<Int>
+            get() {return listOf(view.top, view.left)}
+            set(value:List<Int>){
+                if(value.size==2)
+                view.top=value[0]
+                view.left=value[1]
+            }
+        var TopRight: List<Int>
+            get() {return listOf(view.top, view.right)}
+            set(value:List<Int>){
+                if(value.size==2) {
+                    view.top = value[0]
+                    view.right = value[1]
+                }
+            }
+        var BottomLeft: List<Int>
+            get() {return listOf(view.bottom,view.left)}
+            set(value:List<Int>){
+                if(value.size==2) {
+                    view.bottom = value[0]
+                    view.left = value[1]
+                }
+            }
+        var BottomRight: List<Int>
+            get() {return listOf(view.bottom,view.right)}
+            set(value:List<Int>){
+                if(value.size==2) {
+                    view.bottom = value[0]
+                    view.right = value[1]
+                }
+            }
 
 
     }

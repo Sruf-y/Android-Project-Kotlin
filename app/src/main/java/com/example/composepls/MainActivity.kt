@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var toolBar:Toolbar
     lateinit var navBar:BottomNavigationView
-    var savedPage:Int = 0
+    var savedPage:Int = 0 // id view selectat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +62,6 @@ class MainActivity : AppCompatActivity() {
 
 
         setSystemBarToSwipeUp(window)
-        adjustViewsForKeyboard(navBar);
 
 
 
@@ -74,7 +73,7 @@ class MainActivity : AppCompatActivity() {
 
             when (item.itemId) {
                 R.id.sound -> {
-                    R.string.page_number=-1
+                    R.string.page_number=R.id.sound
 
                     savedPage=R.id.sound
 
@@ -82,7 +81,7 @@ class MainActivity : AppCompatActivity() {
                     true //return true like the break in a switch
                 }
                 R.id.home -> {
-                    R.string.page_number=0
+                    R.string.page_number=R.id.home
 
                     savedPage=R.id.home
 
@@ -90,7 +89,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.time -> {
-                    R.string.page_number=1
+                    R.string.page_number=R.id.time
 
                     savedPage=R.id.time
 
@@ -105,8 +104,10 @@ class MainActivity : AppCompatActivity() {
 
         //return to home if its in another fragment
         onBackPressedDispatcher.addCallback(this) {
-            if(R.string.page_number!=0) {
-                    R.string.page_number = 0;
+            if(R.string.page_number!=R.id.home) {
+
+                    R.string.page_number = R.id.home;
+
                     navBar.selectedItemId=R.id.home;
                     makeCurrentFragment(BlankFragment());
             }
@@ -126,21 +127,9 @@ class MainActivity : AppCompatActivity() {
             .inflateTransition((android.R.transition.no_transition))
     }
 
-    private fun adjustViewsForKeyboard(view: com.google.android.material.bottomnavigation.BottomNavigationView) {}
 
-    override fun onStart() {
-        super.onStart()
 
-        if(savedPage!=0)
-        {
-            navBar.selectedItemId=savedPage;
-        }
-        else
-        {
-            navBar.selectedItemId=R.id.home;
-        }
 
-    }
 
     override fun onPause() {
         super.onPause()
@@ -176,7 +165,44 @@ class MainActivity : AppCompatActivity() {
 
         savedPage=sf.getInt("SF_page",savedPage);
 
-        navBar.selectedItemId=savedPage;
+
+        when (savedPage) {
+            R.id.sound -> {
+
+
+                savedPage=R.id.sound
+                navBar.selectedItemId=savedPage
+                makeCurrentFragment(BlankFragment2());
+                true //return true like the break in a switch
+            }
+            R.id.home -> {
+
+
+                savedPage=R.id.home
+                navBar.selectedItemId=savedPage
+                makeCurrentFragment(BlankFragment())
+                true
+            }
+            R.id.time -> {
+
+
+                savedPage=R.id.time
+                navBar.selectedItemId=savedPage
+                makeCurrentFragment(BlankFragment3())
+
+                true
+            }
+            else -> {
+
+                savedPage=R.id.home
+                navBar.selectedItemId=savedPage
+                makeCurrentFragment(BlankFragment())
+                true
+                // Return false if the item selection is not handled
+            }
+        }
+
+
         // transition animations with onPendingTransition go into the onPause of the previous ACTIVITY !
 
 

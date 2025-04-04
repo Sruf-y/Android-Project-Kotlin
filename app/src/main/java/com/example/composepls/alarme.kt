@@ -250,7 +250,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
         update_main_text(requireView())
     }
 
-    override fun onCardLongPress(position: Int, view: alarmAdapter.ItemViewHolder) {
+    override fun onCardLongPress(position: Int, view: alarmAdapter.myItemType) {
 
 
         if (alarmDataList[position].editChecker) {
@@ -323,7 +323,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
     }
 
-    override fun oncardClick(position: Int, view: alarmAdapter.ItemViewHolder) {
+    override fun oncardClick(position: Int, view: alarmAdapter.myItemType) {
 
 
         if (doingselection == 1) {
@@ -390,7 +390,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
     }
 
     // switch from active to inactive allarm
-    override fun onSwitchPress(position: Int, view: alarmAdapter.ItemViewHolder) {
+    override fun onSwitchPress(position: Int, view: alarmAdapter.myItemType) {
         val bol: Boolean = view.swich.isChecked
         if (bol == true) {
             view.timp.setTextColor(requireContext().getColor(R.color.white))

@@ -1,8 +1,12 @@
 package Functions
 
+import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Point
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -12,7 +16,9 @@ import android.view.Gravity
 import android.view.View
 import android.view.Window
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +43,13 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.core.animation.Animator
+import androidx.core.animation.AnimatorListenerAdapter
+import androidx.core.animation.LinearInterpolator
+import androidx.core.animation.ValueAnimator
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -83,6 +95,79 @@ import java.io.IOException
 
 
 
+class Extensions{
+    companion object{
+
+        val File.isCorrupted: Boolean
+            get(){
+                return try{
+                    if(!this.exists() || this.length() == 0L)
+                    {
+                        throw IOException("File was not created or is empty")
+                        true
+                    }
+                    else
+                        false
+                }catch (e: IOException){
+                    throw IOException("File was not created or is empty")
+                    true
+                }
+            }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+fun getAvailableScreenSize(activity: Activity): Point {
+    val point = Point()
+    val display = activity.windowManager.defaultDisplay
+    display.getSize(point)
+    return point
+}
+
+
+
+fun loadImageWithColorTransition(imageView: ImageView,startColor:Int,endColor:Int,Duration:Long, bitmap: Bitmap) {
+    // 1. Start with fully tinted view
+    imageView.setImageBitmap(bitmap)
+
+    val startColor = ContextCompat.getColor(imageView.context, startColor)
+    //ImageViewCompat.setImageTintList(imageView, ColorStateList.valueOf(startColor))
+    imageView.setColorFilter(startColor)
+
+    // 2. Animate from color to transparent
+    ValueAnimator.ofArgb(startColor, ContextCompat.getColor(imageView.context, endColor)).apply {
+        duration = Duration // Longer duration for better effect
+        interpolator = LinearInterpolator()
+
+        addUpdateListener { animator ->
+
+            val currentColor = animatedValue as Int
+
+            imageView.setColorFilter(currentColor)
+
+        }
+
+
+        addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                // 3. When animation completes, remove tint and show image
+                imageView.clearColorFilter()
+                //imageView.setImageBitmap(bitmap)
+            }
+        })
+
+        //start()
+    }.start()
+}
 
 
 
@@ -99,8 +184,176 @@ fun WriteStringInFile(context:Context,filename:String,message:String) {
 }
 
 
+fun AskForPermissionsAtStart(activityContext:Activity, permissions:List<String>){
 
 
+    val requestPermissionLauncher = androidx.fragment.app.Fragment().registerForActivityResult(RequestPermission()){}
+
+    for(permission:String in permissions){
+        try {
+            when {
+                ContextCompat.checkSelfPermission(
+                    activityContext,
+                    permission
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    // You can use the API that requires the permission.
+                    // SUCCESS->
+                }
+
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    activityContext,
+                    permission
+                ) -> {
+                    // In an educational UI, explain to the user why your app requires this
+                    // permission for a specific feature to behave as expected, and what
+                    // features are disabled if it's declined. In this UI, include a
+                    // "cancel" or "no thanks" button that lets the user continue
+                    // using your app without granting the permission.
+
+
+                    // PERMISSION FULLY DENIED ->
+
+                    requestPermissionLauncher.launch(permission)
+                }
+                else -> {
+                    // You can directly ask for the permission.
+                    // The registered ActivityResultCallback gets the result of this request.
+
+                    requestPermissionLauncher.launch(permission)
+                }
+            }
+        }catch (ex: Exception){
+            android.util.Log.i("EXCEPTIONS","Permission exception: "+ex.message.toString())
+        }
+    }
+
+
+
+
+
+
+
+
+}
+
+fun VerifyPermission(activityContext:Activity,Manifest_permission:String):Boolean{
+    return ContextCompat.checkSelfPermission(activityContext,Manifest_permission)== PackageManager.PERMISSION_GRANTED
+}
+fun VerifyPermissions(activityContext: Activity, Manifest_permissions: List<String>):Boolean {
+
+    var allGood = true
+
+    for(permission:String in Manifest_permissions){
+        try {
+            if(ContextCompat.checkSelfPermission(activityContext,permission)== PackageManager.PERMISSION_DENIED)
+                allGood=false
+        }catch (ex: Exception){
+            android.util.Log.i("EXCEPTIONS","Permission exception: "+ex.message.toString())
+        }
+    }
+
+
+    return allGood
+}
+
+
+fun OpenAppSettings(context: Context?){
+    val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+    intent.data = ("package:" + context?.packageName.toString()).toUri()
+    context?.startActivity(intent)
+}
+
+
+
+fun View.animateTransition(x_or_null:Float?=null, y_or_null: Float? =null,duration:Long=100)
+{
+    animate()
+        .setDuration(duration)
+        .apply {
+            var a=0;
+            if(x_or_null!=null)
+            {
+                a+=1;
+            }
+            if(y_or_null!=null)
+            {
+                a+=10
+            }
+
+
+            when(a){
+                0->{}
+                1->{
+                    this.translationX(x_or_null as Float)
+                }
+                10->{
+                    this.translationX(y_or_null as Float)
+                }
+                11->{
+                    this.translationX(x_or_null as Float)
+                    this.translationY(y_or_null as Float)
+                }
+                else->{}
+            }
+            this.setDuration(duration)
+        }
+        .start()
+
+}
+
+fun View.animateLinearMovement(view:View,x_or_null:Float?=null, y_or_null: Float? =null,duration:Long=100,fade_in_out_0:Int=0)
+{
+    animate()
+        .setDuration(duration)
+        .apply {
+            var a=0;
+            if(x_or_null!=null)
+            {
+                a+=1;
+            }
+            if(y_or_null!=null)
+            {
+                a+=10
+            }
+
+
+            when(a){
+                0->{}
+                1->{
+                    this.translationX(x_or_null as Float)
+                }
+                10->{
+                    this.translationY(y_or_null as Float)
+                }
+                11->{
+                    this.translationX(x_or_null as Float)
+                    this.translationY(y_or_null as Float)
+                }
+                else->{}
+            }
+
+            if(fade_in_out_0>0)
+            {
+                this.alpha(1F)
+                this.withEndAction{
+                    view.visibility=View.VISIBLE
+                }
+
+
+            }
+            else if(fade_in_out_0<0)
+            {
+                this.alpha(0F)
+                this.withEndAction {
+                    view.visibility = View.INVISIBLE // or View.GONE
+                }
+            }
+
+        }
+
+        .start()
+
+}
 
 
 
@@ -196,12 +449,13 @@ fun uninstall(context: Context, packageName:String){
     context.startActivity(uninstall);
 }
 
-fun CustomSnack(whereToShowIt: View, message: String){
+fun CustomSnack(whereToShowIt: View, message: String,onClickAction: (() -> Unit)? = null){
     val snack = Snackbar.make(whereToShowIt,message, Snackbar.LENGTH_SHORT)
     snack.animationMode=Snackbar.ANIMATION_MODE_FADE
     snack.apply {
         view.setOnClickListener {
             dismiss()
+            onClickAction
         }
 
         behavior=object:BaseTransientBottomBar.Behavior() {
@@ -223,6 +477,31 @@ fun CustomSnack(whereToShowIt: View, message: String){
         }
     }.show()
 }
+
+fun CustomSnack2(whereToShowIt: View, message: String,clickButtonText:String?=null,onClickAction: (() -> Unit)? = null){
+    val snack = Snackbar.make(whereToShowIt,message, Snackbar.LENGTH_INDEFINITE)
+        .setAction(clickButtonText, View.OnClickListener(){
+            onClickAction?.invoke()
+        })
+
+    snack.animationMode=Snackbar.ANIMATION_MODE_FADE
+    snack.apply {
+
+
+        behavior=object:BaseTransientBottomBar.Behavior() {
+            override fun canSwipeDismissView(child: View): Boolean {
+                return true
+            }
+        }
+
+        (view.layoutParams as FrameLayout.LayoutParams).apply {
+            //width= ActionBar.LayoutParams.WRAP_CONTENT;
+        }
+
+    }
+    snack.show()
+}
+
 
 fun customToast(whereToShowIt: View, context: Context, message: String) {
     val tost = Toast.makeText(context, message, Toast.LENGTH_SHORT);
