@@ -25,6 +25,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.animation.AccelerateInterpolator
 import androidx.core.animation.Animator
 import androidx.core.animation.AnimatorListenerAdapter
+import androidx.core.animation.DecelerateInterpolator
 import androidx.core.animation.LinearInterpolator
 import androidx.core.animation.ValueAnimator
 import androidx.core.content.ContextCompat
@@ -35,7 +36,7 @@ import kotlin.coroutines.coroutineContext
 import androidx.core.graphics.drawable.toDrawable
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 
-class Adapter_InternalStoragePhoto<T>(val mList:ArrayList<T>,var context:Context,screensize:Point,val listener: onClickListener,val listener2: onLongPressListener):
+class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, var context:Context, screensize:Point, val listener: onClickListener, val listener2: onLongPressListener):
     Adapter<ViewHolder>(){
 
 
@@ -60,7 +61,7 @@ class Adapter_InternalStoragePhoto<T>(val mList:ArrayList<T>,var context:Context
 
 
 
-fun updateData( lista:ArrayList<T>){
+fun updateData( lista:ArrayList<InternalStoragePhoto>){
     mList.clear()
     mList.addAll(lista)
     notifyDataSetChanged()
@@ -85,44 +86,36 @@ fun updateData( lista:ArrayList<T>){
 
         val photo = mList[position]
 
-        when(photo){
-            is InternalStoragePhoto->{
-
-                (holder as Photo)
-
-                val aspectRadio = photo.bitmap.width.toFloat() / photo.bitmap.height.toFloat()
-
-                ConstraintSet().apply {
-                    clone(holder.constraintLayout)
-                    setDimensionRatio(holder.imageView.id,aspectRadio.toString())
-                    applyTo(holder.constraintLayout)
-                }
-                holder.imageView.setImageBitmap(photo.bitmap)
 
 
+        (holder as Photo)
 
-                //usage
-                loadImageWithColorTransition(holder.imageView,R.color.semi_transparent,R.color.transparent,200L,photo.bitmap)
+        val aspectRadio = photo.bitmap.width.toFloat() / photo.bitmap.height.toFloat()
 
-
-
-
-
-
-
-
-
-
-
-            }
-            is ExternalStoragePhoto->{
-
-            }
+        ConstraintSet().apply {
+            clone(holder.constraintLayout)
+            setDimensionRatio(holder.imageView.id, aspectRadio.toString())
+            applyTo(holder.constraintLayout)
         }
+        holder.imageView.setImageBitmap(photo.bitmap)
+
+
+        //usage
+        loadImageWithColorTransition(
+            holder.imageView,
+            R.color.semi_transparent,
+            R.color.transparent,
+            200L,
+            photo.bitmap
+        )
+
+
+
+
 
 
         holder.itemView.setOnClickListener {
-            i->listener.onPictureClick(position, holder)
+            blipCard(position,holder)
             true
         }
         holder.itemView.setOnLongClickListener {
@@ -135,6 +128,37 @@ fun updateData( lista:ArrayList<T>){
 
     override fun getItemCount(): Int {
         return mList.size
+    }
+
+    fun removeAt(position: Int){
+    mList.removeAt(position);
+    notifyItemRemoved(position);
+    notifyItemRangeChanged(position, mList.size);
+    }
+
+    fun insertAt(position:Int,data: InternalStoragePhoto){
+        mList.add(position, data)
+        notifyItemInserted(position)
+        notifyItemRangeChanged(position, mList.size);
+    }
+
+    fun saveToJson(filename:String){
+        Functions.saveAsJson(context, filename, mList)
+    }
+
+    fun flashCard(position: Int){
+
+    }
+
+    fun blipCard(position: Int, holder: ViewHolder) {
+        Functions.blipImage(
+            (holder as Photo).imageView,
+            R.color.activated,
+            R.color.transparent,
+            mList[position].bitmap,
+            1000L,
+            DecelerateInterpolator()
+        )
     }
 
 

@@ -13,6 +13,7 @@ import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
@@ -28,54 +29,50 @@ import java.util.UUID
 import androidx.activity.result.launch
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.util.Function
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
+import androidx.recyclerview.widget.DiffUtil
+import kotlinx.coroutines.delay
 import java.io.File
+import java.util.Queue
 import java.util.Stack
 
-class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.onClickListener,
-    Adapter_InternalStoragePhoto.onLongPressListener {
+class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.onClickListener, Adapter_InternalStoragePhoto.onLongPressListener {
 
+    class DeletedItem(val item: InternalStoragePhoto,val position: Int){
+    }
 
     lateinit var nestedscrollview: NestedScrollView
-    lateinit var recycleAdapter: Adapter_InternalStoragePhoto<InternalStoragePhoto>
+    lateinit var recycleAdapter: Adapter_InternalStoragePhoto
     lateinit var context:Context
     lateinit var recycler: RecyclerView
-    lateinit var list_of_deleted_pics: Stack<InternalStoragePhoto>
+    lateinit var list_of_deleted_pics: ArrayList<DeletedItem>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_storage_main)
-
+        enableEdgeToEdge()
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
         context=this
-        nestedscrollview=findViewById(R.id.nestedScrollView2)
+
         val switchPrivate:SwitchCompat = findViewById(R.id.switchPrivate)
         val button_Take_Photo: ImageView = findViewById(R.id.btnTakePhoto)
-        recycler=findViewById<RecyclerView>(R.id.internalRecycler)
-        list_of_deleted_pics= Stack<InternalStoragePhoto>()
-
-
-        val screenSizes = getAvailableScreenSize(this)
-
-        recycleAdapter = Adapter_InternalStoragePhoto(
-            internalPictureList,
-            context,
-            screenSizes,
-            this,
-            this
-        )
-        recycler.adapter = recycleAdapter
-
-        recycler.layoutManager = StaggeredGridLayoutManager(3, RecyclerView.VERTICAL)
-
-
-
 
         lifecycleScope.launch {
             reinitializeInternalRecycler()
-        }
-        refreshListAndRecyclerFromStorage()
 
-        recycler.adapter?.notifyDataSetChanged()
+            recycler.adapter?.notifyDataSetChanged()
+        }.start()
+
+
+
+
 
 
 
@@ -89,7 +86,7 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
                 val saveSuccess = savePhotoToInternalStorage(UUID.randomUUID().toString(),it)
                 if(saveSuccess){
 
-                    refreshListAndRecyclerFromStorage()
+
                     //Toast.makeText(this,"Photo saved successfully",Toast.LENGTH_SHORT).show()
 
                     recycler.adapter?.notifyDataSetChanged()
@@ -123,6 +120,8 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         GlobalValues.Media.internalPictureList= loadPhotosFromInternalStorage() as ArrayList<InternalStoragePhoto>
         Functions.saveAsJson(context, "Lista_Imagini", internalPictureList)
         recycler=findViewById<RecyclerView>(R.id.internalRecycler)
+        list_of_deleted_pics= ArrayList<DeletedItem>()
+        nestedscrollview=findViewById(R.id.nestedScrollView2)
 
         val screenSizes = getAvailableScreenSize(this)
 
@@ -139,42 +138,44 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
     }
 
 
-    private fun refreshListAndRecyclerFromStorage() {
-        lifecycleScope.launch {
-
-            recycleAdapter.updateData(internalPictureList)
-
-
-            // Optional: Save to JSON
-            withContext(Dispatchers.IO) {
-                Functions.saveAsJson(context, "Lista_Imagini", internalPictureList)
-            }
-        }
-    }
-
-
-    private fun deletePhotoFromInternalStorage(filename: String,position: Int): Boolean{
-        return try{
 
 
 
-            val deletedpic = internalPictureList.filter { p->p.name==filename }
+    private fun deletePhotoFromInternalStorage(filename: String, position: Int): Boolean {
+        return try {
+            val adapter = recycler.adapter as Adapter_InternalStoragePhoto
+            var currentList = adapter.mList
 
-            list_of_deleted_pics.push(deletedpic.first())
-
-            internalPictureList.removeAt(position)
-
-            recycler.adapter?.notifyItemRemoved(position)
+            val adaptor = (recycler.adapter as Adapter_InternalStoragePhoto)
 
 
-            Functions.saveAsJson(context, "Lista_Imagini", internalPictureList)
+            // Get the item from current adapter position
+            val deletedPic = currentList[position]
+
+            // Store for undo
+            list_of_deleted_pics.add(DeletedItem(deletedPic, position))
+
+            // Remove from adapter's list
+
+
+
+            (recycler.adapter as Adapter_InternalStoragePhoto).removeAt(position)
+            currentList = adapter.mList
+
+            // Save changes
+            adaptor.saveToJson("Lista_Imagini")
+
 
             CustomSnack2(nestedscrollview,"Picture deleted","Undo") {
 
-                internalPictureList.add(position, list_of_deleted_pics.pop())
-                recycler.adapter?.notifyItemInserted(position)
+                list_of_deleted_pics.reversed().forEach {
+                    (recycler.adapter as Adapter_InternalStoragePhoto).insertAt(it.position,it.item)
 
-                Functions.saveAsJson(context, "Lista_Imagini", internalPictureList)
+                }
+                list_of_deleted_pics.clear()
+
+                adaptor.saveToJson("Lista_Imagini")
+
 
             }
 
@@ -238,7 +239,7 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
             // Verify the file was created properly
             if(!file.isCorrupted)
             {
-                GlobalValues.Media.internalPictureList.add(InternalStoragePhoto(fullFilename, bitmap))
+                (recycler.adapter as Adapter_InternalStoragePhoto).insertAt((recycler.adapter as Adapter_InternalStoragePhoto).mList.size,InternalStoragePhoto(fullFilename, bitmap))
             }
             // Only add to list after successful save
 
@@ -266,6 +267,7 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         position: Int,
         itemViewHolder: RecyclerView.ViewHolder
     ) {
+
         deletePhotoFromInternalStorage(internalPictureList[position].name,position)
 
     }
@@ -273,20 +275,14 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
     override fun onDestroy() {
         super.onDestroy()
         list_of_deleted_pics.forEach {
-            file->deleteFile(file.name)
-            internalPictureList.remove(file)
+            //item->deleteFile(item.item.name)
+            //(recycler.adapter as Adapter_InternalStoragePhoto<InternalStoragePhoto>).mList.removeAt(item.position)
         }
 
 
-        Functions.saveAsJson(context,"Lista_Imagini",GlobalValues.Media.internalPictureList)
+        Functions.saveAsJson(context,"Lista_Imagini",(recycler.adapter as Adapter_InternalStoragePhoto).mList)
     }
-//    override fun onPause() {
-//        super.onPause()
-//
-//        list_of_deleted_pics.forEach { file->deleteFile(file.name) }
-//
-//        Functions.saveAsJson(context,"Lista_Imagini",GlobalValues.Media.internalPictureList)
-//    }
+
 
     override fun onResume() {
         super.onResume()
@@ -294,9 +290,10 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
 
         lifecycleScope.launch {
             reinitializeInternalRecycler()
+            recycler.adapter?.notifyDataSetChanged()
         }
-        refreshListAndRecyclerFromStorage()
-        recycler.adapter?.notifyDataSetChanged()
+
+
 
 
     }

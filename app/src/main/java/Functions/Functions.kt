@@ -5,6 +5,7 @@ import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.net.Uri
@@ -45,6 +46,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.animation.Animator
 import androidx.core.animation.AnimatorListenerAdapter
+import androidx.core.animation.DecelerateInterpolator
+import androidx.core.animation.Interpolator
 import androidx.core.animation.LinearInterpolator
 import androidx.core.animation.ValueAnimator
 import androidx.core.app.ActivityCompat
@@ -53,6 +56,8 @@ import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.widget.ImageViewCompat
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.example.composepls.R
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -121,6 +126,49 @@ class Extensions{
 
 
 
+
+
+
+
+fun blipImage(imageView: ImageView,startColor:Int,endColor:Int,bitmap: Bitmap?=null,Duration: Long=500,myInterpolator:Interpolator = LinearInterpolator()) {
+    // 1. Start with fully tinted view
+    val startcolor = ContextCompat.getColor(imageView.context, startColor)
+    val endcolor = ContextCompat.getColor(imageView.context, endColor)
+    imageView.setImageBitmap(bitmap)
+    ImageViewCompat.setImageTintList(imageView, ColorStateList.valueOf(startColor))
+
+
+    // 2. Animate from color to transparent
+    imageView.postDelayed({
+        imageView.setImageBitmap(bitmap)
+    },Duration)
+    imageView.post {
+        ValueAnimator.ofArgb(startcolor, endcolor).apply {
+            duration = Duration // Longer duration for better effect
+            interpolator = myInterpolator
+
+            addUpdateListener { animator ->
+                val currentColor = animatedValue as Int
+                ImageViewCompat.setImageTintList(
+                    imageView,
+                    ColorStateList.valueOf(currentColor)
+                )
+            }
+
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    // 3. When animation completes, remove tint and show image
+                    imageView.clearColorFilter()
+                    imageView.setImageBitmap(bitmap)
+                }
+            })
+
+
+        }.start()
+    }
+
+
+}
 
 
 
