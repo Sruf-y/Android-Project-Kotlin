@@ -106,7 +106,11 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
             this
         )
 
-        recycleAdapter.updateData(recycleAdapter.loadPicturesFromFiles(photoDirectory) as ArrayList<InternalStoragePhoto>)
+        recycleAdapter.loadPicturesFromFiles(photoDirectory).apply {
+            if(isNotEmpty()){
+                recycleAdapter.updateData(this as ArrayList<InternalStoragePhoto>)
+            }
+        }
 
         recycler.adapter = recycleAdapter
 

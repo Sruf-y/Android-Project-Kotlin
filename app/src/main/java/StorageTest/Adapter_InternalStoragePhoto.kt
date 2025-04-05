@@ -280,6 +280,13 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
                 if(exists())
                     delete()
             }
+
+            parent.apply {
+                if(exists()) {
+                    if((listFiles()?.size ?: 0) <= 0)
+                    delete()
+                }
+            }
         }
     }
 
