@@ -2,10 +2,14 @@
     <color name="activated">#00ABFF</color>
     <color name="inactive">#565656</color>
     <color name="backgrounds">#000000</color>
-    <color name="liftedBackgrounds">#1D1D1D</color>
+    <color name="liftedBackgrounds">#353535</color>
     <color name="invertedBackgrounds">#FFFFFF</color>
     <color name="invertedLightTextBackgrounds">#ADADAD</color>
     <color name="invertedLiftedBackgrounds">#A8A8A8</color>
+
+    <color name="flash_glow_for_items">#7EFFFFFF</color>
+
+
 
 
     <!-- Primary Colors -->

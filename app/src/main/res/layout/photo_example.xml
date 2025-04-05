@@ -5,17 +5,22 @@
     android:id="@+id/constr"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="5dp">
+    android:clickable="true"
+    android:foregroundTint="#10FFFFFF"
+    android:longClickable="true">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_margin="3dp"
+        android:foreground="@drawable/outline"
+        android:foregroundTintMode="src_in"
         android:scaleType="centerCrop"
-        android:src="@drawable/comehere"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="9:16"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/comehere" />
 </androidx.constraintlayout.widget.ConstraintLayout>

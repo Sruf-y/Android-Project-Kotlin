@@ -5,10 +5,8 @@ import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Point
-import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
@@ -47,7 +45,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.core.animation.AccelerateDecelerateInterpolator
 import androidx.core.animation.AccelerateInterpolator
 import androidx.core.animation.Animator
 import androidx.core.animation.AnimatorListenerAdapter
@@ -61,8 +58,6 @@ import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.widget.ImageViewCompat
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.example.composepls.R
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -137,16 +132,18 @@ class Extensions{
 
 
 // Keep track of ongoing animations
+
 private val runningAnimations = mutableMapOf<View, ValueAnimator>()
 
-fun blipImage(
-    imageView: ImageView,
+fun blipView(
+    imageView: View,
     @ColorRes startColor: Int,
     @ColorRes endColor: Int,
     bitmap: Bitmap? = null,
     duration: Long = 500,
     interpolator: Interpolator = AccelerateInterpolator()
 ) {
+
     // Cancel any previous animation for this ImageView
     runningAnimations[imageView]?.cancel()
     runningAnimations.remove(imageView)
@@ -156,7 +153,8 @@ fun blipImage(
     val endColorInt = ContextCompat.getColor(imageView.context, endColor)
 
     // Set initial state
-    imageView.setImageBitmap(bitmap)
+    if(imageView is ImageView)
+        imageView.setImageBitmap(bitmap)
 
     // Create a new foreground drawable for tinting
     val foreground = startColorInt.toDrawable()
@@ -191,6 +189,91 @@ fun blipImage(
         runningAnimations[imageView] = this
         start()
     }
+}
+
+
+fun flashView(
+    imageView: View,
+    @ColorRes flashColor: Int,
+    bitmap: Bitmap? = null,
+    duration: Long = 500,
+    interpolator: Interpolator = AccelerateInterpolator(),
+    interpolator2: Interpolator = AccelerateInterpolator()
+) {
+    // Cancel any previous animation for this view
+    runningAnimations[imageView]?.cancel()
+    runningAnimations.remove(imageView)
+
+    val flashColorInt = ContextCompat.getColor(imageView.context, flashColor)
+    val transparentInt = ContextCompat.getColor(imageView.context, android.R.color.transparent)
+
+    // Set initial state
+    if (imageView is ImageView) {
+        imageView.setImageBitmap(bitmap)
+    }
+
+    val foreground = transparentInt.toDrawable()
+    imageView.foreground = foreground
+
+
+    fun cleanUp() {
+        imageView.foreground = null
+        runningAnimations.remove(imageView)
+    }
+
+    fun startSecondAnimation() {
+        // Second animation (flash color -> transparent)
+        val secondAnimator = ValueAnimator.ofArgb(flashColorInt, transparentInt).apply {
+            this.duration = duration/2
+            this.interpolator = interpolator2
+
+            addUpdateListener { animator ->
+                foreground.color = animatedValue as Int
+                foreground.invalidateSelf()
+            }
+
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    cleanUp()
+                }
+
+                override fun onAnimationCancel(animation: Animator) {
+                    cleanUp()
+                }
+            })
+        }
+
+        runningAnimations[imageView] = secondAnimator
+        secondAnimator.start()
+    }
+
+
+    // First animation (transparent -> flash color)
+    val firstAnimator = ValueAnimator.ofArgb(transparentInt, flashColorInt).apply {
+        this.duration = duration/2
+        this.interpolator = interpolator
+
+        addUpdateListener { animator ->
+            foreground.color = animatedValue as Int
+            foreground.invalidateSelf()
+        }
+
+        addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                // Start second animation after first completes
+                startSecondAnimation()
+            }
+
+            override fun onAnimationCancel(animation: Animator) {
+                cleanUp()
+            }
+        })
+    }
+
+
+
+    runningAnimations[imageView] = firstAnimator
+    firstAnimator.start()
 }
 
 
@@ -603,17 +686,17 @@ fun sendPageToRight(context: Context):Bundle{
 }
 
 
-fun saveAsJson(context: Context, filename:String, data:Any) {
+fun saveAsJson(context: Context, filename:String, data:Any,parent:File=context.filesDir) {
     val json=Gson().toJson(data);
-    val filepath=context.filesDir.toString()+"/"+filename+".json"
+    val Filename= "$filename.json"
 
-    File(filepath).writeText(json)
+    File(parent,Filename).writeText(json)
 }
 
-inline fun <reified T> loadFromJson(context:Context,filename: String,data: T): T {
+inline fun <reified T> loadFromJson(context:Context,filename: String,data: T,parent:File=context.filesDir): T {
 
-    val filepath=context.filesDir.toString()+"/"+filename+".json"
-    val file=File(filepath)
+    val Filename= "$filename.json"
+    val file=File(parent,Filename)
 
     if(file.exists()) {
         val loadedFile = file.readText()
@@ -624,3 +707,4 @@ inline fun <reified T> loadFromJson(context:Context,filename: String,data: T): T
     }
     return data
 }
+

@@ -7,6 +7,8 @@
     <color name="invertedLightTextBackgrounds">#5D5D5D</color>
     <color name="invertedLiftedBackgrounds">#1D1D1D</color>
 
+    <color name="flash_glow_for_items">#7EFFFFFF</color>
+
 
     <!-- Primary Colors -->
     <color name="color_primary">#6200EE</color>
