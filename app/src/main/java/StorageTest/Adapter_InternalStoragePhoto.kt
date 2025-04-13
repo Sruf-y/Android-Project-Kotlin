@@ -207,11 +207,6 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
                 }
             }
 
-            // Verify the file was created properly
-            if (newbitmap.density!=0) {
-                insertAt(mList.size, InternalStoragePhoto(fullFilename, newbitmap))
-            }
-            // Only add to list after successful save
 
             true
         } catch (e: IOException) {

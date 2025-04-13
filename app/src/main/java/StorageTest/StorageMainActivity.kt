@@ -36,6 +36,7 @@ import com.github.panpf.zoomimage.subsampling.ImageSource
 import com.github.panpf.zoomimage.subsampling.fromFile
 import kotlinx.coroutines.GlobalScope
 import java.io.File
+import androidx.core.graphics.scale
 
 
 class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.onClickListener,
@@ -184,11 +185,11 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         lifecycleScope.launch {
             recycleAdapter.loadPicturesFromFiles(photoDirectory).apply {
                 if (isNotEmpty()) {
+                    recycler.layoutManager = StaggeredGridLayoutManager(3, RecyclerView.VERTICAL)
                     recycleAdapter.updateData(this as ArrayList<InternalStoragePhoto>)
                 }
             }
         }
-        recycler.layoutManager = StaggeredGridLayoutManager(3, RecyclerView.VERTICAL)
 
 
 
@@ -264,12 +265,14 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
             val height =
                 originalPlaceholderBitmap.height / 8 // Adjust the division factor as needed
             val resizedPlaceholderBitmap =
-                Bitmap.createScaledBitmap(originalPlaceholderBitmap, width, height, false)
+                originalPlaceholderBitmap.scale(width, height, false)
 
 
 
 
             bringUpFront.setImageBitmap(resizedPlaceholderBitmap)
+
+
         }
 
 
