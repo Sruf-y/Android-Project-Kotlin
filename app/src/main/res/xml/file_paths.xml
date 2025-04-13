@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <files-path
+        name="private_pics"
+        path="Pictures/"/>
+    <files-path
+        name="GalleryPics"
+        path="."/>
+    <external-files-path
+        name="external_pics"
+        path="Pictures/"/>
+
+    <cache-path
+        name="cached_pics"
+        path="Pictures/"/>
+</paths>

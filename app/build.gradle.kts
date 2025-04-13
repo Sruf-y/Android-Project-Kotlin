@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.composepls"
-        minSdk = 27
+        minSdk = 33
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -71,9 +71,23 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-beta01")
 
     // https://mvnrepository.com/artifact/com.github.jai-imageio/jai-imageio-core
     implementation("com.github.jai-imageio:jai-imageio-core:1.3.0")
+
+
+    // //zoomable and "playful" images
+    // Provides the SketchZoomImageView component adapted to the Sketch v4+ image loader (recommended)
+    // https://mvnrepository.com/artifact/io.github.panpf.zoomimage/zoomimage-view
+    implementation("io.github.panpf.zoomimage:zoomimage-view:1.1.2")
+    implementation("io.github.panpf.zoomimage:zoomimage-view-glide:1.1.2")
+    implementation("io.github.panpf.zoomimage:zoomimage-view-coil3:1.1.2")
+
+    implementation("io.coil-kt.coil3:coil-compose:3.1.0")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.1.0")
+
+
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 
 }

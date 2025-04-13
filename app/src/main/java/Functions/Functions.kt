@@ -1,11 +1,16 @@
 package Functions
 
+import StorageTest.Adapter_InternalStoragePhoto
+import StorageTest.Classes.InternalStoragePhoto
+import StorageTest.StorageMainActivity.DeletedItem
 import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -43,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.animation.AccelerateInterpolator
@@ -67,6 +73,12 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import androidx.core.graphics.drawable.toDrawable
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
 
 // example of recyclerview configuration to add in order to be able tomove items around
@@ -122,6 +134,143 @@ class Extensions{
     }
 }
 
+
+object Images{
+    fun returnFixBitmapRotation(bitmap:Bitmap):Bitmap{
+
+        if (bitmap.getWidth() > bitmap.getHeight()) {
+            val matrix:Matrix =Matrix();
+            matrix.postRotate(90F);
+
+            val newBitmap = Bitmap.createBitmap(
+                bitmap,
+                0,
+                0,
+                bitmap.getWidth(),
+                bitmap.getHeight(),
+                matrix,
+                true
+            )
+            return newBitmap
+        }
+        return bitmap
+    }
+
+    fun saveToFile(filename: String,bitmap: Bitmap?,toDirectory:File): Boolean {
+
+        // Early return if bitmap is null
+        if (bitmap == null) {
+            Log.e("PhotoSave", "Cannot save null bitmap")
+            return false
+        }
+
+        var directory: File = toDirectory
+
+
+        if (!toDirectory.exists()) {
+            directory.mkdirs()
+        }
+
+
+        val fullFilename = filename.replace(".jpg", "") + ".jpg"
+        val file = File(directory, fullFilename) // Use proper context path
+        val newbitmap = bitmap
+        return try {
+            // Use auto-closing stream
+            FileOutputStream(file).use { outputStream ->
+
+
+                if (!newbitmap.compress(Bitmap.CompressFormat.JPEG, 92, outputStream)) {
+                    throw IOException("Failed to compress bitmap")
+                }
+            }
+
+            true
+        } catch (e: IOException) {
+            // Clean up if something went wrong
+            if (file.exists()) {
+                file.delete()
+            }
+            Log.e("PhotoSave", "Error saving photo", e)
+            false
+        }
+    }
+
+    suspend fun loadFromFile(file: File): Bitmap? {
+        return withContext(Dispatchers.IO) {
+
+            try {
+                if (file.length() <= 0)
+                    file.delete()
+                val bytes = file.readBytes()
+
+                if (bytes.size <= 0)
+                    file.delete()
+
+
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                if (bitmap != null) {
+                    Log.i("TESTS", file.path)
+
+                    Images.returnFixBitmapRotation(bitmap) // the result is returned
+                } else {
+                    // Handle decode failure
+                    Log.e("loadPicturesFromFiles", "Could not decode image: ${file.name}")
+                    file.delete()
+                    null // mapNotNull will filter this out
+                }
+            } catch (e: Exception) {
+                // Handle potential exceptions like OutOfMemoryError
+                Log.e("loadPicturesFromFiles", "Error processing image: ${file.name}", e)
+                file.delete()
+                null // mapNotNull will filter this out
+            }
+        }
+    }
+
+}
+
+
+
+
+
+
+
+object Files{
+    fun Parse(path:String,context:Context):File?{
+
+        val pieces = path.replace(context.filesDir.toString()+"/","").split("/")
+
+        var file1:File = context.filesDir
+
+        pieces.forEach {
+            file1= File(file1,it)
+        }.also {
+            return file1
+        }
+
+
+
+        return null
+    }
+
+}
+
+
+
+
+fun initRecycler(recycler: RecyclerView,context:Context,collumns:Int,adapter: RecyclerView.Adapter<*>):RecyclerView.Adapter<*>{
+
+
+    recycler.layoutManager = StaggeredGridLayoutManager(collumns, RecyclerView.VERTICAL)
+
+    recycler.adapter= adapter
+
+    adapter.notifyDataSetChanged()
+
+    return adapter
+
+}
 
 
 
@@ -706,5 +855,18 @@ inline fun <reified T> loadFromJson(context:Context,filename: String,data: T,par
         return readData
     }
     return data
+}
+
+
+
+ fun compressBitmap(bitmap: Bitmap, quality: Int): Bitmap {
+
+    val stream = ByteArrayOutputStream()
+
+    bitmap.compress(Bitmap.CompressFormat.JPEG,quality,stream)
+
+    val byteArray = stream.toByteArray()
+
+    return BitmapFactory.decodeByteArray(byteArray,0,byteArray.size, BitmapFactory.Options().apply { inScaled=true;inTargetDensity=10;inDensity=20 })
 }
 

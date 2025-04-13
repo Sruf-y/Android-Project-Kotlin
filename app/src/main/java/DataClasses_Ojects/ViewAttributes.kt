@@ -95,10 +95,10 @@ class ViewAttributes(public val view:View):Object(){
             set(value:Int){view.right=value}
         var TopLeft: List<Int>
             get() {return listOf(view.top, view.left)}
-            set(value:List<Int>){
-                if(value.size==2)
-                view.top=value[0]
-                view.left=value[1]
+            set(value: List<Int>) {
+                if (value.size == 2)
+                    view.top = value[0]
+                view.left = value[1]
             }
         var TopRight: List<Int>
             get() {return listOf(view.top, view.right)}
