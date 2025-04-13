@@ -1,15 +1,12 @@
 package StorageTest
 
 import Functions.CustomSnack2
-import Functions.Extensions.Companion.isCorrupted
 import Functions.blipView
-import Functions.compressBitmap
 import Functions.flashView
 import StorageTest.Classes.InternalStoragePhoto
 import android.view.View
 import android.view.ViewGroup
 import com.example.composepls.R
-import Functions.loadImageWithColorTransition
 import Functions.saveAsJson
 import StorageTest.StorageMainActivity.DeletedItem
 import Utilities.Utils.Companion.dP
@@ -17,18 +14,14 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Point
-import android.graphics.drawable.BitmapDrawable
-import android.media.MediaMetadataRetriever
 import android.util.Log
 import android.view.LayoutInflater
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.animation.AccelerateInterpolator
 import androidx.core.animation.DecelerateInterpolator
 import androidx.recyclerview.widget.RecyclerView.*
 import com.bumptech.glide.Glide
-import com.github.panpf.zoomimage.subsampling.size
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +29,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.net.URL
 
 class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, var context:Context, val screensize:Point,var defaultDirectory:File=context.filesDir,val listener: onClickListener, val listener2: onLongPressListener):
     Adapter<ViewHolder>(){
@@ -90,18 +82,21 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
 
         (holder as Photo)
 
-        var aspectRadio:Float=photo.bitmap.width.toFloat() / photo.bitmap.height.toFloat()
+        if(photo.bitmap!=null) {
+            var aspectRadio: Float = photo.bitmap.width.toFloat() / photo.bitmap.height.toFloat()
 
-        aspectRadio=
-            if(aspectRadio>1F){
-                1F
-            }else
-                aspectRadio
 
-        ConstraintSet().apply {
-            clone(holder.constraintLayout)
-            setDimensionRatio(holder.imageView.id, aspectRadio.toString())
-            applyTo(holder.constraintLayout)
+            aspectRadio =
+                if (aspectRadio > 1F) {
+                    1F
+                } else
+                    aspectRadio
+
+            ConstraintSet().apply {
+                clone(holder.constraintLayout)
+                setDimensionRatio(holder.imageView.id, aspectRadio.toString())
+                applyTo(holder.constraintLayout)
+            }
         }
 
 
@@ -145,16 +140,16 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
         return mList.size
     }
 
-    fun removeAt(position: Int){
-    mList.removeAt(position);
-    notifyItemRemoved(position);
-    notifyItemRangeChanged(position, mList.size);
+    fun removeAt(position: Int) {
+        mList.removeAt(position);
+        notifyItemRemoved(position);
+
     }
 
     fun insertAt(position:Int,data: InternalStoragePhoto){
         mList.add(position, data)
         notifyItemInserted(position)
-        notifyItemRangeChanged(position, mList.size);
+
     }
 
     fun saveDataToJson(filename:String, parent:File=defaultDirectory){
@@ -228,9 +223,11 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
             false
         }
     }
+
     suspend fun loadPicturesFromFiles(directoryPath: File): List<InternalStoragePhoto> {
         return withContext(Dispatchers.IO) {
             val files = directoryPath.listFiles()
+
 
             files?.filter { it.exists() && it.canRead() && it.isFile && it.name.endsWith(".jpg") }
                 ?.mapNotNull { file -> // Use mapNotNull to filter out nulls
@@ -244,9 +241,11 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
 
 
 
+
+
                         val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                         if (bitmap != null) {
-                            Log.i("TESTS",file.path)
+
                             InternalStoragePhoto(file.name, bitmap)
                         } else {
                             // Handle decode failure

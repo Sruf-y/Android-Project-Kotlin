@@ -1,22 +1,15 @@
 package StorageTest
 
-import Functions.compressBitmap
 import Functions.getAvailableScreenSize
 import StorageTest.Classes.InternalStoragePhoto
 import android.Manifest
 import android.app.Activity
-import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -33,31 +26,16 @@ import com.example.composepls.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
-import androidx.activity.result.launch
-import androidx.annotation.RequiresApi
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
 import com.github.panpf.zoomimage.GlideZoomImageView
-import com.github.panpf.zoomimage.ZoomImageView
-import com.github.panpf.zoomimage.glide.GlideSubsamplingImageGenerator
 import com.github.panpf.zoomimage.subsampling.ImageSource
-import com.github.panpf.zoomimage.subsampling.SubsamplingImage
 import com.github.panpf.zoomimage.subsampling.fromFile
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.util.Date
-import java.util.Locale
-import java.util.random.RandomGenerator
 
 
 class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.onClickListener,
@@ -78,7 +56,6 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
     lateinit var recycleAdapter: Adapter_InternalStoragePhoto
     lateinit var context: Context
     lateinit var recycler: RecyclerView
-    lateinit var list_of_deleted_pics: ArrayList<DeletedItem>
 
     val REQUEST_IMAGE_CAPTURE: Int = 1
 
@@ -91,7 +68,7 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         if (result.resultCode == Activity.RESULT_OK) {
             // Image captured and saved to fileUri specified in the intent
 
-            GlobalScope.launch {
+            lifecycleScope.launch {
 
                 val file_to_fix = Functions.Images.loadFromFile(currentPhotoFile)
                 Functions.Images.saveToFile(
@@ -99,6 +76,7 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
                     file_to_fix,
                     File(currentPhotoFile.parent)
                 )
+                recycleAdapter.insertAt(recycleAdapter.mList.size, InternalStoragePhoto(currentPhotoFile.name,file_to_fix))
 
             }
             Log.d("CameraManager", "Picture was taken successfully")
@@ -153,11 +131,8 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
 
 
 
-        lifecycleScope.launch {
-            reinitializeInternalRecycler()
 
-            recycler.adapter?.notifyDataSetChanged()
-        }.start()
+        reinitializeInternalRecycler()
 
 
 
@@ -182,14 +157,14 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
             takePicture(context, File(photoDirectory, "JPEG_" + generateNewUUID() + ".jpg"))
         }
 
+
     }
 
 
-    private suspend fun reinitializeInternalRecycler() {
+    private fun reinitializeInternalRecycler() {
 
 
         recycler = findViewById<RecyclerView>(R.id.internalRecycler)
-        list_of_deleted_pics = ArrayList<DeletedItem>()
         nestedscrollview = findViewById(R.id.nestedScrollView2)
 
         val screenSizes = getAvailableScreenSize(this)
@@ -203,15 +178,20 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
             this
         )
 
-        recycleAdapter.loadPicturesFromFiles(photoDirectory).apply {
-            if (isNotEmpty()) {
-                recycleAdapter.updateData(this as ArrayList<InternalStoragePhoto>)
-            }
-        }
 
         recycler.adapter = recycleAdapter
 
+        lifecycleScope.launch {
+            recycleAdapter.loadPicturesFromFiles(photoDirectory).apply {
+                if (isNotEmpty()) {
+                    recycleAdapter.updateData(this as ArrayList<InternalStoragePhoto>)
+                }
+            }
+        }
         recycler.layoutManager = StaggeredGridLayoutManager(3, RecyclerView.VERTICAL)
+
+
+
     }
 
 
@@ -219,6 +199,14 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         position: Int,
         itemViewHolder: RecyclerView.ViewHolder
     ) {
+
+
+
+
+
+
+
+
 
         //TODO() // new activity where i display the picture in a mapview to be able to change size and scroll in all diractions
 
@@ -271,13 +259,18 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         val originalPlaceholderBitmap = recycleAdapter.mList[position].bitmap
 
         // Resize the placeholder to a much smaller size (e.g., 100x100)
-        val width = originalPlaceholderBitmap.width / 8 // Adjust the division factor as needed
-        val height = originalPlaceholderBitmap.height / 8 // Adjust the division factor as needed
-        val resizedPlaceholderBitmap = Bitmap.createScaledBitmap(originalPlaceholderBitmap, width, height, false)
+        if(originalPlaceholderBitmap!=null) {
+            val width = originalPlaceholderBitmap.width / 8 // Adjust the division factor as needed
+            val height =
+                originalPlaceholderBitmap.height / 8 // Adjust the division factor as needed
+            val resizedPlaceholderBitmap =
+                Bitmap.createScaledBitmap(originalPlaceholderBitmap, width, height, false)
 
 
 
-        bringUpFront.setImageBitmap(resizedPlaceholderBitmap)
+
+            bringUpFront.setImageBitmap(resizedPlaceholderBitmap)
+        }
 
 
 
@@ -305,27 +298,28 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         super.onPause()
 
         // Use viewModelScope or lifecycleScope instead of GlobalScope
-        lifecycleScope.launch(Dispatchers.IO) {
+
             try {
 
-                val currentList = ArrayList(recycleAdapter.mList) // Create a safe copy
-
-                // 1. Delete marked files
-                recycleAdapter.deleteMarkedItems()
 
                 // 2. Save remaining photos
                 recycleAdapter.savePicturesToFiles(photoDirectory)
+                recycleAdapter.deleteMarkedItems()
 
             } catch (e: Exception) {
                 Log.e("Cleanup", "Critical error during cleanup", e)
             }
-        }
+
     }
+
 
 
     override fun onResume() {
         super.onResume()
 
+
+
+       recycleAdapter.notifyDataSetChanged()
 
     }
 

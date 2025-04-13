@@ -210,7 +210,7 @@ object Images{
 
                 val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                 if (bitmap != null) {
-                    Log.i("TESTS", file.path)
+
 
                     Images.returnFixBitmapRotation(bitmap) // the result is returned
                 } else {
