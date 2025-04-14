@@ -1,13 +1,14 @@
 package StorageTest
 
+import DataClasses_Ojects.Logs
 import Functions.getAvailableScreenSize
+import StorageTest.Classes.FileManager
 import StorageTest.Classes.InternalStoragePhoto
 import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -23,7 +24,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.composepls.R
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
 import androidx.core.content.ContextCompat
@@ -34,13 +34,14 @@ import androidx.core.widget.NestedScrollView
 import com.github.panpf.zoomimage.GlideZoomImageView
 import com.github.panpf.zoomimage.subsampling.ImageSource
 import com.github.panpf.zoomimage.subsampling.fromFile
-import kotlinx.coroutines.GlobalScope
 import java.io.File
 import androidx.core.graphics.scale
 
 
 class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.onClickListener,
     Adapter_InternalStoragePhoto.onLongPressListener {
+
+    val fileManager = FileManager(this)
 
     private lateinit var photoDirectory: File
     private lateinit var UUidstring: String
@@ -59,7 +60,7 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
     lateinit var recycler: RecyclerView
 
     val REQUEST_IMAGE_CAPTURE: Int = 1
-
+    lateinit var  switchPrivate: SwitchCompat
 
     lateinit var currentPhotoFile: File
 
@@ -69,6 +70,7 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         if (result.resultCode == Activity.RESULT_OK) {
             // Image captured and saved to fileUri specified in the intent
 
+
             lifecycleScope.launch {
 
                 val file_to_fix = Functions.Images.loadFromFile(currentPhotoFile)
@@ -77,9 +79,14 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
                     file_to_fix,
                     File(currentPhotoFile.parent)
                 )
-                recycleAdapter.insertAt(recycleAdapter.mList.size, InternalStoragePhoto(currentPhotoFile.name,file_to_fix))
-
+                recycleAdapter.insertAt(
+                    0,
+                    InternalStoragePhoto(currentPhotoFile.name, file_to_fix,currentPhotoFile)
+                )
             }
+
+
+
             Log.d("CameraManager", "Picture was taken successfully")
             //If the result is ok, then MYFILE contains the picture.
         } else {
@@ -123,7 +130,7 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         }
         context = this
 
-        val switchPrivate: SwitchCompat = findViewById(R.id.switchPrivate)
+        switchPrivate = findViewById(R.id.switchPrivate)
         val button_Take_Photo: ImageView = findViewById(R.id.btnTakePhoto)
         photoDirectory = File(this.filesDir, "GalleryPics")
 
@@ -155,10 +162,37 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
 
 
         button_Take_Photo.setOnClickListener {
-            takePicture(context, File(photoDirectory, "JPEG_" + generateNewUUID() + ".jpg"))
+            if (switchPrivate.isChecked)
+                takePicture(context, File(photoDirectory, "JPEG_" + generateNewUUID() + ".jpg"))
+            else
+                fileManager.pickSinglePicture()
+
         }
 
 
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        val result = fileManager.onActivityResultSinglePicture(requestCode, resultCode, data)
+
+        if (result != null) {
+            lifecycleScope.launch {
+                val file = Functions.Images.loadFromUri(context, result)
+
+                if (file != null) {
+                    recycleAdapter.insertAt(
+                        0,
+                        InternalStoragePhoto(
+                            file.name,
+                            Functions.Images.loadFromFile(file),
+                            file
+                        )
+                    )
+                }
+            }
+        }
     }
 
 
@@ -259,15 +293,21 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         // ... you can replace this with your own placeholder bitmap or resource ID ...
         val originalPlaceholderBitmap = recycleAdapter.mList[position].bitmap
 
-        // Resize the placeholder to a much smaller size (e.g., 100x100)
+
         if(originalPlaceholderBitmap!=null) {
-            val width = originalPlaceholderBitmap.width / 8 // Adjust the division factor as needed
-            val height =
-                originalPlaceholderBitmap.height / 8 // Adjust the division factor as needed
-            val resizedPlaceholderBitmap =
-                originalPlaceholderBitmap.scale(width, height, false)
+            Log.i(Logs.MEDIA_IMAGES.toString(),"Clicked picture-- Width: "+originalPlaceholderBitmap.width.toString()+" | Height: "+originalPlaceholderBitmap.height.toString())
 
 
+            val width = originalPlaceholderBitmap.width // Adjust the division factor as needed
+            val height = originalPlaceholderBitmap.height // Adjust the division factor as needed
+
+            val factor = if (width+height>10000) {
+                2
+            } else {
+                1
+            }
+
+            val resizedPlaceholderBitmap = originalPlaceholderBitmap.scale(width/factor, height/factor, false)
 
 
             bringUpFront.setImageBitmap(resizedPlaceholderBitmap)
@@ -321,10 +361,6 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         super.onResume()
 
 
-
-       recycleAdapter.notifyDataSetChanged()
-
     }
-
 
 }

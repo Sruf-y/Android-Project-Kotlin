@@ -29,6 +29,8 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
 
 class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, var context:Context, val screensize:Point,var defaultDirectory:File=context.filesDir,val listener: onClickListener, val listener2: onLongPressListener):
     Adapter<ViewHolder>(){
@@ -86,11 +88,7 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
             var aspectRadio: Float = photo.bitmap.width.toFloat() / photo.bitmap.height.toFloat()
 
 
-            aspectRadio =
-                if (aspectRadio > 1F) {
-                    1F
-                } else
-                    aspectRadio
+            aspectRadio =1F
 
             ConstraintSet().apply {
                 clone(holder.constraintLayout)
@@ -112,7 +110,7 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
         //holder.imageView.setImageBitmap(photo.bitmap)
 
         Glide.with(context)
-            .load(File(defaultDirectory,photo.name)) //Functions.compressBitmap(photo.bitmap,60))
+            .load(photo.file)
             .into(holder.imageView)
 
 
@@ -136,6 +134,8 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
 
 
 
+
+
     override fun getItemCount(): Int {
         return mList.size
     }
@@ -149,6 +149,7 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
     fun insertAt(position:Int,data: InternalStoragePhoto){
         mList.add(position, data)
         notifyItemInserted(position)
+        notifyItemRangeChanged(0,mList.size)
 
     }
 
@@ -167,8 +168,10 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
 
     fun savePicturesToFiles(toDirectory: File=defaultDirectory): Boolean{
         return try{
+            val files = defaultDirectory.listFiles()
             mList.forEach {
-                savePictureToFile(it.name,it.bitmap,toDirectory)
+                if(!files.contains(it.file))
+                    savePictureToFile(it.name,it.bitmap,toDirectory)
             }
             true
         }catch(e: Exception){
@@ -222,9 +225,11 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
     suspend fun loadPicturesFromFiles(directoryPath: File): List<InternalStoragePhoto> {
         return withContext(Dispatchers.IO) {
             val files = directoryPath.listFiles()
+            files.sortBy { p->Files.readAttributes(p.toPath(), BasicFileAttributes::class.java).creationTime() }
 
 
-            files?.filter { it.exists() && it.canRead() && it.isFile && it.name.endsWith(".jpg") }
+
+            files.reversed().filter { it.exists() && it.canRead() && it.isFile && it.name.endsWith(".jpg") }
                 ?.mapNotNull { file -> // Use mapNotNull to filter out nulls
                     try {
                         if (file.length() <= 0)
@@ -234,14 +239,10 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
                         if (bytes.size <= 0)
                             file.delete()
 
-
-
-
-
                         val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                         if (bitmap != null) {
 
-                            InternalStoragePhoto(file.name, bitmap)
+                            InternalStoragePhoto(file.name, bitmap,file)
                         } else {
                             // Handle decode failure
                             Log.e("loadPicturesFromFiles", "Could not decode image: ${file.name}")
@@ -272,6 +273,7 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
             // Remove from adapter's list
 
             removeAt(position)
+            notifyItemRangeChanged(position,mList.size)
 
 
 

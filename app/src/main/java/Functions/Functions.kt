@@ -1,10 +1,8 @@
 package Functions
 
-import StorageTest.Adapter_InternalStoragePhoto
-import StorageTest.Classes.InternalStoragePhoto
-import StorageTest.StorageMainActivity.DeletedItem
 import android.app.Activity
 import android.app.ActivityOptions
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,10 +10,11 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.Point
-import android.graphics.drawable.ColorDrawable
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
@@ -48,37 +47,37 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.animation.AccelerateInterpolator
 import androidx.core.animation.Animator
 import androidx.core.animation.AnimatorListenerAdapter
-import androidx.core.animation.DecelerateInterpolator
 import androidx.core.animation.Interpolator
 import androidx.core.animation.LinearInterpolator
 import androidx.core.animation.ValueAnimator
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.composepls.R
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import androidx.core.graphics.drawable.toDrawable
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.LayoutManager
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
+import kotlin.io.path.readAttributes
 
 
 // example of recyclerview configuration to add in order to be able tomove items around
@@ -136,24 +135,66 @@ class Extensions{
 
 
 object Images{
-    fun returnFixBitmapRotation(bitmap:Bitmap):Bitmap{
 
-        if (bitmap.getWidth() > bitmap.getHeight()) {
-            val matrix:Matrix =Matrix();
-            matrix.postRotate(90F);
 
-            val newBitmap = Bitmap.createBitmap(
-                bitmap,
-                0,
-                0,
-                bitmap.getWidth(),
-                bitmap.getHeight(),
-                matrix,
-                true
-            )
-            return newBitmap
+    fun returnFixBitmapRotation(bitmap:Bitmap,bitmapFile:File): Bitmap? {
+
+        var exif: ExifInterface? = null
+        try {
+            exif = ExifInterface(bitmapFile)
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
-        return bitmap
+        val orientation = exif!!.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_UNDEFINED
+        )
+
+        var matrix: Matrix = Matrix();
+        when (orientation) {
+            ExifInterface.ORIENTATION_NORMAL ->
+                return bitmap;
+
+            ExifInterface.ORIENTATION_FLIP_HORIZONTAL ->
+                matrix.setScale(-1F, 1F);
+
+            ExifInterface.ORIENTATION_ROTATE_180 ->
+                matrix.setRotate(180F);
+
+            ExifInterface.ORIENTATION_FLIP_VERTICAL -> {
+                matrix.setRotate(180F);
+                matrix.postScale(-1F, 1F);
+            }
+
+            ExifInterface.ORIENTATION_TRANSPOSE -> {
+                matrix.setRotate(90F);
+                matrix.postScale(-1F, 1F);
+            }
+
+            ExifInterface.ORIENTATION_ROTATE_90 ->
+                matrix.setRotate(90F);
+
+            ExifInterface.ORIENTATION_TRANSVERSE -> {
+                matrix.setRotate(-90F);
+                matrix.postScale(-1F, 1F);
+            }
+
+            ExifInterface.ORIENTATION_ROTATE_270 ->
+                matrix.setRotate(-90F);
+
+            else ->
+                return bitmap;
+        }
+        try {
+            val bmRotated:Bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return bmRotated;
+        }
+        catch ( e:OutOfMemoryError) {
+            e.printStackTrace();
+            return bitmap;
+        }
+
     }
 
     fun saveToFile(filename: String,bitmap: Bitmap?,toDirectory:File): Boolean {
@@ -196,8 +237,10 @@ object Images{
         }
     }
 
-    suspend fun loadFromFile(file: File): Bitmap? {
+    suspend fun loadFromFile(file: File?): Bitmap? {
+        if(file!=null)
         return withContext(Dispatchers.IO) {
+
 
             try {
                 if (file.length() <= 0)
@@ -212,7 +255,7 @@ object Images{
                 if (bitmap != null) {
 
 
-                    Images.returnFixBitmapRotation(bitmap) // the result is returned
+                    Images.returnFixBitmapRotation(bitmap,file) // the result is returned
                 } else {
                     // Handle decode failure
                     Log.e("loadPicturesFromFiles", "Could not decode image: ${file.name}")
@@ -226,6 +269,47 @@ object Images{
                 null // mapNotNull will filter this out
             }
         }
+        else
+            return null
+    }
+
+
+
+
+    fun loadFromUri(context: Context, uri: Uri): File? {
+        if (uri.scheme == ContentResolver.SCHEME_FILE) {
+            // This is a file URI, so you can directly convert it to a File.
+            return File(uri.path!!)
+        }
+        if (uri.scheme != ContentResolver.SCHEME_CONTENT) {
+            // Unrecognized URI scheme.
+            return null
+        }
+        val contentResolver = context.contentResolver
+
+        // Query the content resolver for the file's display name.
+        val cursor = contentResolver.query(uri, null, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if(nameIndex == -1) return null
+                val displayName = it.getString(nameIndex)
+                val tempFile = File.createTempFile("temp_", displayName, context.cacheDir)
+                try {
+                    contentResolver.openInputStream(uri)?.use { inputStream ->
+                        FileOutputStream(tempFile).use { outputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
+                    }
+                    return tempFile
+                } catch (e: Exception) {
+                    tempFile.delete()
+                    return null
+                }
+            } else {
+                return null
+            }
+        } ?: return null // return null if cursor is null
     }
 
 }
@@ -782,7 +866,7 @@ fun CustomSnack(whereToShowIt: View, message: String,onClickAction: (() -> Unit)
 }
 
 fun CustomSnack2(whereToShowIt: View, message: String,clickButtonText:String?=null,onClickAction: (() -> Unit)? = null){
-    val snack = Snackbar.make(whereToShowIt,message, Snackbar.LENGTH_INDEFINITE)
+    val snack = Snackbar.make(whereToShowIt,message, Snackbar.LENGTH_LONG)
         .setAction(clickButtonText, View.OnClickListener(){
             onClickAction?.invoke()
         })
@@ -790,12 +874,10 @@ fun CustomSnack2(whereToShowIt: View, message: String,clickButtonText:String?=nu
     snack.animationMode=Snackbar.ANIMATION_MODE_FADE
     snack.apply {
 
-
-        behavior=object:BaseTransientBottomBar.Behavior() {
-            override fun canSwipeDismissView(child: View): Boolean {
-                return true
-            }
+        view.setOnClickListener {
+            dismiss()
         }
+
 
         (view.layoutParams as FrameLayout.LayoutParams).apply {
             //width= ActionBar.LayoutParams.WRAP_CONTENT;
