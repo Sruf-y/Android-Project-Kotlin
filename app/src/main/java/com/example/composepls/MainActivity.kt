@@ -57,6 +57,19 @@ class MainActivity : AppCompatActivity() {
         //toolBar = findViewById(R.id.myToolbar)
         //setSupportActionBar(toolBar);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
         navBar = findViewById(R.id.bottomNavigationView);
 
 
