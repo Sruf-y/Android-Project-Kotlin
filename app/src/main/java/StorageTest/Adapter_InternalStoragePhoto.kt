@@ -1,5 +1,6 @@
 package StorageTest
 
+import DataClasses_Ojects.Logs
 import Functions.CustomSnack2
 import Functions.blipView
 import Functions.flashView
@@ -20,6 +21,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.animation.AccelerateInterpolator
 import androidx.core.animation.DecelerateInterpolator
+import androidx.core.graphics.scale
 import androidx.recyclerview.widget.RecyclerView.*
 import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
@@ -109,9 +111,44 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
 
         //holder.imageView.setImageBitmap(photo.bitmap)
 
-        Glide.with(context)
-            .load(photo.file)
-            .into(holder.imageView)
+        val originalPlaceholderBitmap = photo.bitmap
+        if(originalPlaceholderBitmap!=null) {
+
+
+
+
+            var width = originalPlaceholderBitmap.width // Adjust the division factor as needed
+            var height = originalPlaceholderBitmap.height // Adjust the division factor as needed
+
+            var factor =1F;
+            while ((width+height)/factor>1000) {
+                factor += 0.5F
+            }
+
+            width=(width/factor).toInt()
+            height=(height/factor).toInt()
+
+            val resizedPlaceholderBitmap = originalPlaceholderBitmap.scale(width, height, false)
+
+            Log.i(Logs.MEDIA_IMAGES.toString(),"Loaded picture --ORIGINAL Width: "+
+                    originalPlaceholderBitmap.width.toString()+
+                    " | Height: "+originalPlaceholderBitmap.height.toString()+
+                    "  --DISPLAYED "+
+                    "Width: "+
+                    width+
+                    " | Height: "+
+                    height)
+
+
+
+            Glide.with(context)
+                .load(resizedPlaceholderBitmap)
+                .into(holder.imageView)
+
+        }
+
+
+
 
 
 
@@ -168,6 +205,10 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
 
     fun savePicturesToFiles(toDirectory: File=defaultDirectory): Boolean{
         return try{
+            if(!defaultDirectory.exists()){
+                defaultDirectory.mkdirs()
+            }
+
             val files = defaultDirectory.listFiles()
             mList.forEach {
                 if(!files.contains(it.file))
