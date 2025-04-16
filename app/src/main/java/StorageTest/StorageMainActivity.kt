@@ -9,6 +9,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -36,6 +37,7 @@ import com.github.panpf.zoomimage.subsampling.ImageSource
 import com.github.panpf.zoomimage.subsampling.fromFile
 import java.io.File
 import androidx.core.graphics.scale
+import androidx.recyclerview.widget.GridLayoutManager
 
 
 class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.onClickListener,
@@ -59,7 +61,7 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
     lateinit var context: Context
     lateinit var recycler: RecyclerView
 
-    val REQUEST_IMAGE_CAPTURE: Int = 1
+
     lateinit var  switchPrivate: SwitchCompat
 
     lateinit var currentPhotoFile: File
@@ -83,6 +85,8 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
                     0,
                     InternalStoragePhoto(currentPhotoFile.name, file_to_fix,currentPhotoFile)
                 )
+            }.invokeOnCompletion {
+                recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
             }
 
 
@@ -133,6 +137,8 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         switchPrivate = findViewById(R.id.switchPrivate)
         val button_Take_Photo: ImageView = findViewById(R.id.btnTakePhoto)
         photoDirectory = File(this.filesDir, "GalleryPics")
+        if(!photoDirectory.exists())
+            photoDirectory.mkdir()
 
         if (!photoDirectory.exists())
             photoDirectory.mkdir()
@@ -191,6 +197,8 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
                         )
                     )
                 }
+            }.invokeOnCompletion {
+                recycleAdapter.notifyDataSetChanged()
             }
         }
     }
@@ -219,10 +227,17 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         lifecycleScope.launch {
             recycleAdapter.loadPicturesFromFiles(photoDirectory).apply {
                 if (isNotEmpty()) {
-                    recycler.layoutManager = StaggeredGridLayoutManager(3, RecyclerView.VERTICAL)
+                    val spanCount = if(getResources().configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
+                        3
+                    else{
+                        5
+                    }
+                    recycler.layoutManager = StaggeredGridLayoutManager(spanCount, RecyclerView.VERTICAL)
                     recycleAdapter.updateData(this as ArrayList<InternalStoragePhoto>)
                 }
             }
+        }.invokeOnCompletion {
+            recycleAdapter.notifyItemRangeChanged(0, recycleAdapter.itemCount)
         }
 
 

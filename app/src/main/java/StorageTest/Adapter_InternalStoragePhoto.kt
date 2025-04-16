@@ -141,6 +141,7 @@ class Adapter_InternalStoragePhoto(val mList:ArrayList<InternalStoragePhoto>, va
 
 
 
+
             Glide.with(context)
                 .load(resizedPlaceholderBitmap)
                 .into(holder.imageView)

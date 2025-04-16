@@ -10,29 +10,30 @@
 
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
-    <!-- Required only if your app needs to access images or photos
-     that other apps created. -->
+    <!--
+ Required only if your app needs to access images or photos
+     that other apps created.
+    -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-
-    <!-- Required only if your app needs to access videos
-         that other apps created. -->
+    <!--
+ Required only if your app needs to access videos
+         that other apps created.
+    -->
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-
-    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
-
-
-    <!-- Required only if your app needs to access audio files
-         that other apps created. -->
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+    <!--
+ Required only if your app needs to access audio files
+         that other apps created.
+    -->
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
 
-    <uses-feature android:name="android.hardware.camera"/>
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" />
 
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -42,7 +43,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyApplication2"
+        android:theme="@style/Theme.BotofanThemeNoActionBar"
         tools:targetApi="31">
 
         <provider
@@ -57,16 +58,18 @@
 
 
         <activity
+            android:name=".MainActivity"
+            android:exported="false"/>
+
+        <activity
             android:name="StorageTest.StorageMainActivity"
             android:exported="false" />
         <activity
             android:name=".AlarmActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:exported="false"/>
         <activity
             android:name=".addAlarmActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
 
         <receiver
@@ -80,7 +83,7 @@
         <receiver android:name="Signals_Receivers.AlarmReceiver" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="SongsMain.SongsMain_view"
             android:exported="true"
             android:launchMode="singleTask"
             android:resizeableActivity="true">

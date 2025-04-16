@@ -3,6 +3,7 @@ package com.example.composepls
 import Functions.AskForPermissionsAtStart
 import Functions.OpenAppSettings
 import Functions.VerifyPermissions
+import SongsMain.SongsMain_view
 import StorageTest.StorageMainActivity
 import android.app.Activity
 import android.content.Intent
@@ -81,6 +82,12 @@ class BlankFragment2 : Fragment(R.layout.fragment_blank2) {
             }
         }
 
+
+        val musicButton = requireView().findViewById<Button>(R.id.button4)
+        musicButton.setOnClickListener {
+            val intent = Intent(requireContext(), SongsMain_view::class.java)
+            startActivity(intent)
+        }
 
 
     }

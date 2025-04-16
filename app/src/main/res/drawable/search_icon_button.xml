@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <item android:state_pressed="false">
+        <bitmap android:src="@drawable/search_icon"
+            android:tint="@color/invertedBackgrounds"/>
+    </item>
+
+    <item>
+        <bitmap android:src="@drawable/search_icon"
+            android:tint="@color/inactive"/>
+    </item>
+</selector>

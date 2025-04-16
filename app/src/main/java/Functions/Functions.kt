@@ -315,6 +315,9 @@ object Images{
 }
 
 
+fun LogToast(context:Context,message:String){
+    Toast.makeText(context,message, Toast.LENGTH_LONG).show()
+}
 
 
 
