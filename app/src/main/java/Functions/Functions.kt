@@ -57,6 +57,7 @@ import androidx.core.animation.LinearInterpolator
 import androidx.core.animation.ValueAnimator
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.Insets
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
@@ -314,6 +315,59 @@ object Images{
 
 }
 
+fun map(x:Float, in_min:Float, in_max:Float, out_min:Float, out_max:Float):Float {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+class Insets(view:View){
+    val insets = ViewCompat.getRootWindowInsets(view)
+
+
+    fun getInsetsStatusBar(): Insets? {
+
+        return insets?.getInsets(WindowInsetsCompat.Type.statusBars())
+
+    }
+    fun getInsetsNavigationBar(): Insets?{
+        return insets?.getInsets(WindowInsetsCompat.Type.navigationBars())
+    }
+    fun getInsetsIME(): Insets?{
+        return insets?.getInsets(WindowInsetsCompat.Type.ime())
+    }
+    fun getInsetsDisplayCutouts(): Insets?{
+        return insets?.getInsets(WindowInsetsCompat.Type.displayCutout())
+    }
+}
+
+
+
+
+
+fun setInsetsforItems(mutableArrayList: MutableList<View>,afterwards:(()->Unit)?=null) {
+    if (mutableArrayList.size > 0)
+        ViewCompat.setOnApplyWindowInsetsListener(mutableArrayList.first()) { v, insets ->
+            val systemBars =
+                insets.getInsets(WindowInsetsCompat.Type.systemBars() + WindowInsetsCompat.Type.displayCutout() + WindowInsetsCompat.Type.navigationBars() + WindowInsetsCompat.Type.statusBars())
+
+
+
+
+            mutableArrayList.forEach {
+                it.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+                )
+
+            }
+            if(afterwards!=null){
+                afterwards
+            }
+
+            insets
+        }
+}
 
 fun LogToast(context:Context,message:String){
     Toast.makeText(context,message, Toast.LENGTH_LONG).show()

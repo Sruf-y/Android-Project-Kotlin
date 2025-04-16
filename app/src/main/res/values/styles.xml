@@ -67,4 +67,14 @@
     <style name="BotofanTextStyle">
         <item name="android:textColor">@color/invertedLiftedBackgrounds</item>
     </style>
+
+
+
+
+
+
+    <style name="SelectedTextAppearance">
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

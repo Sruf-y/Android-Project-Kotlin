@@ -21,6 +21,10 @@
         <item name="buttonStyle">@style/DefaultButtonAndrei</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <item name="android:windowLayoutInDisplayCutoutMode">
+            never <!-- default, shortEdges, or never -->
+        </item>
     </style>
 
 
@@ -37,16 +41,10 @@
         <item name="buttonStyle">@style/DefaultButtonAndrei</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <item name="android:windowLayoutInDisplayCutoutMode">
+            never <!-- default, shortEdges, or never -->
+        </item>
     </style>
-
-    <style name="Theme.MyApplication2.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="Theme.MyApplication2.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="Theme.MyApplication2.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
 
 </resources>

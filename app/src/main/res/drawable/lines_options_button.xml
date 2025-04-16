@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="false">
+        <vector android:width="40dp" android:height="40dp"
+            android:viewportHeight="80"
+            android:viewportWidth="100"
+            android:tint="@color/white">
+
+            <path
+                android:strokeColor="@color/purple"
+                android:strokeWidth="4"
+                android:strokeLineCap="round"
+                android:pathData="M25,25 L75,25"/>
+            <path
+                android:strokeColor="@color/purple"
+                android:strokeWidth="4"
+                android:strokeLineCap="round"
+                android:pathData="M25,40 L75,40"/>
+            <path
+                android:strokeColor="@color/purple"
+                android:strokeWidth="4"
+                android:strokeLineCap="round"
+                android:pathData="M25,55 L75,55"/>
+        </vector>
+    </item>
+
+    <item android:state_pressed="true">
+        <vector android:width="40dp" android:height="40dp"
+            android:viewportHeight="80"
+            android:viewportWidth="100"
+            android:tint="@color/inactive">
+
+            <path
+                android:strokeColor="@color/purple"
+                android:strokeWidth="4"
+                android:strokeLineCap="round"
+                android:pathData="M25,25 L75,25"/>
+            <path
+                android:strokeColor="@color/purple"
+                android:strokeWidth="4"
+                android:strokeLineCap="round"
+                android:pathData="M25,40 L75,40"/>
+            <path
+                android:strokeColor="@color/purple"
+                android:strokeWidth="4"
+                android:strokeLineCap="round"
+                android:pathData="M25,55 L75,55"/>
+        </vector>
+    </item>
+</selector>

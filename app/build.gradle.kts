@@ -95,5 +95,5 @@ dependencies {
 
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
-
+    implementation("de.greenrobot:eventbus:2.4.0")
 }
