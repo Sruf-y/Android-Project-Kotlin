@@ -17,8 +17,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5"
-        tools:visibility="gone">
+        app:layout_constraintVertical_bias="0.5">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout2"
@@ -174,6 +173,7 @@
         android:layout_width="match_parent"
         android:layout_height="350dp"
         android:background="@drawable/upper_rounded_corners"
+        android:clickable="true"
         android:clipToOutline="true"
         android:elevation="2dp"
         app:layout_behavior="@string/bottom_sheet_behavior"
