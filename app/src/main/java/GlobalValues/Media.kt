@@ -4,6 +4,6 @@ import StorageTest.Classes.ExternalStoragePhoto
 import StorageTest.Classes.InternalStoragePhoto
 
 object Media {
-    var internalPictureList= ArrayList<InternalStoragePhoto>()
-    var externalPictureList= ArrayList<ExternalStoragePhoto>()
+    val CHANNEL_ID = "CHANNEL_ID"
+    val CHANNEL_NAME= "CHANNEL_NAME"
 }
