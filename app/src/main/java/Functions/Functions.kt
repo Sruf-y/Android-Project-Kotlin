@@ -63,6 +63,7 @@ import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.composepls.R
@@ -343,26 +344,24 @@ class Insets(view:View){
 
 
 
-fun setInsetsforItems(mutableArrayList: MutableList<View>,afterwards:(()->Unit)?=null) {
+fun setInsetsforItems(main:View,mutableArrayList: MutableList<View>,LEFT: Boolean=true,TOP: Boolean=true,RIGHT: Boolean=true,BOTTOM: Boolean=true) {
     if (mutableArrayList.size > 0)
-        ViewCompat.setOnApplyWindowInsetsListener(mutableArrayList.first()) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(main) { v, insets ->
             val systemBars =
-                insets.getInsets(WindowInsetsCompat.Type.systemBars() + WindowInsetsCompat.Type.displayCutout() + WindowInsetsCompat.Type.navigationBars() + WindowInsetsCompat.Type.statusBars())
+                insets.getInsets((WindowInsetsCompat.Type.displayCutout() ) + WindowInsetsCompat.Type.navigationBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
 
 
 
 
             mutableArrayList.forEach {
-                it.setPadding(
-                    systemBars.left,
-                    systemBars.top,
-                    systemBars.right,
-                    systemBars.bottom
+                it.updatePadding(
+                    if(LEFT){systemBars.left}else{0},
+                    if(TOP){systemBars.top}else{0},
+                    if(RIGHT){systemBars.right}else{0},
+                    if(BOTTOM){systemBars.bottom}else{0}
                 )
 
-            }
-            if(afterwards!=null){
-                afterwards
             }
 
             insets

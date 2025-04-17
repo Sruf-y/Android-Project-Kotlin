@@ -9,7 +9,10 @@ import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.setPadding
 import androidx.core.view.updatePadding
 import androidx.viewpager2.widget.ViewPager2
 import com.example.composepls.R
@@ -78,11 +81,11 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
         val topSystemBar = activity?.windowManager?.currentWindowMetrics?.windowInsets?.getInsets(WindowInsetsCompat.Type.displayCutout())
 
-        Log.i("TESTS",topSystemBar?.left.toString()+"   "+topSystemBar?.right.toString()+"   "+topSystemBar?.top.toString()+"   "+topSystemBar?.bottom.toString()+" :topSystembars")
+        //Log.i("TESTS",topSystemBar?.left.toString()+"   "+topSystemBar?.right.toString()+"   "+topSystemBar?.top.toString()+"   "+topSystemBar?.bottom.toString()+" :topSystembars")
 
         val bottomnavBar = activity?.windowManager?.currentWindowMetrics?.windowInsets?.getInsets(WindowInsetsCompat.Type.navigationBars())
 
-        Log.i("TESTS",bottomnavBar?.left.toString()+"   "+bottomnavBar?.right.toString()+"   "+bottomnavBar?.top.toString()+"   "+bottomnavBar?.bottom.toString())
+        //Log.i("TESTS",bottomnavBar?.left.toString()+"   "+bottomnavBar?.right.toString()+"   "+bottomnavBar?.top.toString()+"   "+bottomnavBar?.bottom.toString())
 
 
         if(resources.configuration.orientation== Configuration.ORIENTATION_LANDSCAPE) {
@@ -135,9 +138,10 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
         })
 
+        val actualSheetLayout = requireView().findViewById<ConstraintLayout>(R.id.ActualLayout)
 
 
-
+        Functions.setInsetsforItems(main,mutableListOf(bottomSheet),true,false,true,false)
 
 
 
