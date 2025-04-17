@@ -80,6 +80,7 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.readAttributes
+import kotlin.math.max
 
 
 // example of recyclerview configuration to add in order to be able tomove items around
@@ -345,14 +346,13 @@ class Insets(view:View){
 
 
 fun setInsetsforItems(main:View,mutableArrayList: MutableList<View>,LEFT: Boolean=true,TOP: Boolean=true,RIGHT: Boolean=true,BOTTOM: Boolean=true) {
+
+
     if (mutableArrayList.size > 0)
         ViewCompat.setOnApplyWindowInsetsListener(main) { v, insets ->
             val systemBars =
-                insets.getInsets((WindowInsetsCompat.Type.displayCutout() ) + WindowInsetsCompat.Type.navigationBars())
+                insets.getInsets(WindowInsetsCompat.Type.displayCutout() + WindowInsetsCompat.Type.navigationBars() + WindowInsetsCompat.Type.statusBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-
-
-
 
             mutableArrayList.forEach {
                 it.updatePadding(

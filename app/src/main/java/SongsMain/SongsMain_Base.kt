@@ -26,7 +26,7 @@ import kotlin.math.max
 
 class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
-
+    lateinit var tabsView: TabLayout
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +41,16 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
         val bus: EventBus? = EventBus.getDefault()
         val tabholder: ViewPager2 = requireView().findViewById(R.id.tabHolder)
-        val tabsView: TabLayout = requireView().findViewById(R.id.tabLayout)
+        tabsView = requireView().findViewById(R.id.tabLayout)
+
+        val main = requireView().findViewById<ConstraintLayout>(R.id.main)
+
+        val scene1: ConstraintLayout = requireView().findViewById(R.id.scene1)
+        val scene2: ConstraintLayout = requireView().findViewById(R.id.scene2)
+        val actualSheetLayout = requireView().findViewById<ConstraintLayout>(R.id.ActualLayout)
+
+
+
         tabholder.adapter= TabSwipeAdaptor(this)
         TabLayoutMediator(tabsView, tabholder){tab,position->
             when(position){
@@ -60,7 +69,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
         val bottomSheet = requireView().findViewById<ConstraintLayout>(R.id.bottomSheet)
         val behavior = BottomSheetBehavior.from(bottomSheet).apply {
-            peekHeight=50.dP
+            peekHeight=75.dP
             this.state= BottomSheetBehavior.STATE_COLLAPSED
         }
 
@@ -71,11 +80,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         // auto-rolling textview
         requireView().findViewById<TextView>(R.id.serviceColorCode).isSelected = true;
 
-        val main = requireView().findViewById<ConstraintLayout>(R.id.main)
 
-
-        val scene1: ConstraintLayout = requireView().findViewById(R.id.scene1)
-        val scene2: ConstraintLayout = requireView().findViewById(R.id.scene2)
 
 
 
@@ -88,17 +93,6 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         //Log.i("TESTS",bottomnavBar?.left.toString()+"   "+bottomnavBar?.right.toString()+"   "+bottomnavBar?.top.toString()+"   "+bottomnavBar?.bottom.toString())
 
 
-        if(resources.configuration.orientation== Configuration.ORIENTATION_LANDSCAPE) {
-            main.fitsSystemWindows=true
-
-            // NOT WORKING SADLY
-            if(bottomnavBar!=null)
-                bottomSheet.updatePadding(max(bottomnavBar.left,bottomnavBar.right),0,max(bottomnavBar.left,bottomnavBar.right),0)
-        }
-        else{
-            main.fitsSystemWindows=true
-
-        }
 
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -136,10 +130,11 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
         })
 
-        val actualSheetLayout = requireView().findViewById<ConstraintLayout>(R.id.ActualLayout)
 
 
+        Functions.setInsetsforItems(main,mutableListOf(main),true,true,true,true)
         Functions.setInsetsforItems(main,mutableListOf(bottomSheet),true,false,true,false)
+
 
 
 
@@ -160,11 +155,17 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
     }
 
 
+    fun restoreSavedState(){
+        tabsView = requireView().findViewById(R.id.tabLayout)
+
+    }
+
+
 
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-
+        outState.putInt("tab",tabsView.selectedTabPosition)
 
     }
 
