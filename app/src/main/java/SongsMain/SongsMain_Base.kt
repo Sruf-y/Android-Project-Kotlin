@@ -132,8 +132,6 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
                 scene1.visibility=View.VISIBLE
                 scene2.visibility=View.VISIBLE
 
-
-                Log.i("TESTS",slideOffset.toString())
             }
 
         })
