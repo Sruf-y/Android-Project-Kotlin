@@ -1,7 +1,12 @@
 package SongsMain
 
 import DataClasses_Ojects.Logs
+import Functions.AskForPermissionsAtStart
+import Functions.OpenAppSettings
+import Functions.VerifyPermissions
+import SongsMain.Classes.myMediaPlayer
 import Utilities.Utils.Companion.dP
+import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Bundle
@@ -13,6 +18,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.ConfigurationCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -49,6 +55,11 @@ class SongsMain_view : AppCompatActivity() {
         //requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
         setContentView(R.layout.activity_songs_main_view)
 
+
+
+
+
+
         val myStatusBarStyle = SystemBarStyle.dark(getColor(R.color.transparent))
         val myNavigationBarStyle = SystemBarStyle.dark(getColor(R.color.black))
         drawer=findViewById(R.id.drawerLayout)
@@ -84,6 +95,8 @@ class SongsMain_view : AppCompatActivity() {
             insets
         }
 
+        val mainCoord: CoordinatorLayout = findViewById(R.id.mainCoord)
+
 
         makeCurrentFragment(fragmentContainer,SongsMain.SongsMain_Base())
 
@@ -99,6 +112,7 @@ class SongsMain_view : AppCompatActivity() {
 
 
         bus.register(this)
+        myMediaPlayer.initializeMediaPlayer(this)
 
 
     }
@@ -115,9 +129,21 @@ class SongsMain_view : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        Log.i(Logs.LIFECYCLE.toString(),"MusicPlayer activity destroyed")
+
         bus.unregister(this)
+
         super.onDestroy()
     }
+
+    override fun onResume() {
+        super.onResume()
+
+        AskForPermissionsAtStart( this,GlobalValues.System.RequiredPermissions.subList(0,2))
+
+    }
+
+
 
 
 

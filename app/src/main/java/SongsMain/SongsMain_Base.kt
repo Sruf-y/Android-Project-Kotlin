@@ -1,27 +1,57 @@
 package SongsMain
 
 
+import Functions.setInsetsforItems
+import SongsMain.Classes.myMediaPlayer
 import Utilities.Utils.Companion.dP
-import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.ViewCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.setPadding
-import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.composepls.R
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDragHandleView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import de.greenrobot.event.EventBus
-import kotlin.math.max
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
@@ -45,10 +75,6 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
         val main = requireView().findViewById<ConstraintLayout>(R.id.main)
 
-        val scene1: ConstraintLayout = requireView().findViewById(R.id.scene1)
-        val scene2: ConstraintLayout = requireView().findViewById(R.id.scene2)
-        val actualSheetLayout = requireView().findViewById<ConstraintLayout>(R.id.ActualLayout)
-
 
 
         tabholder.adapter= TabSwipeAdaptor(this)
@@ -67,13 +93,6 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
             bus?.post(OpenDrawerEvent())
         }
 
-        val bottomSheet = requireView().findViewById<ConstraintLayout>(R.id.bottomSheet)
-        val behavior = BottomSheetBehavior.from(bottomSheet).apply {
-            peekHeight=75.dP
-            this.state= BottomSheetBehavior.STATE_COLLAPSED
-        }
-
-
 
 
 
@@ -81,72 +100,16 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         requireView().findViewById<TextView>(R.id.serviceColorCode).isSelected = true;
 
 
-
-
-
-        val topSystemBar = activity?.windowManager?.currentWindowMetrics?.windowInsets?.getInsets(WindowInsetsCompat.Type.displayCutout())
-
-        //Log.i("TESTS",topSystemBar?.left.toString()+"   "+topSystemBar?.right.toString()+"   "+topSystemBar?.top.toString()+"   "+topSystemBar?.bottom.toString()+" :topSystembars")
-
-        val bottomnavBar = activity?.windowManager?.currentWindowMetrics?.windowInsets?.getInsets(WindowInsetsCompat.Type.navigationBars())
-
-        //Log.i("TESTS",bottomnavBar?.left.toString()+"   "+bottomnavBar?.right.toString()+"   "+bottomnavBar?.top.toString()+"   "+bottomnavBar?.bottom.toString())
-
-
-
-        behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                when(newState){
-                    BottomSheetBehavior.STATE_COLLAPSED->{
-
-
-                        scene2.visibility=View.INVISIBLE
-
-                        scene1.visibility=View.VISIBLE
-                        scene1.alpha=1F
-                    }
-                    BottomSheetBehavior.STATE_EXPANDED->{
-
-
-                        scene1.visibility=View.INVISIBLE
-
-                        scene2.visibility=View.VISIBLE
-                        scene2.alpha=1F
-
-
-                    }
-                }
-            }
-
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-
-                scene2.alpha=slideOffset
-                scene1.alpha= Functions.map(slideOffset,0F,1F,1F,0F)
-
-                scene1.visibility=View.VISIBLE
-                scene2.visibility=View.VISIBLE
-
-            }
-
-        })
-
-
-
-        Functions.setInsetsforItems(main,mutableListOf(main),true,true,true,true)
-        Functions.setInsetsforItems(main,mutableListOf(bottomSheet),true,false,true,false)
+        setInsetsforItems(mutableListOf(main))
 
 
 
 
+        val composeview: ComposeView = requireView().findViewById(R.id.composeview)
 
-
-
-
-
-
-
-
-
+        composeview.setContent {
+            ComposeViewInterrior()
+        }
 
 
 
@@ -154,9 +117,69 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Preview(showBackground = true)
+    @Composable
+    fun ComposeViewInterrior(){
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            shape = RectangleShape,
+            shadowElevation = 2.dp,
+            color = Color.Blue
+        )
+        {
+            val sheetState = rememberModalBottomSheetState()
 
-    fun restoreSavedState(){
-        tabsView = requireView().findViewById(R.id.tabLayout)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
+
+                Button(
+                    colors = ButtonColors(Color(Resources.getSystem().getColor(R.color.gray)),
+                        Color(Resources.getSystem().getColor(R.color.gray)),
+                        Color(Resources.getSystem().getColor(R.color.gray)),
+                        Color(Resources.getSystem().getColor(R.color.gray))),
+                    onClick = {
+
+                    }
+                ) {
+                    Text(text="Open sheet")
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+            ModalBottomSheet(
+                sheetState=sheetState,
+                onDismissRequest = {TODO()}
+            ){
+                Image(
+                    painter = painterResource(id=R.drawable.comehere),
+                    contentDescription = null
+                )
+            }
+
+
+
+        }
+    }
+
+
+    fun restoreSavedState(savedInstanceState: Bundle?){
+        if(savedInstanceState!=null) {
+
+            tabsView = requireView().findViewById(R.id.tabLayout)
+            tabsView.selectTab(tabsView.getTabAt(savedInstanceState.getInt("tab", 0)))
+
+        }
 
     }
 
@@ -171,10 +194,20 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
     override fun onPause() {
         super.onPause()
+
+
     }
 
 
     override fun onResume() {
         super.onResume()
+
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+    }
+
+
 }

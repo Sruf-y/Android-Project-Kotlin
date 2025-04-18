@@ -1,12 +1,26 @@
 package SongsMain.Tabs
 
+import Functions.OpenAppSettings
+import Functions.VerifyPermissions
+import GlobalValues.Media
+import SongsMain.Classes.Song
+import SongsMain.Classes.myMediaPlayer
+import StorageTest.StorageMainActivity
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.ContentUris
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.database.Cursor
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.os.Parcelable
 import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -18,66 +32,92 @@ import android.widget.Button
 import android.widget.ListView
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.composepls.R
 import java.nio.file.Path
 import androidx.core.net.toUri
+import com.bumptech.glide.load.resource.file.FileDecoder
+import kotlinx.coroutines.stream.consumeAsFlow
+import okhttp3.Request
+import java.io.FileDescriptor
 
 class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
-    lateinit var mediaplayer:MediaPlayer
 
-    @SuppressLint("Range")
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
 
 
+       val  audioView = requireView().findViewById(R.id.songView) as ListView
 
 
 
 
 
 
-        val audioView = requireView().findViewById(R.id.songView) as ListView
 
-        val audioList = ArrayList<Uri>()
 
-        val proj = arrayOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.RELATIVE_PATH,
-            MediaStore.Audio.Media.DISPLAY_NAME,
-            MediaStore.Audio.Media.DATA
-        ) // Can include more data for more details and check it.
 
-        val audioCursor: Cursor? = requireActivity().getContentResolver().query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            proj,
-            "${MediaStore.Audio.Media.DISPLAY_NAME} like ?",
-            arrayOf("%.MP3"),
+
+
+        val FROM = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+        val lista = ArrayList<Song>()
+
+        val projection = arrayOf(
+            MediaStore.Downloads._ID,
+            MediaStore.Downloads.DISPLAY_NAME,
+            MediaStore.Downloads.SIZE,
+            MediaStore.Downloads.DATE_ADDED,
+            MediaStore.Downloads.MIME_TYPE,
+            MediaStore.Downloads.RELATIVE_PATH,   // Path relative to downloads directory
+            MediaStore.Downloads.DURATION
+        )
+
+        val selection = "${MediaStore.Audio.Media.RELATIVE_PATH} LIKE ?"
+
+        val selectionArgs= arrayOf("%")
+
+        val cursor: Cursor? = requireActivity().contentResolver.query(
+            FROM,
+            projection,
+            selection,
+            selectionArgs,
             null
         )
 
-        if (audioCursor != null) {
-            if (audioCursor.moveToFirst()) {
-                do {
-                    val id = audioCursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-                    val relativepath = audioCursor.getString(audioCursor.getColumnIndex(MediaStore.Audio.Media.RELATIVE_PATH))
-                    val url:String = audioCursor.getString(audioCursor.getColumnIndex(MediaStore.Audio.Media.DATA))
+
+        cursor?.use {
+            // Automatically closes the cursor when done
+            while (it.moveToNext()) {
+                val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Downloads._ID))
+                val relativePath = it.getString(it.getColumnIndexOrThrow(MediaStore.Downloads.RELATIVE_PATH))
+                val title = it.getString(it.getColumnIndexOrThrow(MediaStore.Downloads.DISPLAY_NAME))
+                val duration = it.getLong(it.getColumnIndexOrThrow(MediaStore.Downloads.DURATION))
+                // Create content URI for the file
+                val contentUri = ContentUris.withAppendedId(FROM, id)
+
+                lista.add(Song(contentUri.toString(),title,duration))
 
 
 
-                    audioList.add(url.toUri())
-                } while (audioCursor.moveToNext())
             }
         }
-        audioCursor!!.close()
 
-        val listToString = audioList.map { it.path }
 
-        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(requireActivity(), android.R.layout.simple_list_item_1, android.R.id.text1, listToString)
+
+        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
+            requireActivity(),
+            android.R.layout.simple_list_item_1,
+            android.R.id.text1,
+            lista.map{it.title}
+        )
+
         audioView.adapter = adapter
 
-
+        Log.i("TESTS","Nr melodii(SimpleSongList): "+lista.size.toString())
 
 
 
@@ -86,39 +126,29 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
         val butonplaystop = requireView().findViewById<Button>(R.id.button7)
-
-        if(audioList.isNotEmpty()){
-
-            val first = listToString.first().toString()
-
-            Log.i("TESTS",first.toString())
+        val first = lista.firstOrNull { p->p.title.lowercase().contains("pick a side") }
 
 
 
-            butonplaystop.setOnClickListener {
-                fun initializemedia() {
-                    mediaplayer = MediaPlayer().apply {
-                        AudioAttributes.Builder()
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .build()
+        if(lista.isNotEmpty()){
 
 
-                        setDataSource(first) // using path
-                        prepare()
-                    }
+            if(first!=null) {
+
+                myMediaPlayer.setSong(requireActivity(),first.songUri)
+
+
+                butonplaystop.setOnClickListener {
+
+
+                        myMediaPlayer.toggle()
+
                 }
 
-                initializemedia()
-                if(mediaplayer.isPlaying){
-                    mediaplayer.stop()
+                butonplaystop.setOnLongClickListener {
+                    myMediaPlayer.stop()
 
-                }else{
-                    initializemedia()
-
-                        mediaplayer.start()
-
-
+                    true
                 }
             }
         }
@@ -129,4 +159,18 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
     }
 
 
+
+
+
+    override fun onPause() {
+        super.onPause()
+
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+
+    }
 }

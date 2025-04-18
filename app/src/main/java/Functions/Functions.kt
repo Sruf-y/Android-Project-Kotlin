@@ -345,16 +345,17 @@ class Insets(view:View){
 
 
 
-fun setInsetsforItems(main:View,mutableArrayList: MutableList<View>,LEFT: Boolean=true,TOP: Boolean=true,RIGHT: Boolean=true,BOTTOM: Boolean=true) {
+fun setInsetsforItems(mutableArrayList: MutableList<View>,LEFT: Boolean=true,TOP: Boolean=true,RIGHT: Boolean=true,BOTTOM: Boolean=true) {
 
 
     if (mutableArrayList.size > 0)
-        ViewCompat.setOnApplyWindowInsetsListener(main) { v, insets ->
+        mutableArrayList.forEach {
+        ViewCompat.setOnApplyWindowInsetsListener(it) { v, insets ->
             val systemBars =
                 insets.getInsets(WindowInsetsCompat.Type.displayCutout() + WindowInsetsCompat.Type.navigationBars() + WindowInsetsCompat.Type.statusBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
 
-            mutableArrayList.forEach {
+
                 it.updatePadding(
                     if(LEFT){systemBars.left}else{0},
                     if(TOP){systemBars.top}else{0},
@@ -362,9 +363,10 @@ fun setInsetsforItems(main:View,mutableArrayList: MutableList<View>,LEFT: Boolea
                     if(BOTTOM){systemBars.bottom}else{0}
                 )
 
-            }
 
-            insets
+
+                insets
+            }
         }
 }
 
@@ -655,13 +657,21 @@ fun AskForPermissionsAtStart(activityContext:Activity, permissions:List<String>)
 
 
                     // PERMISSION FULLY DENIED ->
+                    val permisions_are_ok = VerifyPermissions(activityContext,GlobalValues.System.RequiredPermissions.subList(0,2))
 
-                    requestPermissionLauncher.launch(permission)
+                    if (!permisions_are_ok) {
+                        OpenAppSettings(activityContext)
+                    }
                 }
                 else -> {
                     // You can directly ask for the permission.
                     // The registered ActivityResultCallback gets the result of this request.
 
+                    val permisions_are_ok = VerifyPermissions(activityContext,GlobalValues.System.RequiredPermissions.subList(0,2))
+
+                    if (!permisions_are_ok) {
+                        OpenAppSettings(activityContext)
+                    }
                     requestPermissionLauncher.launch(permission)
                 }
             }

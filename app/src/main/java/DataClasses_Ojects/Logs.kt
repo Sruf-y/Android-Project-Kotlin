@@ -8,5 +8,6 @@ enum class Logs {
     LOGIC,
     FILE_IO,
     MATH,
-    LIFECYCLE
+    LIFECYCLE,
+    MEDIA_SOUND
 }

@@ -35,11 +35,9 @@
  Required only if your app needs to access audio files
          that other apps created.
     -->
+
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="29" />
+
 
     <uses-feature android:name="android.hardware.camera" />
 
@@ -55,9 +53,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BotofanThemeNoActionBar"
         tools:targetApi="31" >
-        <activity
-            android:name="Functions.MainActivity"
-            android:exported="false" />
+
 
         <provider
             android:name="androidx.core.content.FileProvider"

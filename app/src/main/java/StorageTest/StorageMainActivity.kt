@@ -37,7 +37,6 @@ import com.github.panpf.zoomimage.subsampling.ImageSource
 import com.github.panpf.zoomimage.subsampling.fromFile
 import java.io.File
 import androidx.core.graphics.scale
-import androidx.recyclerview.widget.GridLayoutManager
 
 
 class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.onClickListener,
@@ -127,7 +126,7 @@ class StorageMainActivity : AppCompatActivity(), Adapter_InternalStoragePhoto.on
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_storage_main)
         enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.header)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
