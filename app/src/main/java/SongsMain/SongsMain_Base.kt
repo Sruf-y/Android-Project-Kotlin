@@ -8,14 +8,18 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
+import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -23,8 +27,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -107,8 +115,70 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
         val composeview: ComposeView = requireView().findViewById(R.id.composeview)
 
+
+        setInsetsforItems(mutableListOf(composeview))
+
+
+        val bottomsheet: ConstraintLayout = requireView().findViewById(R.id.bottomsheet)
+
+        val behavior = BottomSheetBehavior.from(bottomsheet).apply {
+            isGestureInsetBottomIgnored=true
+
+            //this.peekHeight=40.dp.value.toInt()
+            Log.i("TESTS",this.peekHeight.toString())
+
+            this.state= BottomSheetBehavior.STATE_COLLAPSED
+        }
+
+
+        val scena1 = requireView().findViewById<ConstraintLayout>(R.id.scene1)
+        val scena2 = requireView().findViewById<ConstraintLayout>(R.id.scene2)
+
+
+        behavior.addBottomSheetCallback(object:BottomSheetBehavior.BottomSheetCallback(){
+            override fun onStateChanged(bottomSheet: View, newState: Int){
+                when(newState){
+                    BottomSheetBehavior.STATE_COLLAPSED->{
+
+                    }
+
+                    BottomSheetBehavior.STATE_DRAGGING -> {
+
+                    }
+
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+
+                    }
+
+                    BottomSheetBehavior.STATE_HALF_EXPANDED -> {
+
+                    }
+
+                    BottomSheetBehavior.STATE_HIDDEN -> {
+
+                    }
+
+                    BottomSheetBehavior.STATE_SETTLING -> {
+
+                    }
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+
+                scena1.alpha=Functions.map(slideOffset,0F,1F,1F,0F)
+                scena2.alpha= slideOffset
+            }
+        })
+
+
+
+
+
+
+
         composeview.setContent {
-            ComposeViewInterrior()
+            //ComposeViewInterrior()
         }
 
 
@@ -121,14 +191,23 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
     @Preview(showBackground = true)
     @Composable
     fun ComposeViewInterrior(){
+
+        val sheetState = rememberModalBottomSheetState()
+        var isSheetOpen = rememberSaveable {
+            mutableStateOf(false)
+        }
+
+        val scope = rememberCoroutineScope()
+
+
         Surface(
             modifier = Modifier.fillMaxSize(),
             shape = RectangleShape,
             shadowElevation = 2.dp,
-            color = Color.Blue
+            color = Color.Transparent
         )
         {
-            val sheetState = rememberModalBottomSheetState()
+
 
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -136,11 +215,8 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
             ){
 
                 Button(
-                    colors = ButtonColors(Color(Resources.getSystem().getColor(R.color.gray)),
-                        Color(Resources.getSystem().getColor(R.color.gray)),
-                        Color(Resources.getSystem().getColor(R.color.gray)),
-                        Color(Resources.getSystem().getColor(R.color.gray))),
                     onClick = {
+                        isSheetOpen.value=true
 
                     }
                 ) {
@@ -152,20 +228,37 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
 
+            val scaffoldState = rememberBottomSheetScaffoldState()
 
+            BottomSheetScaffold(
 
-
-
-
-            ModalBottomSheet(
-                sheetState=sheetState,
-                onDismissRequest = {TODO()}
-            ){
-                Image(
-                    painter = painterResource(id=R.drawable.comehere),
-                    contentDescription = null
+                scaffoldState = scaffoldState,
+                sheetPeekHeight = TODO(),
+                sheetContainerColor = TODO(),
+                sheetContentColor = TODO(),
+                sheetTonalElevation = TODO(),
+                sheetShadowElevation = TODO(),
+                sheetDragHandle = TODO(),
+                sheetSwipeEnabled = TODO(),
+                content = TODO(),
+                sheetContent ={ Image(
+                    modifier = Modifier.fillMaxWidth(),
+                    painter = painterResource(id = R.drawable.comehere),
+                    contentDescription = null,
                 )
-            }
+                })
+
+
+//            if (isSheetOpen.value) {
+//                ModalBottomSheet(
+//                    sheetState = sheetState,
+//                    onDismissRequest = {
+//                        isSheetOpen.value = false
+//                    }
+//                ) {
+//
+//                }
+//            }
 
 
 
