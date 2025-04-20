@@ -178,9 +178,8 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list){
                         return@withContext
                     }
                     Log.i(Logs.MEDIA_SOUND.toString(), "Global songs list creation completed")
-                } else {
-                    //if (newList.size != adaptor.mList.size) {
-                        //adding/removing to list
+                } else {// if adaptor list not empty, re-flush it
+
                         withContext(Dispatchers.Main) {
 
 
@@ -195,23 +194,10 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list){
 
                             }
 
-
                             return@withContext
-                        //}
                         Log.i(Logs.MEDIA_SOUND.toString(), "Global songs appending/removal completed")
 
-//                    } else {
-//                        //updating list
-//                        val list_of_items_to_update =
-//                            Functions.arrayListNeedingUpdate(adaptor.mList, newList)
 //
-//                        list_of_items_to_update.forEach {
-//                            withContext(Dispatchers.Main) {
-//                                adaptor.notifyItemChanged(adaptor.mList.indexOf(it))
-//                                return@withContext
-//                            }
-//                        }
-//                        Log.i(Logs.MEDIA_SOUND.toString(), "Global songs update completed")
 
 
                     }

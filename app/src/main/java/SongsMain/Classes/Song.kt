@@ -33,7 +33,9 @@ import kotlin.time.Duration
    if (songUri != other.songUri) return false
    if (title != other.title) return false
    if (author != other.author) return false
-   if(thumbnail!=other.thumbnail) return false
+//   if (thumbnail != null && other.thumbnail != null) {
+//    if (thumbnail != other.thumbnail) return false
+//   }
 
 
 
