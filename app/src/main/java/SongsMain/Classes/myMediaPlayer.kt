@@ -8,6 +8,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
+import java.time.LocalDateTime
 import kotlin.coroutines.coroutineContext
 
 object myMediaPlayer {
@@ -15,6 +16,9 @@ object myMediaPlayer {
 
     var mediaplayer: MediaPlayer = MediaPlayer()
     private var isInitialized=false
+    var currentlyPlayingSong:Song? = null
+    val currentPlaylist: Playlist? = null
+    var isLoopingInPlaylist:Boolean = true
 
 
     fun initializeMediaPlayer(context: Context) {
@@ -39,29 +43,31 @@ object myMediaPlayer {
 init {
 
 }
-    fun setSong(context: Context, uri: Uri) {
-        mediaplayer.apply {
-            reset() // Clear previous source
-            context.contentResolver.openFileDescriptor(uri, "r")?.use { pfd ->
-                setDataSource(pfd.fileDescriptor)
-                prepareAsync() // ← Prepare AFTER setting source
-            }
-        }
-    }
 
 
-    fun setSong(activity: Activity, songURI: String) {
+
+    fun setSong(activity: Activity, song:Song) {
         try {
             if (!mediaplayer.isPlaying){
                 mediaplayer.apply {
                     activity.applicationContext.contentResolver.openFileDescriptor(
-                        songURI.toUri(),
+                        song.songUri.toUri(),
                         "r"
                     ).use { pfd ->
 
 
                         setDataSource(pfd?.fileDescriptor)
                         prepareAsync()
+
+
+                        song.timesListened++
+                        song.lastPlayed= LocalDateTime.now()
+                        currentlyPlayingSong=song
+
+
+
+
+
                     }
                 }
 
@@ -78,16 +84,19 @@ init {
             //launch the notification maybe?
         }
 
-        mediaplayer.start()
+        if(currentlyPlayingSong!=null)
+            mediaplayer.start()
     }
 
     fun stop() {
-        mediaplayer.stop()
+        if(currentlyPlayingSong!=null) {
+            mediaplayer.stop()
 
-        try {
-            mediaplayer.prepare()
-        } catch (e: Exception) {
-            Log.e(Logs.MEDIA_SOUND.toString(), "Error preparing after stop", e)
+            try {
+                //mediaplayer.prepare()
+            } catch (e: Exception) {
+                Log.e(Logs.MEDIA_SOUND.toString(), "Error preparing after stop", e)
+            }
         }
     }
 
@@ -107,7 +116,8 @@ init {
     val isPlaying get() = mediaplayer.isPlaying
 
     fun reset() {
-        mediaplayer.reset()
+        if(currentlyPlayingSong!=null)
+            mediaplayer.reset()
     }
 
     fun release() {
@@ -115,7 +125,8 @@ init {
     }
 
     fun pause(){
-        mediaplayer.pause()
+        if(currentlyPlayingSong!=null)
+            mediaplayer.pause()
     }
 
 

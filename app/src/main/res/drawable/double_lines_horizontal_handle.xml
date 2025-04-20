@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <vector android:width="40dp" android:height="40dp"
+            android:viewportHeight="80"
+            android:viewportWidth="100"
+            android:tint="@color/white">
+
+            <path
+                android:strokeColor="@color/purple"
+                android:strokeWidth="4"
+                android:strokeLineCap="round"
+                android:pathData="M25,30 L75,30"/>
+            <path
+                android:strokeColor="@color/purple"
+                android:strokeWidth="4"
+                android:strokeLineCap="round"
+                android:pathData="M25,50 L75,50"/>
+
+        </vector>
+    </item>
+
+
+</selector>

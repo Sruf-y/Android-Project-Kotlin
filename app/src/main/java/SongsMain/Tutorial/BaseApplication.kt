@@ -1,6 +1,6 @@
 package SongsMain.Tutorial
-import GlobalValues.Media.CHANNEL_NAME
-import GlobalValues.Media.CHANNEL_ID
+import SongsMain.Classes.SongsGlobalVars.CHANNEL_NAME
+import SongsMain.Classes.SongsGlobalVars.CHANNEL_ID
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager

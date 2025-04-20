@@ -36,7 +36,7 @@ class General_Purpose_Recycle_Adapter<T>(val mList: List<T>): RecyclerView.Adapt
     ): RecyclerView.ViewHolder {
         val view: View
 
-        //view = LayoutInflater.from(parent.context).inflate(R.layout.)
+        //view = LayoutInflater.from(parent.context).inflate(R.layout._,parent,false)
         TODO()
     }
 

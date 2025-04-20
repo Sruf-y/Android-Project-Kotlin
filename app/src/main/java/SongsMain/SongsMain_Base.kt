@@ -122,24 +122,30 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         val bottomsheet: ConstraintLayout = requireView().findViewById(R.id.bottomsheet)
 
         val behavior = BottomSheetBehavior.from(bottomsheet).apply {
+
+            val value = 50.dP
+
+            this.peekHeight=value
+            Log.i("TESTS","PeekHeight of bottom sheet"+value.toString())
+
+
             isGestureInsetBottomIgnored=true
-
-            //this.peekHeight=40.dp.value.toInt()
-            Log.i("TESTS",this.peekHeight.toString())
-
             this.state= BottomSheetBehavior.STATE_COLLAPSED
         }
 
 
         val scena1 = requireView().findViewById<ConstraintLayout>(R.id.scene1)
         val scena2 = requireView().findViewById<ConstraintLayout>(R.id.scene2)
+        scena1.visibility=View.VISIBLE
+        scena2.visibility=View.GONE
 
 
         behavior.addBottomSheetCallback(object:BottomSheetBehavior.BottomSheetCallback(){
             override fun onStateChanged(bottomSheet: View, newState: Int){
                 when(newState){
                     BottomSheetBehavior.STATE_COLLAPSED->{
-
+                        scena1.visibility=View.VISIBLE
+                        scena2.visibility=View.GONE
                     }
 
                     BottomSheetBehavior.STATE_DRAGGING -> {
@@ -147,7 +153,8 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
                     }
 
                     BottomSheetBehavior.STATE_EXPANDED -> {
-
+                        scena1.visibility=View.GONE
+                        scena2.visibility=View.VISIBLE
                     }
 
                     BottomSheetBehavior.STATE_HALF_EXPANDED -> {
@@ -168,6 +175,9 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
                 scena1.alpha=Functions.map(slideOffset,0F,1F,1F,0F)
                 scena2.alpha= slideOffset
+
+                scena1.visibility=View.VISIBLE
+                scena2.visibility=View.VISIBLE
             }
         })
 

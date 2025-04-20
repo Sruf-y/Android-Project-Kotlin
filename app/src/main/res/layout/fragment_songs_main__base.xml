@@ -209,19 +209,19 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottomsheet"
             android:layout_width="match_parent"
-            android:layout_height="350dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/upper_rounded_corners"
             android:backgroundTint="#FBFF00"
             android:clipToOutline="true"
-            app:behavior_peekHeight="40dp"
+            android:elevation="2dp"
+            app:behavior_peekHeight="auto"
             app:layout_behavior="@string/bottom_sheet_behavior">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/scene2"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="250dp"
                 android:background="#FF0000"
-                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -231,7 +231,7 @@
 
                 <ImageView
                     android:id="@+id/imageView3"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:src="@drawable/comehere"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -245,7 +245,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/scene1"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:background="#B9C1DB"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -274,6 +274,19 @@
                     app:layout_constraintVertical_bias="0.5"
                     tools:layout_conversion_absoluteHeight="19dp"
                     tools:layout_conversion_absoluteWidth="411dp" />
+
+                <Button
+                    android:id="@+id/button8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Button"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.5" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
