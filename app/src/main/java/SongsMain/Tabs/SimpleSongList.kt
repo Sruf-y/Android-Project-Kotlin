@@ -190,18 +190,12 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list), SongListAda
     ) {
 
 
-
-
         if(myMediaPlayer.currentlyPlayingSong!=adaptor.mList[position]) {
             myMediaPlayer.reset()
             myMediaPlayer.setSong(requireActivity(), adaptor.mList[position])
-        }else{
-            myMediaPlayer.toggle()
         }
 
-
-
-
+        myMediaPlayer.toggle()
 
 
     }

@@ -81,7 +81,7 @@ init {
 
     fun start() {
         mediaplayer.setOnPreparedListener {
-            //launch the notification maybe?
+            mediaplayer.start()
         }
 
         if(currentlyPlayingSong!=null)
