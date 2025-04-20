@@ -15,6 +15,7 @@ import kotlin.time.Duration
   var dateAdded: LocalDateTime=LocalDateTime.now()
   var timesListened:Int=0
   var lastPlayed:LocalDateTime? = null
+  var bitmapofThumbNail:Bitmap?=null // For runtime usage only, json cannot save bitmaps apparently...
 
 
 

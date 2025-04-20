@@ -35,11 +35,13 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list){
     lateinit var audioRecycler: RecyclerView
     lateinit var adaptor: SongListAdapter
 
-
+    var appFreshOpen=true
 
     var queryFinished=false
 
     var reloadRequestFull=false
+
+    var internalList: ArrayList<Song> = ArrayList<Song>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -74,43 +76,43 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list){
 
 
 
-        var internalList: ArrayList<Song> = ArrayList<Song>()
+
 
 
 
         internalList = Functions.loadFromJson(requireContext(), "GlobalSongs", internalList)
 
 
-
-
-
-
-
-
-
         // actual loading into recycler
 
+        if (appFreshOpen) { //only once per app open
+            if (internalList.isEmpty()) {
 
-        if (internalList.isEmpty()){
+                lifecycleScope.launch {
+                    while (!queryFinished) {
+                        delay(50)
+                    }
+                    // query is finished, i have the list inside the adapter CHECK THE FIRST FUNCTION DOWN!!!!!!!!
+                }
 
-            lifecycleScope.launch {
-                while(!queryFinished){delay(50)}
-                // query is finished, i have the list inside the adapter CHECK THE FIRST FUNCTION DOWN!!!!!!!!
+
+
+                Log.i(Logs.FILE_IO.toString(), "Loading global songs from external query")
+                queryAndUpdateSongsRecycler()
+            } else {
+                Log.i(Logs.FILE_IO.toString(), "Loading global songs from internal")
+
+                adaptor.mList.clear()
+                adaptor.mList.addAll(internalList)
+                adaptor.notifyItemRangeInserted(0,adaptor.mList.size)
+
+
             }
-
-
-
-            Log.i(Logs.FILE_IO.toString(),"Loading global songs from external query")
-            queryAndUpdateSongsRecycler()
         }
         else{
-            Log.i(Logs.FILE_IO.toString(),"Loading global songs from internal")
-
-            adaptor.mList.clear()
+            // onReCreate
             adaptor.mList.addAll(internalList)
-            adaptor.notifyDataSetChanged()
-
-
+            adaptor.notifyItemRangeInserted(0,adaptor.mList.size)
 
         }
 
@@ -172,6 +174,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list){
                             adaptor.notifyItemInserted(index)
                         }
 
+
                         return@withContext
                     }
                     Log.i(Logs.MEDIA_SOUND.toString(), "Global songs list creation completed")
@@ -213,6 +216,9 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list){
 
                     }
                 }
+
+                internalList.clear()
+                internalList.addAll(adaptor.mList)
                 reloadRequestFull=false
             }
         }
