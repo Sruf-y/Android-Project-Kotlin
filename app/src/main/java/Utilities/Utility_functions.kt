@@ -18,6 +18,8 @@ class Utils {
         val Double.dP: Int
             get() = (this/(Resources.getSystem().displayMetrics.densityDpi/160f)*9).roundToInt()
 
-
+        fun toPixels(value:Float):Int{
+            return ((value/9)*Resources.getSystem().displayMetrics.densityDpi*160f).roundToInt()
+        }
     }
 }

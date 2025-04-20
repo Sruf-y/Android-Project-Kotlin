@@ -11,9 +11,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.example.composepls.R
 
-class SongListAdapter<T>(var mList:ArrayList<T>, val tip: Tip_For_adaptor, val context:Context, val clickListener: onClickListener, val longClickListener: onLongPressListener): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class SongListAdapter<T>( var mList:ArrayList<T>, val tip: Tip_For_adaptor, val context:Context, val clickListener: onClickListener, val longClickListener: onLongPressListener): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     interface onClickListener{
         fun setOnCardClickListener(position:Int,itemViewHolder: RecyclerView.ViewHolder)
@@ -47,6 +48,8 @@ class SongListAdapter<T>(var mList:ArrayList<T>, val tip: Tip_For_adaptor, val c
         return itemInList(view)
     }
 
+
+
     override fun onBindViewHolder(
         holder: RecyclerView.ViewHolder,
         position: Int
@@ -64,9 +67,15 @@ class SongListAdapter<T>(var mList:ArrayList<T>, val tip: Tip_For_adaptor, val c
                         .placeholder(R.drawable.blank) // Show while loading
                         .error(R.drawable.blank_gray) // Show if load fails
                         .dontAnimate() // Optional: prevents crossfade
-                        .diskCacheStrategy(DiskCacheStrategy.ALL) // caching pictures to not reload them every single time
+                        //.diskCacheStrategy(DiskCacheStrategy.ALL) // caching pictures to not reload them every single time
                         .into(displayImageView)
 
+                    // NOT WORKING
+//                    Glide.with(context)
+//                        .load(song.thumbnail)
+//                        .apply( RequestOptions().override(Utilities.Utils.Companion.toPixels(50F), Utilities.Utils.Companion.toPixels(50F))
+//                            .placeholder(R.drawable.blank).error(R.drawable.blank_gray))
+//                        .into(displayImageView);
 
 
                     displayTitle.text=song.title

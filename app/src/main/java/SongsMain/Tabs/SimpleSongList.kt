@@ -8,6 +8,7 @@ import SongsMain.Classes.SongListAdapter
 import StorageTest.Classes.Tip_For_adaptor
 import android.content.ContentUris
 import android.database.Cursor
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -31,6 +32,8 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list), SongListAda
 
     lateinit var audioRecycler: RecyclerView
     lateinit var adaptor: SongListAdapter<Song>
+    lateinit var thumbnailList: ArrayList<Bitmap?>
+    var thumbsInitialized:Boolean = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -40,7 +43,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list), SongListAda
 
         audioRecycler = requireView().findViewById(R.id.songView);
         audioRecycler.setItemViewCacheSize(20) // Cache more views offscreen
-        // audioRecycler.setHasFixedSize(true) // If items have consistent size
+        audioRecycler.setHasFixedSize(true) // If items have consistent size
 
 
 
@@ -64,9 +67,18 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list), SongListAda
         //Log.i("TESTS","Nr melodii(SimpleSongList): "+lista.size.toString())
 
 
+
         doQuery()
 
 
+        lifecycleScope.launch {
+            while(!thumbsInitialized){delay(50)}
+            thumbnailList.forEachIndexed { index,bitmap->
+                adaptor.mList[index].thumbnail=bitmap
+
+            }
+            adaptor.notifyItemRangeChanged(0,adaptor.mList.size)
+        }
 
 
         val butonplaystop = requireView().findViewById<Button>(R.id.button7)
@@ -92,9 +104,9 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list), SongListAda
 
     }
 
-    fun doQuery(): ArrayList<Song> {
+    fun doQuery(): ArrayList<Bitmap?> {
         val FROM = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-        val lista = ArrayList<Song>()
+        val lista = ArrayList<Bitmap?>()
 
         val projection = arrayOf(
             MediaStore.Downloads._ID,
@@ -133,32 +145,31 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list), SongListAda
                         val contentUri = ContentUris.withAppendedId(FROM, id)
 
 
-
+                            // MAKE A LIST OF THUMBNAILS AND RETURN THAT. AFTERWARDS, IN A COROUTINE, UPDATE
                         val thumbnail =
                             try {
                                 context?.contentResolver?.loadThumbnail(
                                     contentUri,
                                     Size(200, 200), null
                                 )
+
                             }catch (ex: Exception){
                                 null
                             }
+                        lista.add(thumbnail)
 
-
-                        val song = Song(contentUri.toString(), thumbnail, title, author, duration)
+                        val song = Song(contentUri.toString(), null, title, author, duration)
 
                         // Add to both lists and update UI
                         withContext(Dispatchers.Main) {
-                            lista.add(song)
                             adaptor.mList.add(song)
                             adaptor.notifyItemInserted(adaptor.mList.size - 1)
                         }
                     }
+                    thumbnailList= ArrayList<Bitmap?>(lista)
+                    thumbsInitialized=true
                 }
             }
-
-
-
 
         }
 
@@ -166,15 +177,26 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list), SongListAda
     }
 
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        recycleState = audioRecycler.layoutManager?.onSaveInstanceState() ?: return
+        outState.putParcelable("recycler_state", recycleState)
+    }
 
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        savedInstanceState?.let {
+            recycleState = it.getParcelable("recycler_state") ?: return@let
+            audioRecycler.layoutManager?.onRestoreInstanceState(recycleState)
+        }
 
-
+    }
 
 
 
     override fun onPause() {
         super.onPause()
-        recycleState = audioRecycler.layoutManager?.onSaveInstanceState()
+
 
     }
 
