@@ -5,9 +5,8 @@ import GlobalValues.Alarme.recycleState
 import SongsMain.Classes.Song
 import SongsMain.Classes.myMediaPlayer
 import SongsMain.Classes.SongListAdapter
-import StorageTest.Classes.Tip_For_adaptor
+import SongsMain.Classes.SongsGlobalVars
 import android.content.ContentUris
-import android.database.Cursor
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
@@ -19,21 +18,28 @@ import android.widget.Button
 import com.example.composepls.R
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import coil3.toCoilUri
 import de.greenrobot.event.EventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.time.Duration
+import java.time.LocalTime
 
-class SimpleSongList : Fragment(R.layout.fragment_simple_song_list), SongListAdapter.onClickListener,
-    SongListAdapter.onLongPressListener {
+class SimpleSongList : Fragment(R.layout.fragment_simple_song_list){
 
     lateinit var audioRecycler: RecyclerView
-    lateinit var adaptor: SongListAdapter<Song>
-    lateinit var thumbnailList: ArrayList<Bitmap?>
-    var thumbsInitialized:Boolean = false
+    lateinit var adaptor: SongListAdapter
+
+
+
+    var queryFinished=false
+
+    var reloadRequestFull=false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -44,58 +50,83 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list), SongListAda
         audioRecycler = requireView().findViewById(R.id.songView);
         audioRecycler.setItemViewCacheSize(20) // Cache more views offscreen
         audioRecycler.setHasFixedSize(true) // If items have consistent size
+        //audioRecycler.recycledViewPool.setMaxRecycledViews(0, 15)
 
+        // adaptor
+        adaptor = SongListAdapter(
+            audioRecycler,
+            ArrayList(),
+            requireContext(),
+            {song->
+                if(myMediaPlayer.currentlyPlayingSong!=song) {
+                    myMediaPlayer.reset()
+                    myMediaPlayer.setSong(requireActivity(), song)
+                }
 
+                myMediaPlayer.toggle()
+            },{
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //Log.i("TESTS","Nr melodii(SimpleSongList): "+lista.size.toString())
-
-
-
-        doQuery()
-
-
-        lifecycleScope.launch {
-            while(!thumbsInitialized){delay(50)}
-            thumbnailList.forEachIndexed { index,bitmap->
-                adaptor.mList[index].thumbnail=bitmap
-
+                myMediaPlayer.stop()
             }
-            adaptor.notifyItemRangeChanged(0,adaptor.mList.size)
+        )
+        audioRecycler.layoutManager= LinearLayoutManager(requireContext(),RecyclerView.VERTICAL,false)
+        audioRecycler.adapter = adaptor
+
+
+
+        var internalList: ArrayList<Song> = ArrayList<Song>()
+
+
+
+        internalList = Functions.loadFromJson(requireContext(), "GlobalSongs", internalList)
+
+
+
+
+
+
+
+
+
+        // actual loading into recycler
+
+
+        if (internalList.isEmpty()){
+
+            lifecycleScope.launch {
+                while(!queryFinished){delay(50)}
+                // query is finished, i have the list inside the adapter CHECK THE FIRST FUNCTION DOWN!!!!!!!!
+            }
+
+
+
+            Log.i(Logs.FILE_IO.toString(),"Loading global songs from external query")
+            queryAndUpdateSongsRecycler()
         }
+        else{
+            Log.i(Logs.FILE_IO.toString(),"Loading global songs from internal")
+
+            adaptor.mList.clear()
+            adaptor.mList.addAll(internalList)
+            adaptor.notifyDataSetChanged()
+
+
+
+        }
+
+
+
 
 
         val butonplaystop = requireView().findViewById<Button>(R.id.button7)
 
+        butonplaystop.setOnClickListener {
+            lifecycleScope.launch {
+                queryAndUpdateSongsRecycler()
+            }
 
 
-
-
-
-
-
-
-
-
-
-
-
+        }
 
 
 
@@ -104,76 +135,160 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list), SongListAda
 
     }
 
-    fun doQuery(): ArrayList<Bitmap?> {
-        val FROM = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-        val lista = ArrayList<Bitmap?>()
+
+
+
+
+
+
+
+    // does the query and then updates the data
+    fun queryAndUpdateSongsRecycler(){
+
+        if(!reloadRequestFull) {
+            reloadRequestFull = true
+            lifecycleScope.launch(Dispatchers.IO) {
+
+
+                // NEED TO DO THIS TWICH, A 2ND TIME AT THE END AND COMPARE THEM
+
+
+                val newList = doQuery()
+
+
+
+
+
+                Functions.saveAsJson(requireContext(), "GlobalSongs", newList)
+
+
+                if (adaptor.mList.isEmpty()) {
+                    //newly creating list
+
+                    withContext(Dispatchers.Main) {
+
+                        adaptor.mList = newList
+                        adaptor.mList.forEachIndexed { index,song->
+                            adaptor.notifyItemInserted(index)
+                        }
+
+                        return@withContext
+                    }
+                    Log.i(Logs.MEDIA_SOUND.toString(), "Global songs list creation completed")
+                } else {
+                    //if (newList.size != adaptor.mList.size) {
+                        //adding/removing to list
+                        withContext(Dispatchers.Main) {
+
+
+                            lifecycleScope.launch {
+                                adaptor.mList= withContext(Dispatchers.Main) {
+
+
+                                    adaptor.mList = newList
+                                    adaptor.notifyDataSetChanged()
+                                    return@withContext newList
+                                }
+
+                            }
+
+
+                            return@withContext
+                        //}
+                        Log.i(Logs.MEDIA_SOUND.toString(), "Global songs appending/removal completed")
+
+//                    } else {
+//                        //updating list
+//                        val list_of_items_to_update =
+//                            Functions.arrayListNeedingUpdate(adaptor.mList, newList)
+//
+//                        list_of_items_to_update.forEach {
+//                            withContext(Dispatchers.Main) {
+//                                adaptor.notifyItemChanged(adaptor.mList.indexOf(it))
+//                                return@withContext
+//                            }
+//                        }
+//                        Log.i(Logs.MEDIA_SOUND.toString(), "Global songs update completed")
+
+
+                    }
+                }
+                reloadRequestFull=false
+            }
+        }
+
+    }
+
+    suspend fun doQuery(): ArrayList<Song> =withContext(Dispatchers.IO){
+        val FROM = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        val lista = ArrayList<Song>()
+
+        queryFinished=false
+        val queryStartTime: LocalTime=LocalTime.now()
+
 
         val projection = arrayOf(
-            MediaStore.Downloads._ID,
-            MediaStore.Downloads.DISPLAY_NAME,
-            MediaStore.Downloads.DURATION,
-            MediaStore.Downloads.ARTIST
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.DISPLAY_NAME,
+            MediaStore.Audio.Media.DURATION,
+            MediaStore.Audio.Media.ARTIST
         )
 
         val selection = "${MediaStore.Audio.Media.RELATIVE_PATH} LIKE ?"
         val selectionArgs = arrayOf("%")
 
         // Initialize adapter with empty list
-        adaptor = SongListAdapter(
-            ArrayList(),
-            Tip_For_adaptor.song,
-            requireContext(),
-            this@SimpleSongList,
-            this@SimpleSongList
-        )
-        audioRecycler.adapter = adaptor
-        audioRecycler.layoutManager = StaggeredGridLayoutManager(1, RecyclerView.VERTICAL)
 
-        lifecycleScope.launch {
+
+
+
             // Phase 1: Stream items as they're found
-            withContext(Dispatchers.IO) {
+
                 val cursor = requireActivity().contentResolver.query(
                     FROM, projection, selection, selectionArgs, null
                 )
 
                 cursor?.use { cursor ->
                     while (cursor.moveToNext()) {
-                        val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Downloads._ID))
-                        val title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Downloads.DISPLAY_NAME))
-                        val duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Downloads.DURATION))
-                        val author = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Downloads.ARTIST))
+                        val id =
+                            cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID))
+                        val title =
+                            cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME))
+                        val duration =
+                            cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
+                        val author =
+                            cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST))
                         val contentUri = ContentUris.withAppendedId(FROM, id)
 
 
-                            // MAKE A LIST OF THUMBNAILS AND RETURN THAT. AFTERWARDS, IN A COROUTINE, UPDATE
-                        val thumbnail =
-                            try {
-                                context?.contentResolver?.loadThumbnail(
-                                    contentUri,
-                                    Size(200, 200), null
-                                )
+                        val thumbnail = try{context?.contentResolver?.loadThumbnail(contentUri, Size(200, 200),null)}catch(ex: Exception){null}
 
-                            }catch (ex: Exception){
-                                null
-                            }
-                        lista.add(thumbnail)
 
-                        val song = Song(contentUri.toString(), null, title, author, duration)
+                        Functions.Images.saveToFile(contentUri.lastPathSegment.toString(),thumbnail,
+                            SongsGlobalVars.musicDirectory(requireActivity()))
 
-                        // Add to both lists and update UI
-                        withContext(Dispatchers.Main) {
-                            adaptor.mList.add(song)
-                            adaptor.notifyItemInserted(adaptor.mList.size - 1)
-                        }
+                        val thumbnailFile = File(SongsGlobalVars.musicDirectory(requireActivity()),contentUri.lastPathSegment.toString()+".jpg")
+
+                        val song = Song(
+                            contentUri.toString(), title, thumbnailFile,author, duration
+                        )
+
+
+                        // Add to both lists
+                        lista.add(song)
+                        //adaptor.mList.add(song)
+
+
+
                     }
-                    thumbnailList= ArrayList<Bitmap?>(lista)
-                    thumbsInitialized=true
+
+                    queryFinished=true
+                    Log.i("TESTS","Query took ${Duration.between(queryStartTime, LocalTime.now()).toMillis()} miliseconds")
+
+
                 }
-            }
 
-        }
-
-        return lista
+        return@withContext lista
     }
 
 
@@ -206,26 +321,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list), SongListAda
 
     }
 
-    override fun setOnCardClickListener(
-        position: Int,
-        itemViewHolder: RecyclerView.ViewHolder
-    ) {
 
 
-        if(myMediaPlayer.currentlyPlayingSong!=adaptor.mList[position]) {
-            myMediaPlayer.reset()
-            myMediaPlayer.setSong(requireActivity(), adaptor.mList[position])
-        }
 
-        myMediaPlayer.toggle()
-
-
-    }
-
-    override fun setOnCardLongPressListener(
-        position: Int,
-        itemViewHolder: RecyclerView.ViewHolder
-    ) {
-        myMediaPlayer.stop()
-    }
 }

@@ -93,8 +93,7 @@
             android:name="SongsMain.SongsMain_view"
             android:exported="true"
             android:launchMode="singleTask"
-            android:resizeableActivity="true"
-            android:hardwareAccelerated="true">
+            android:resizeableActivity="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

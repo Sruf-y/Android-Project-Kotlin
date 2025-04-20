@@ -91,7 +91,7 @@ init {
     fun stop() {
         if(currentlyPlayingSong!=null) {
             mediaplayer.stop()
-
+            myMediaPlayer.currentlyPlayingSong=null
             try {
                 //mediaplayer.prepare()
             } catch (e: Exception) {
@@ -116,7 +116,6 @@ init {
     val isPlaying get() = mediaplayer.isPlaying
 
     fun reset() {
-        if(currentlyPlayingSong!=null)
             mediaplayer.reset()
     }
 

@@ -1,5 +1,6 @@
 package Functions
 
+import SongsMain.Classes.SongsGlobalVars
 import android.app.Activity
 import android.app.ActivityOptions
 import android.content.ContentResolver
@@ -77,10 +78,6 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.attribute.BasicFileAttributes
-import kotlin.io.path.readAttributes
-import kotlin.math.max
 
 
 // example of recyclerview configuration to add in order to be able tomove items around
@@ -244,33 +241,39 @@ object Images{
         if(file!=null)
         return withContext(Dispatchers.IO) {
 
+            if (file.exists()) {
+                try {
+                    if (file.length() <= 0)
+                        file.delete()
+                    val bytes = file.readBytes()
 
-            try {
-                if (file.length() <= 0)
-                    file.delete()
-                val bytes = file.readBytes()
-
-                if (bytes.size <= 0)
-                    file.delete()
-
-
-                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                if (bitmap != null) {
+                    if (bytes.size <= 0)
+                        file.delete()
 
 
-                    Images.returnFixBitmapRotation(bitmap,file) // the result is returned
-                } else {
-                    // Handle decode failure
-                    Log.e("loadPicturesFromFiles", "Could not decode image: ${file.name}")
+                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    if (bitmap != null) {
+
+                        try {
+                            Images.returnFixBitmapRotation(bitmap, file) // the result is returned
+                        } catch (ex: Exception) {
+                            ex.printStackTrace()
+                            bitmap
+                        }
+                    } else {
+                        // Handle decode failure
+                        Log.e("loadPicturesFromFiles", "Could not decode image: ${file.name}")
+                        file.delete()
+                        null // mapNotNull will filter this out
+                    }
+                } catch (e: Exception) {
+                    // Handle potential exceptions like OutOfMemoryError
+                    Log.e("loadPicturesFromFiles", "Error processing image: ${file.name}", e)
                     file.delete()
                     null // mapNotNull will filter this out
                 }
-            } catch (e: Exception) {
-                // Handle potential exceptions like OutOfMemoryError
-                Log.e("loadPicturesFromFiles", "Error processing image: ${file.name}", e)
-                file.delete()
-                null // mapNotNull will filter this out
-            }
+            } else
+                 null
         }
         else
             return null
@@ -339,6 +342,24 @@ class Insets(view:View){
     fun getInsetsDisplayCutouts(): Insets?{
         return insets?.getInsets(WindowInsetsCompat.Type.displayCutout())
     }
+}
+
+fun <T> arrayListNeedingUpdate(val1: ArrayList<T>, val2: ArrayList<T>): ArrayList<T>{
+
+    return if(val1.isNotEmpty()){
+        val auxarray: ArrayList<T> = ArrayList<T>()
+
+        val2.forEach {
+            if(!val1.contains(it)){
+                auxarray.add(it)
+            }
+        }
+
+
+
+        auxarray
+    }else
+        ArrayList<T>()
 }
 
 
