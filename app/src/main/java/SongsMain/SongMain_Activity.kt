@@ -17,6 +17,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
+import com.bumptech.glide.Glide
 import com.example.composepls.R
 import com.google.android.material.navigation.NavigationView
 import de.greenrobot.event.EventBus
@@ -158,7 +159,10 @@ class SongMain_Activity : AppCompatActivity() {
     }
 
 
-
+    override fun onPause() {
+        super.onPause()
+        Glide.getPhotoCacheDir(this)?.deleteRecursively()
+    }
 
 
 
