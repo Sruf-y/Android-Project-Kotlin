@@ -16,12 +16,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:context="SongsMain.SongsMain_view">
+        tools:context="SongsMain.SongMain_Activity">
 
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragmentContainerView"
-            android:name="SongsMain.SongsMain_Base"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

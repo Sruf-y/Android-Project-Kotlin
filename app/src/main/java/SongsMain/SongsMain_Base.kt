@@ -48,6 +48,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.setPadding
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.composepls.R
@@ -60,40 +61,49 @@ import com.google.android.material.tabs.TabLayoutMediator
 import de.greenrobot.event.EventBus
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalTime
 
 
 class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
     lateinit var tabsView: TabLayout
+    lateinit var tabholder: ViewPager2
+
+    val bus: EventBus? = EventBus.getDefault()
+
+    var selectedTab: Int=0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val bus: EventBus? = EventBus.getDefault()
-        val tabholder: ViewPager2 = requireView().findViewById(R.id.tabHolder)
-        tabsView = requireView().findViewById(R.id.tabLayout)
 
         val main = requireView().findViewById<ConstraintLayout>(R.id.main)
+        tabholder= requireView().findViewById(R.id.tabHolder)
+        tabsView = requireView().findViewById(R.id.tabLayout)
+
+
+        selectedTab = savedInstanceState?.getInt("SELECTED_TAB", 0) ?: 0
+
+        Log.i("TESTS", "SongsMain_Base created once! +${LocalTime.now()}")
+
+
+        // tabs adapter setup
+
+
+        setupViewPager()
 
 
 
-        tabholder.adapter= TabSwipeAdaptor(this)
-        TabLayoutMediator(tabsView, tabholder){tab,position->
-            when(position){
-                0->tab.text="Songs"
-                1->tab.text="Playlists"
-                2->tab.text="Folders"
-                3->tab.text="Artists"
-            }
-        }.attach()
+
+
+
+
 
         val buttonOpenDrawer: ShapeableImageView = requireView().findViewById(R.id.drawerButton)
 
@@ -196,6 +206,64 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
     }
+    private fun setupViewPager() {
+        tabholder.adapter = TabSwipeAdaptor(this)
+
+        TabLayoutMediator(tabsView, tabholder) { tab, position ->
+            tab.text = when (position) {
+                0 -> "Songs"
+                1 -> "Playlists"
+                2 -> "Folders"
+                3 -> "Artists"
+                else -> null
+            }
+        }.attach()
+
+        // Restore selection after layout is complete
+        tabholder.post {
+            tabsView.selectTab(tabsView.getTabAt(selectedTab))
+        }
+    }
+
+
+
+
+
+
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("SELECTED_TAB", tabsView.selectedTabPosition)
+
+    }
+
+
+    override fun onPause() {
+        super.onPause()
+        selectedTab=tabsView.selectedTabPosition
+
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+    }
+
+
+
+
+
+
+
+
+
+
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Preview(showBackground = true)
@@ -276,41 +344,8 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
     }
 
 
-    fun restoreSavedState(savedInstanceState: Bundle?){
-        if(savedInstanceState!=null) {
-
-            tabsView = requireView().findViewById(R.id.tabLayout)
-            tabsView.selectTab(tabsView.getTabAt(savedInstanceState.getInt("tab", 0)))
-
-        }
-
-    }
 
 
-
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt("tab",tabsView.selectedTabPosition)
-
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-
-    }
-
-
-    override fun onResume() {
-        super.onResume()
-
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-    }
 
 
 }

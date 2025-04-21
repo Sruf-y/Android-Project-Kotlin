@@ -68,6 +68,11 @@
         <activity
             android:name=".MainActivity"
             android:exported="false" />
+
+
+
+
+
         <activity
             android:name="StorageTest.StorageMainActivity"
             android:exported="false" />
@@ -90,7 +95,7 @@
         <receiver android:name="Signals_Receivers.AlarmReceiver" />
 
         <activity
-            android:name="SongsMain.SongsMain_view"
+            android:name="SongsMain.SongMain_Activity"
             android:exported="true"
             android:launchMode="singleTask"
             android:resizeableActivity="true">

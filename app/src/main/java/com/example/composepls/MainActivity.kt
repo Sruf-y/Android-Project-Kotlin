@@ -177,7 +177,7 @@ class MainActivity : AppCompatActivity() {
 
 
         savedPage=sf.getInt("SF_page",savedPage);
-
+        editor.apply()
 
         when (savedPage) {
             R.id.sound -> {

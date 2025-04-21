@@ -43,7 +43,7 @@ import java.time.LocalDateTime
 import kotlin.io.encoding.Base64
 import kotlin.toString
 
-class SongListAdapter(val recyclerView: RecyclerView, var mList:ArrayList<Song>, val context:Context,var onItemClick:(Song)->Unit,var onItemLongPress:(Song)->Unit)
+class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemClick:(Song)->Unit,var onItemLongPress:(Song)->Unit)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
@@ -72,8 +72,8 @@ class SongListAdapter(val recyclerView: RecyclerView, var mList:ArrayList<Song>,
             Glide.with(itemView)
                 .asBitmap()
                 .load(File(SongsGlobalVars.musicDirectory(context),song.songUri.toUri().lastPathSegment.toString()+".jpg"))
-                .diskCacheStrategy(DiskCacheStrategy.ALL) // caching pictures to not reload them every single time
-                //.skipMemoryCache(true)
+                //.diskCacheStrategy(DiskCacheStrategy.ALL) // caching pictures to not reload them every single time
+                .skipMemoryCache(true)
                 .placeholder(R.drawable.blank) // Show while loading
                 .error(R.drawable.blank_gray) // Show if load fails
                 .transition(BitmapTransitionOptions.withCrossFade())
