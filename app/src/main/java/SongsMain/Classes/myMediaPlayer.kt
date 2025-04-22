@@ -1,19 +1,20 @@
 package SongsMain.Classes
 
 import DataClasses_Ojects.Logs
+import SongsMain.Classes.Events.SongWasStopped
+import SongsMain.Classes.Song.Companion.from
 import android.app.Activity
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
+import de.greenrobot.event.EventBus
 import java.time.LocalDateTime
-import kotlin.coroutines.coroutineContext
 
 object myMediaPlayer {
 
-
+    val bus: EventBus = EventBus.getDefault()
     var mediaplayer: MediaPlayer = MediaPlayer()
     private var isInitialized=false
     var currentlyPlayingSong:Song? = null
@@ -22,7 +23,9 @@ object myMediaPlayer {
 
 
     fun initializeMediaPlayer(context: Context) {
+        //mediaplayer.reset()
         if (!isInitialized) {
+            Log.i("TESTS","Media initialize requested")
             mediaplayer = MediaPlayer().apply {
                 setAudioAttributes(
                     AudioAttributes.Builder()
@@ -33,38 +36,43 @@ object myMediaPlayer {
 
                 // Don't prepare here - wait until setDataSource() is called
                 isInitialized = true
-                Log.i(Logs.MEDIA_SOUND.toString(), "MediaPlayer initialized (no source)")
+
+
+                Log.i(Logs.MEDIA_SOUND.toString(), "MediaPlayer initialized")
             }
         }
     }
 
 
 
-init {
-
-}
 
 
 
     fun setSong(activity: Activity, song:Song) {
+
+
         try {
             if (!mediaplayer.isPlaying){
+                Log.i("TESTS","Set song requested")
                 mediaplayer.apply {
                     activity.applicationContext.contentResolver.openFileDescriptor(
-                        song.songUri.toUri(),
+                        song.from(SongsGlobalVars.allSongs)!!.songUri.toUri(),
                         "r"
                     ).use { pfd ->
-
 
                         setDataSource(pfd?.fileDescriptor)
                         prepareAsync()
 
 
-                        song.timesListened++
-                        song.lastPlayed= LocalDateTime.now()
-                        currentlyPlayingSong=song
+                        song.from(SongsGlobalVars.allSongs)?.timesListened++
+                        song.from(SongsGlobalVars.allSongs)?.lastPlayed= LocalDateTime.now().toString()
+
+                        bus.post(Events.SongWasChanged(currentlyPlayingSong,song.from(SongsGlobalVars.allSongs)))
+
+                        currentlyPlayingSong=song.from(SongsGlobalVars.allSongs)
 
 
+                        Log.i(Logs.MEDIA_SOUND.toString(), "Mediaplayer song set to ${currentlyPlayingSong?.title}")
 
 
 
@@ -80,32 +88,44 @@ init {
     }
 
     fun start() {
+
+        // also set the prepared listener
         mediaplayer.setOnPreparedListener {
             mediaplayer.start()
+            bus.post(Events.SongWasStarted())
         }
 
-        if(currentlyPlayingSong!=null)
+
+        if(currentlyPlayingSong!=null && !isPlaying) {
+            Log.i("TESTS","Start song requested")
             mediaplayer.start()
+            bus.post(Events.SongWasStarted())
+        }
+
+
+
     }
 
     fun stop() {
         if(currentlyPlayingSong!=null) {
+            Log.i("TESTS","Stop song requested")
             mediaplayer.stop()
             myMediaPlayer.currentlyPlayingSong=null
-            try {
-                //mediaplayer.prepare()
-            } catch (e: Exception) {
-                Log.e(Logs.MEDIA_SOUND.toString(), "Error preparing after stop", e)
-            }
+            bus.post(SongWasStopped())
         }
     }
 
     fun toggle(){
         try {
-            if (mediaplayer.isPlaying) {
-                myMediaPlayer.pause()
-            } else {
-                myMediaPlayer.start()
+            if (myMediaPlayer.currentlyPlayingSong != null) {
+                Log.i("TESTS", "Toggle song requested")
+                if (mediaplayer.isPlaying) {
+                    myMediaPlayer.pause()
+
+                } else {
+                    myMediaPlayer.start()
+
+                }
             }
         }catch (ex: IllegalStateException){
             Log.e(Logs.MEDIA_SOUND.toString(),"Mediaplayer has been released or has never been initialized, FROM TOGGLE")
@@ -115,8 +135,17 @@ init {
 
     val isPlaying get() = mediaplayer.isPlaying
 
+    fun getCurrentPosition(): Int {
+
+        return mediaplayer.currentPosition
+
+    }
+
+
     fun reset() {
-            mediaplayer.reset()
+        Log.i("TESTS","Reset song requested")
+        mediaplayer.reset()
+        bus.post(Events.SongWasReset())
     }
 
     fun release() {
@@ -124,8 +153,11 @@ init {
     }
 
     fun pause(){
-        if(currentlyPlayingSong!=null)
+        if(currentlyPlayingSong!=null) {
             mediaplayer.pause()
+            bus.post(Events.SongWasPaused())
+
+        }
     }
 
 

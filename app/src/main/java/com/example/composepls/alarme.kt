@@ -3,7 +3,7 @@ package com.example.composepls
 import Adaptors.CustomRecyclerView
 import Adaptors.alarmAdapter
 import DataClasses_Ojects.Alarma_Item
-import DataClasses_Ojects.LiveData
+import DataClasses_Ojects.LegacyLiveData
 import DataClasses_Ojects.LiveTime
 import Functions.loadFromJson
 import Functions.saveAsJson
@@ -58,7 +58,7 @@ open class alarme : Fragment(R.layout.fragment_alarme), alarmAdapter.OnSwitchLis
 
     val livenextalarm: LiveTime by viewModels()
 
-    val isEditing = LiveData<Boolean>(false)
+    val isEditing = LegacyLiveData<Boolean>(false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

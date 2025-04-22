@@ -1,30 +1,29 @@
 package SongsMain
 
 
+
+
+import DataClasses_Ojects.MediaProgressViewModel
 import Functions.setInsetsforItems
+import SongsMain.Classes.Events
+import SongsMain.Classes.Events.SongWasPaused
 import SongsMain.Classes.myMediaPlayer
 import Utilities.Utils.Companion.dP
-import android.content.res.Resources
 import android.os.Bundle
-import android.os.Parcelable
 import android.util.Log
-import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.View
-import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -36,40 +35,38 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.ContextCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.setPadding
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.example.composepls.R
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDragHandleView
 import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.shape.CornerFamily
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import de.greenrobot.event.EventBus
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import java.io.File
 import java.time.LocalTime
 
 
 class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
+    private val progressViewModel: MediaProgressViewModel by viewModels()
+
     lateinit var tabsView: TabLayout
     lateinit var tabholder: ViewPager2
+    lateinit var bottomsheetCol_musicToggle: CheckBox
+    lateinit var bottomsheetCol_musictitle: TextView
+    lateinit var bottomsheetCol_musicImage: ShapeableImageView
+    lateinit var bottomsheetCol_musicBackground: ImageView
 
-    val bus: EventBus? = EventBus.getDefault()
+    val bus: EventBus = EventBus.getDefault()
 
     var selectedTab: Int=0
 
@@ -90,6 +87,10 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
         selectedTab = savedInstanceState?.getInt("SELECTED_TAB", 0) ?: 0
 
+        selectedTab=Functions.getSharedPrefferencesStorage(requireContext())!!.getInt("Base tab",0)
+
+
+
         Log.i("TESTS", "SongsMain_Base created once! +${LocalTime.now()}")
 
 
@@ -108,14 +109,11 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         val buttonOpenDrawer: ShapeableImageView = requireView().findViewById(R.id.drawerButton)
 
         buttonOpenDrawer.setOnClickListener {
-            bus?.post(OpenDrawerEvent())
+            bus.post(OpenDrawerEvent())
         }
 
 
 
-
-        // auto-rolling textview
-        requireView().findViewById<TextView>(R.id.serviceColorCode).isSelected = true;
 
 
         setInsetsforItems(mutableListOf(main))
@@ -133,7 +131,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
         val behavior = BottomSheetBehavior.from(bottomsheet).apply {
 
-            val value = 50.dP
+            val value = 60.dP
 
             this.peekHeight=value
             Log.i("TESTS","PeekHeight of bottom sheet"+value.toString())
@@ -192,6 +190,42 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         })
 
 
+        //setup progressbar
+        val progressBar: ProgressBar = requireView().findViewById(R.id.songProgressBar)
+
+
+        progressViewModel.progress.observe(viewLifecycleOwner) { progress ->
+            progressBar.progress = progress
+        }
+
+
+
+        //collapsed values initial settings
+
+        bottomsheetCol_musicBackground=requireView().findViewById(R.id.bottomSheetCollapsedBackground)
+        bottomsheetCol_musicImage=requireView().findViewById(R.id.bottomSheetCollapsedImage)
+        bottomsheetCol_musictitle=requireView().findViewById(R.id.serviceColorCode)
+        bottomsheetCol_musicToggle=requireView().findViewById(R.id.bottomSheetCollapsedToggle)
+
+        // auto-rolling textview
+        bottomsheetCol_musictitle.isSelected = true;
+
+
+        bottomsheetCol_musicToggle.setOnClickListener {
+
+            myMediaPlayer.toggle()
+        }
+
+
+        val radius:Float = 15F.dP.toFloat();
+        bottomsheetCol_musicImage.setShapeAppearanceModel(bottomsheetCol_musicImage.getShapeAppearanceModel()
+            .toBuilder()
+            .setAllCorners(CornerFamily.ROUNDED,radius)
+            .build());
+
+
+
+
 
 
 
@@ -202,10 +236,65 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         }
 
 
+        onEvent(Events.SongWasChanged(null, myMediaPlayer.currentlyPlayingSong))
+        bus.register(this)
+    }
+
+//     SongWasPaused()
+//     SongWasStarted()
+//     SongWasReset()
+//     SongWasStopped()
 
 
+    fun onEvent(event:SongWasPaused) {
+        //for collapsed
+        progressViewModel.stopUpdates()
+        bottomsheetCol_musicToggle.isChecked=false
+
+        //for expanded
 
     }
+
+    fun onEvent(event: Events.SongWasStarted) {
+        //for collapsed
+        progressViewModel.startUpdates()
+        bottomsheetCol_musicToggle.isChecked=true
+
+        //for expanded
+
+    }
+
+    fun onEvent(event:Events.SongWasChanged){
+        //for collapsed
+
+        if(event.nextSong!=null) {
+            if (File(event.nextSong?.thumbnail).exists()) {
+                Glide.with(requireContext())
+                    .load(event.nextSong?.thumbnail)
+                    .into(bottomsheetCol_musicImage)
+
+                Glide.with(requireContext())
+                    .load(event.nextSong?.thumbnail)
+                    .into(bottomsheetCol_musicBackground)
+            } else {
+                Glide.with(requireContext())
+                    .load(R.drawable.blank_gray_musical_note)
+                    .into(bottomsheetCol_musicImage)
+
+                Glide.with(requireContext())
+                    .load(R.drawable.blank_gray_musical_note)
+                    .into(bottomsheetCol_musicBackground)
+            }
+            bottomsheetCol_musictitle.text = event.nextSong?.title
+
+
+            //for expanded
+
+
+        }
+    }
+
+
     private fun setupViewPager() {
         tabholder.adapter = TabSwipeAdaptor(this)
 
@@ -241,6 +330,11 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
     override fun onPause() {
         super.onPause()
         selectedTab=tabsView.selectedTabPosition
+        Functions.getSharedPrefferencesEditor(requireContext()).apply{
+            this!!.putInt("Base tab",tabsView.selectedTabPosition)
+            apply()
+        }
+
 
     }
 

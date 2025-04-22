@@ -32,7 +32,7 @@
         android:background="@drawable/blank"
         android:clipToOutline="true"
         android:scaleType="centerCrop"
-        android:src="@drawable/blank_gray"
+        android:src="@drawable/blank_gray_musical_note"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/movementHandle"
         app:layout_constraintTop_toTopOf="parent"

@@ -11,6 +11,9 @@ object SongsGlobalVars {
         return File(context.filesDir,"MusicDir")
     }
 
+
+    var playingQueue:ArrayList<Song> = ArrayList<Song>()
+
     var playlists: ArrayList<Playlist> = ArrayList<Playlist>()
     var MyFavoritesPlaylist: Playlist? = null
     var RecentlyAddedPlaylist: Playlist?=null
@@ -20,4 +23,8 @@ object SongsGlobalVars {
 
     var hiddenSongs: ArrayList<Song> = ArrayList<Song>()
     var publicSongs: ArrayList<Song> = ArrayList<Song>()
+
+
+
+
 }

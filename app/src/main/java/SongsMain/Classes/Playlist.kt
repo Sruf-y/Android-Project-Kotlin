@@ -7,7 +7,7 @@ import android.util.Log
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class Playlist(var thumbnail: Bitmap?,var title: String,var isUserOrdered:Boolean,var songsList: ArrayList<Song>?=null) {
+data class Playlist(var thumbnail: Drawable,var title: String,var songsList: ArrayList<Song>?=null,var isUserOrdered:Boolean=false) {
 
 
     fun add(song:Song){
@@ -15,7 +15,7 @@ data class Playlist(var thumbnail: Bitmap?,var title: String,var isUserOrdered:B
             if (songsList == null) {
                 songsList = ArrayList<Song>()
             }
-            song.dateAdded = LocalDateTime.now()
+            song.dateAdded = Song.timeToSecondsOf(LocalDateTime.now())
             songsList?.add(song)
         }catch (ex: Exception){
             Log.e(Logs.LOGIC.toString(),ex.message.toString())

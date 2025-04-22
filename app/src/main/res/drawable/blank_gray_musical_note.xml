@@ -16,8 +16,9 @@
                 <vector android:height="40dp" android:width="40dp"
                     android:viewportWidth="100"
                     android:viewportHeight="100">
-                    <path android:strokeWidth="4"
-                        android:fillColor="@color/gray_dark"
+                    <path android:strokeWidth="1.5"
+                        android:strokeColor="#646464"
+                        android:fillColor="#4B4A4A"
                         android:pathData="
                         M30,71
                         Q29,55 47,56

@@ -28,7 +28,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.Duration
 import java.time.LocalTime
-import GlobalValues.Media.internalList
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
@@ -123,14 +122,14 @@ class SimpleSongListActivity : AppCompatActivity() {
 
             // adaptor
 
-            internalList.clear()
-            internalList.addAll(Functions.loadFromJson(this, "GlobalSongs", internalList))
+            SongsGlobalVars.allSongs.clear()
+            SongsGlobalVars.allSongs.addAll(Functions.loadFromJson(this, "GlobalSongs", SongsGlobalVars.allSongs))
 
 
             // actual loading into recycler
 
 
-            if (internalList.isEmpty()) {
+            if (SongsGlobalVars.allSongs.isEmpty()) {
 
                 lifecycleScope.launch {
                     while (!queryFinished) {
@@ -147,7 +146,7 @@ class SimpleSongListActivity : AppCompatActivity() {
                 Log.i(Logs.FILE_IO.toString(), "Loading global songs from internal")
 
                 adaptor.mList.clear()
-                adaptor.mList.addAll(internalList)
+                adaptor.mList.addAll(SongsGlobalVars.allSongs)
                 adaptor.notifyItemRangeInserted(0, adaptor.mList.size)
 
 
@@ -158,7 +157,7 @@ class SimpleSongListActivity : AppCompatActivity() {
             // onReCreate
 
 
-            adaptor.mList.addAll(internalList)
+            adaptor.mList.addAll(SongsGlobalVars.allSongs)
 
 
 
@@ -299,8 +298,8 @@ class SimpleSongListActivity : AppCompatActivity() {
                     }
                 }
 
-                internalList.clear()
-                internalList.addAll(adaptor.mList)
+                SongsGlobalVars.allSongs.clear()
+                SongsGlobalVars.allSongs.addAll(adaptor.mList)
                 reloadRequestFull=false
             }
         }
@@ -358,7 +357,7 @@ class SimpleSongListActivity : AppCompatActivity() {
                 val thumbnailFile = File(File(filesDir,"MusicDir"),contentUri.lastPathSegment.toString()+".jpg")
 
                 val song = Song(
-                    contentUri.toString(), title, thumbnailFile,author, duration
+                    contentUri.toString(), title, thumbnailFile.path,author, duration
                 )
 
 

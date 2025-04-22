@@ -1,11 +1,13 @@
 package Functions
 
-import SongsMain.Classes.SongsGlobalVars
+import SongsMain.Classes.ModifiedItem
+import SongsMain.Classes.TypeOfUpdate
 import android.app.Activity
 import android.app.ActivityOptions
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -344,22 +346,31 @@ class Insets(view:View){
     }
 }
 
-fun <T> arrayListNeedingUpdate(val1: ArrayList<T>, val2: ArrayList<T>): ArrayList<T>{
+fun <T> differencesBetweenArrays(val1: ArrayList<T>, val2: ArrayList<T>): ArrayList<ModifiedItem<T>>{
 
     return if(val1.isNotEmpty()){
-        val auxarray: ArrayList<T> = ArrayList<T>()
+        val auxarray: ArrayList<ModifiedItem<T>> = ArrayList<ModifiedItem<T>>()
 
         val2.forEach {
             if(!val1.contains(it)){
-                auxarray.add(it)
+                auxarray.add(ModifiedItem(TypeOfUpdate.added,it))
+            }
+        }
+
+        val1.forEach {
+            if(!val2.contains(it)){
+                auxarray.add(ModifiedItem(TypeOfUpdate.removed,it))
             }
         }
 
 
 
+
+
+
         auxarray
     }else
-        ArrayList<T>()
+        ArrayList<ModifiedItem<T>>()
 }
 
 
@@ -981,6 +992,29 @@ fun customToast(whereToShowIt: View, context: Context, message: String) {
 
     tost.show();
 }
+/** Use getInt, getString, etc to retrieve from it.
+ *
+ */
+fun getSharedPrefferencesStorage(context:Context): SharedPreferences? {
+    return context.getSharedPreferences("My SF",Context.MODE_PRIVATE);
+}
+
+
+/** Use putInt, putString, etc to put into the editor.
+ * Needs to be closed with apply()
+ *
+ * Returns the shared preferences editor for putting values inside
+ */
+fun getSharedPrefferencesEditor(context:Context): SharedPreferences.Editor? {
+    var editor : SharedPreferences.Editor;
+    var sf: SharedPreferences = context.getSharedPreferences("My SF",Context.MODE_PRIVATE);
+
+    return sf.edit()
+}
+
+
+
+
 
 
 

@@ -15,7 +15,7 @@ object Media {
     val SongFolders= SongFolders()
     val SongArtists= SongArtists()
 
-    val internalList: ArrayList<Song> = ArrayList<Song>()
+
 
 
 

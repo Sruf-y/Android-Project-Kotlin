@@ -1,47 +1,22 @@
 package SongsMain.Classes
 
-import DataClasses_Ojects.Logs
-import StorageTest.Classes.Tip_For_adaptor
 import android.content.Context
-import android.content.res.Resources
-import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
-import android.os.HardwarePropertiesManager
-import android.util.Log
-import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.RestrictTo
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toDrawable
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.TransitionOptions
-import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
-import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
-import com.bumptech.glide.load.resource.bitmap.Downsampler
-import com.bumptech.glide.load.resource.bitmap.HardwareConfigState
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.request.RequestOptions
 import com.example.composepls.R
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
-import kotlinx.coroutines.withContext
+import de.greenrobot.event.EventBus
 import java.io.File
-import java.time.LocalDateTime
-import kotlin.io.encoding.Base64
-import kotlin.toString
 
 class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemClick:(Song)->Unit,var onItemLongPress:(Song)->Unit)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -50,6 +25,10 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
 
 
     private val differ = AsyncListDiffer<Song>(this, SongDiffUtilsCallback())
+
+    private  val bus: EventBus = EventBus.getDefault()
+
+
 
 
 
@@ -61,34 +40,61 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
         val displayOptionsButton: ImageView=itemView.findViewById(R.id.songOptions)
         val movementHandle: ImageView=itemView.findViewById(R.id.movementHandle)
 
-         fun bind(song:Song){
+        var myPosition=-1
+
+
+
+
+
+
+
+         fun bind(song:Song,position: Int){
+
+            myPosition=position
+
 
             displayTitle.text = song.title
 
             displayAuthor.text = song.author
 
-            displayImageView.setImageDrawable(null)
 
-            Glide.with(itemView)
-                .asBitmap()
-                .load(File(SongsGlobalVars.musicDirectory(context),song.songUri.toUri().lastPathSegment.toString()+".jpg"))
-                //.diskCacheStrategy(DiskCacheStrategy.ALL) // caching pictures to not reload them every single time
-                .skipMemoryCache(true)
-                .placeholder(R.drawable.blank) // Show while loading
-                .error(R.drawable.blank_gray) // Show if load fails
-                .transition(BitmapTransitionOptions.withCrossFade())
-                //.dontAnimate() // Optional: prevents crossfade
-                //.onlyRetrieveFromCache(true)
-                .into(displayImageView)
 
-//            if(song.thumbnail!=null)
-//                displayImageView.setImageBitmap(song.thumbnail)
+
+
+             song.thumbnail.apply{
+
+                 val file = File(this)
+
+                 if (file.exists()) {
+                         Glide.with(itemView)
+                             .asBitmap()
+                             .load(file)
+                             .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC) // caching pictures to not reload them every single time
+                             //.skipMemoryCache(true)
+                             .placeholder(R.drawable.blank) // Show while loading
+                             .error(R.drawable.blank_gray_musical_note) // Show if load fails
+                             .transition(BitmapTransitionOptions.withCrossFade(500))
+                             .into(displayImageView)
+
+                 } else {
+                     Glide.with(itemView)
+                         .asDrawable()
+                         .load(R.drawable.blank_gray_musical_note)
+                         .transition(DrawableTransitionOptions.withCrossFade(0))
+                         .into(displayImageView)
+                 }
+             }
+
+
+//             if(!bus.isRegistered(this@itemInList))
+//             {
+//                 bus.register(this@itemInList)
+//             }
+
 
 
 
             itemView.setOnClickListener {
-                song.lastPlayed = LocalDateTime.now()
-                song.timesListened++;
 
 
                 onItemClick(song)
@@ -102,6 +108,8 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
             }
         }
     }
+
+
 
 
     class SongDiffUtilsCallback: DiffUtil.ItemCallback<Song>(){
@@ -141,6 +149,8 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
 
         val view = LayoutInflater.from(parent.context).inflate(R.layout.song_example,parent,false)
 
+
+
         return itemInList(view)
     }
 
@@ -155,7 +165,7 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
         (holder as itemInList).apply {
 
 
-            bind(mList[position])
+            bind(mList[position],position)
 
 
 
@@ -180,10 +190,30 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
 
     }
 
+
+
+
+
+    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewAttachedToWindow(holder)
+
+    }
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+
+    }
+
+
+
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
 
-        (holder as itemInList).displayImageView.setImageBitmap(null)
+        (holder as itemInList).apply {
+            displayImageView.setImageBitmap(null)
+        }
+
+
     }
 
     override fun onBindViewHolder(

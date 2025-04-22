@@ -44,6 +44,41 @@ class LiveTime:ViewModel(){
 
 
 
+class LiveHalfTime:ViewModel(){
+
+    private val _next_alarm = MutableLiveData<LocalDateTime>()
+
+    val value:LiveData<LocalDateTime>
+        get()=_next_alarm
+
+
+
+    private val handler = Handler(Looper.getMainLooper())
+
+    private val runnable = object : Runnable {
+        override fun run() {
+            // Update the alarm time every half asecond
+            _next_alarm.value = LocalDateTime.now()
+            handler.postDelayed(this, 500)
+        }
+    }
+
+    init {
+        // Start the periodic updates
+        handler.post(runnable)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Stop the Handler when the ViewModel is cleared
+        handler.removeCallbacks(runnable)
+    }
+
+    fun Update(){
+        _next_alarm.value = LocalDateTime.now()
+    }
+}
+
 
 //<x x x x x x x x x x x...>
 //

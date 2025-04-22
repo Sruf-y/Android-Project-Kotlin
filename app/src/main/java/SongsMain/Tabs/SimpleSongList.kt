@@ -1,7 +1,7 @@
 package SongsMain.Tabs
 
 import DataClasses_Ojects.Logs
-import GlobalValues.Alarme.recycleState
+import SongsMain.Classes.Events
 import SongsMain.Classes.Song
 import SongsMain.Classes.myMediaPlayer
 import SongsMain.Classes.SongListAdapter
@@ -20,15 +20,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.greenrobot.event.EventBus
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.Duration
 import java.time.LocalTime
-import GlobalValues.Media.internalList
 import android.content.Context
 import android.content.SharedPreferences
+import android.widget.TextView
+import androidx.compose.runtime.DisposableEffect
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 
 class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
@@ -41,11 +43,11 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
     lateinit var recyclerLayoutManager: LinearLayoutManager
 
-    var queryFinished = false
-
-    var reloadRequestFull = false
 
 
+
+
+    val bus: EventBus = EventBus.getDefault()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,43 +55,43 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
 
-            Log.i("TESTS", "SimplesongList created once! +${LocalTime.now()}")
 
-            adaptor = SongListAdapter(
-                ArrayList(),
-                requireContext(),
-                { song ->
-                    if (myMediaPlayer.currentlyPlayingSong != song) {
-                        myMediaPlayer.reset()
-                        myMediaPlayer.setSong(requireActivity(), song)
-                    }
-
-                    myMediaPlayer.toggle()
-                }, {
-
-                    myMediaPlayer.stop()
-                }
-            )
-
-            recyclerLayoutManager =
-                LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
 
 
 
 
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
 
 
-        val bus: EventBus? = EventBus.getDefault()
+
 
         audioRecycler = requireView().findViewById(R.id.songView);
         nestedscrollview=requireView().findViewById(R.id.mynestedScrollview)
 
+        Log.i("TESTS", "SimplesongList created once! +${LocalTime.now()}")
 
+        adaptor = SongListAdapter(
+            ArrayList(),
+            requireContext(),
+            { song ->
+
+                    myMediaPlayer.reset()
+                    myMediaPlayer.setSong(requireActivity(), song)
+
+                myMediaPlayer.start()
+            }, {song->
+
+                myMediaPlayer.stop()
+            }
+        )
+
+        recyclerLayoutManager =
+            LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
 
         Log.i("TESTS", "SimpleSongList viewcreated once! +${LocalTime.now()}")
 
@@ -104,83 +106,69 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
         audioRecycler.layoutManager = recyclerLayoutManager
 
 
-        if (savedInstanceState == null) {
 
-            //audioRecycler.recycledViewPool.setMaxRecycledViews(0, 15)
-
-            // adaptor
-
-            internalList.clear()
-            internalList.addAll(Functions.loadFromJson(requireContext(), "GlobalSongs", internalList))
-
-
-            // actual loading into recycler
-
-
-            if (internalList.isEmpty()) {
-
-                lifecycleScope.launch {
-                    while (!queryFinished) {
-                        delay(50)
-                    }
-                    // query is finished, i have the list inside the adapter CHECK THE FIRST FUNCTION DOWN!!!!!!!!
-                }
-
-
-
-                Log.i(Logs.FILE_IO.toString(), "Loading global songs from external query")
-                queryAndUpdateSongsRecycler()
-            } else {
-                Log.i(Logs.FILE_IO.toString(), "Loading global songs from internal")
-
-                adaptor.mList.clear()
-                adaptor.mList.addAll(internalList)
-                adaptor.notifyItemRangeInserted(0, adaptor.mList.size)
-
-
-            }
-
-
-
-        } else {
-            // onReCreate
-
-
-
-
-
-            adaptor.mList.addAll(internalList)
-
-
-
-            adaptor.notifyDataSetChanged()
-
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        Log.i(Logs.FILE_IO.toString(), "Handled recreation of songlist fragment from internal")
 
         val butonplaystop = requireView().findViewById<Button>(R.id.button7)
 
+
+
+
+
+
+
+
+
+        // LOADING SCREEN HERE ////
+        requireView().findViewById<ConstraintLayout>(R.id.progbar).visibility=View.VISIBLE
+        butonplaystop.visibility= View.INVISIBLE
+        audioRecycler.visibility=View.INVISIBLE
+        adaptor.mList= SongsGlobalVars.allSongs
+        adaptor.notifyItemRangeInserted(0,adaptor.mList.size)
+
+            // after everything is good and ready
+        audioRecycler.post {
+            if(adaptor.mList.isNotEmpty()) {
+                requireView().findViewById<ConstraintLayout>(R.id.progbar).visibility =
+                    View.INVISIBLE
+                butonplaystop.visibility = View.VISIBLE
+                audioRecycler.visibility = View.VISIBLE
+            }
+        }
+
+
+        /////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         butonplaystop.setOnClickListener {
             lifecycleScope.launch {
-                queryAndUpdateSongsRecycler()
+                bus.post(Events.RequestGlobalDataUpdate())
+                butonplaystop.visibility= View.INVISIBLE
+                audioRecycler.visibility=View.INVISIBLE
+
+                requireView().findViewById<ConstraintLayout>(R.id.progbar).visibility=View.VISIBLE
             }
 
         }
+
+
+
+
 
         var sf: SharedPreferences = requireContext().getSharedPreferences("My SF",Context.MODE_PRIVATE);
         lastposition=sf.getInt("SimpleSongListScrollPosition",0);
@@ -189,32 +177,117 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
             nestedscrollview.isSmoothScrollingEnabled=true
 
             //only scroll on opening the app
-            if(savedInstanceState==null) {
-                audioRecycler.post {
 
-                    nestedscrollview.smoothScrollTo(0, lastposition, 500)
+            audioRecycler.post {
+
+                nestedscrollview.smoothScrollTo(0, lastposition, 500)
+            }
+
+
+
+
+            nestedscrollview.setOnScrollChangeListener { view: NestedScrollView, _, scrollY, _, _ ->
+                nestedscrollview.post {
+
+                    lastposition = nestedscrollview.scrollY
+
                 }
             }
 
 
-            audioRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrollStateChanged(
-                    recyclerView: RecyclerView,
-                    newState: Int
-                ) {
-                    super.onScrollStateChanged(recyclerView, newState)
-
-                    nestedscrollview.post {
-
-                        lastposition = nestedscrollview.scrollY
-
-                    }
-
-                }
-            })
         }
 
 
+
+
+        bus.register(this)
+        audioRecycler.post {
+            onEvent(Events.SongWasChanged(null, myMediaPlayer.currentlyPlayingSong))
+        }
+
+    }
+
+    fun onEvent(event:Events.GlobalDataWasUpdated){
+        Log.i("TESTS","Global data was updated via event and this is from simplesonglist")
+
+
+        val mlistSizeWas = adaptor.mList.size
+            adaptor.mList= SongsGlobalVars.allSongs
+        if(mlistSizeWas==0){
+            adaptor.notifyItemRangeInserted(0,adaptor.mList.size)
+        }
+        else{
+            adaptor.notifyDataSetChanged()
+        }
+
+
+
+
+
+
+
+
+
+
+        audioRecycler.post {
+
+            val butonplaystop = requireView().findViewById<Button>(R.id.button7)
+            butonplaystop.visibility=View.VISIBLE
+            requireView().findViewById<ConstraintLayout>(R.id.progbar).visibility=View.INVISIBLE
+
+            audioRecycler.visibility=View.VISIBLE
+
+
+            //don't forget about visually setting the currently playing song
+            if(myMediaPlayer.currentlyPlayingSong!=null && adaptor.mList.contains(myMediaPlayer.currentlyPlayingSong)) {
+                (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(myMediaPlayer.currentlyPlayingSong))
+                    ?.findViewById<TextView>(R.id.title))?.setTextColor(
+                        ContextCompat.getColor(
+                            requireContext(),
+                            R.color.amber
+                        )
+                    )
+            }
+
+
+        }
+
+
+    }
+
+    fun onEvent(event:Events.SongWasChanged){
+
+
+        if(event.currentSong!=null) {
+            (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(event.currentSong))
+                ?.findViewById<TextView>(R.id.title))?.setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.white
+                    )
+                )
+        }
+
+
+
+
+
+        if(event.nextSong!=null) {
+            (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(event.nextSong))
+                ?.findViewById<TextView>(R.id.title))?.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.amber
+                )
+            )
+        }
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        bus.unregister(this)
     }
 
 
@@ -234,145 +307,6 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
 
-
-    // does the query and then updates the data
-    fun queryAndUpdateSongsRecycler(){
-
-        if(!reloadRequestFull) {
-            reloadRequestFull = true
-            lifecycleScope.launch(Dispatchers.IO) {
-
-
-                // NEED TO DO THIS TWICH, A 2ND TIME AT THE END AND COMPARE THEM
-
-
-                val newList = doQuery()
-
-
-
-
-
-                Functions.saveAsJson(requireContext(), "GlobalSongs", newList)
-
-
-                if (adaptor.mList.isEmpty()) {
-                    //newly creating list
-
-                    withContext(Dispatchers.Main) {
-
-                        adaptor.mList = newList
-                        adaptor.mList.forEachIndexed { index,song->
-                            adaptor.notifyItemInserted(index)
-                        }
-
-
-                        return@withContext
-                    }
-                    Log.i(Logs.MEDIA_SOUND.toString(), "Global songs list creation completed")
-                } else {// if adaptor list not empty, re-flush it
-
-                        withContext(Dispatchers.Main) {
-
-
-                            lifecycleScope.launch {
-                                adaptor.mList= withContext(Dispatchers.Main) {
-
-
-                                    adaptor.mList = newList
-                                    adaptor.notifyDataSetChanged()
-                                    return@withContext newList
-                                }
-
-                            }
-
-                            return@withContext
-                        Log.i(Logs.MEDIA_SOUND.toString(), "Global songs appending/removal completed")
-
-//
-
-
-                    }
-                }
-
-                internalList.clear()
-                internalList.addAll(adaptor.mList)
-                reloadRequestFull=false
-            }
-        }
-
-    }
-
-    suspend fun doQuery(): ArrayList<Song> =withContext(Dispatchers.IO){
-        val FROM = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        val lista = ArrayList<Song>()
-
-        queryFinished=false
-        val queryStartTime: LocalTime=LocalTime.now()
-
-
-        val projection = arrayOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.DISPLAY_NAME,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.ARTIST
-        )
-
-        val selection = "${MediaStore.Audio.Media.RELATIVE_PATH} LIKE ?"
-        val selectionArgs = arrayOf("%")
-
-        // Initialize adapter with empty list
-
-
-
-
-            // Phase 1: Stream items as they're found
-
-                val cursor = requireActivity().contentResolver.query(
-                    FROM, projection, selection, selectionArgs, null
-                )
-
-                cursor?.use { cursor ->
-                    while (cursor.moveToNext()) {
-                        val id =
-                            cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID))
-                        val title =
-                            cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME))
-                        val duration =
-                            cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
-                        val author =
-                            cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST))
-                        val contentUri = ContentUris.withAppendedId(FROM, id)
-
-
-                        val thumbnail = try{context?.contentResolver?.loadThumbnail(contentUri, Size(200, 200),null)}catch(ex: Exception){null}
-
-
-                        Functions.Images.saveToFile(contentUri.lastPathSegment.toString(),thumbnail,
-                            SongsGlobalVars.musicDirectory(requireActivity()))
-
-                        val thumbnailFile = File(SongsGlobalVars.musicDirectory(requireActivity()),contentUri.lastPathSegment.toString()+".jpg")
-
-                        val song = Song(
-                            contentUri.toString(), title, thumbnailFile,author, duration
-                        )
-
-
-                        // Add to both lists
-                        lista.add(song)
-                        //adaptor.mList.add(song)
-
-
-
-                    }
-
-                    queryFinished=true
-                    Log.i("TESTS","Query took ${Duration.between(queryStartTime, LocalTime.now()).toMillis()} miliseconds")
-
-
-                }
-
-        return@withContext lista
-    }
 
 
 
