@@ -222,6 +222,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:background="#FF0000"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -231,15 +232,28 @@
 
                 <CheckBox
                     android:id="@+id/checkBox2"
-                    android:layout_width="91dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="94dp"
-                    android:button="@drawable/song_toggle"
+                    android:button="@drawable/play_pause_button_music_player_toggle"
+                    android:scaleX="4.5"
+                    android:scaleY="4.5"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.5" />
+
+                <SeekBar
+                    android:id="@+id/seekBar"
+                    android:layout_width="0dp"
+                    android:layout_height="18dp"
+                    android:max="100"
+                    android:progress="20"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/checkBox2" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -247,7 +261,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:background="#B9C1DB"
-                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -280,11 +293,11 @@
                     android:layout_height="40dp"
                     android:clickable="true"
                     android:src="@android:drawable/ic_menu_compass"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@+id/bottomSheetCollapsedToggle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.98"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/bottomSheetCollapsedToggle"
                     app:layout_constraintVertical_bias="0.5" />
 
                 <com.google.android.material.imageview.ShapeableImageView
@@ -297,7 +310,7 @@
                     app:layout_constraintHorizontal_bias="0.04"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.5"
+                    app:layout_constraintVertical_bias="0.26"
                     app:srcCompat="@drawable/blank_gray_musical_note" />
 
                 <TextView
@@ -314,10 +327,10 @@
                     android:singleLine="true"
                     android:text="No song playing"
                     android:textColor="@color/black"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@+id/bottomSheetCollapsedImage"
                     app:layout_constraintEnd_toStartOf="@+id/bottomSheetCollapsedToggle"
                     app:layout_constraintStart_toEndOf="@+id/bottomSheetCollapsedImage"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/bottomSheetCollapsedImage"
                     app:layout_constraintVertical_bias="0.5"
                     tools:layout_conversion_absoluteHeight="19dp"
                     tools:layout_conversion_absoluteWidth="411dp" />
@@ -345,12 +358,12 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:background="@drawable/blank"
-                    android:button="@drawable/song_toggle"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:button="@drawable/play_pause_button_music_player_toggle"
+                    app:layout_constraintBottom_toBottomOf="@+id/serviceColorCode"
                     app:layout_constraintEnd_toStartOf="@+id/bottomSheetCollapsedfindInPlaylists"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/serviceColorCode"
                     app:layout_constraintVertical_bias="0.5" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>

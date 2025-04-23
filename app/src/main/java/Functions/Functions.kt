@@ -2,10 +2,15 @@ package Functions
 
 import SongsMain.Classes.ModifiedItem
 import SongsMain.Classes.TypeOfUpdate
+import SongsMain.SongMain_Activity
+import SongsMain.Tutorial.Application
+import SongsMain.Tutorial.MusicPlayerService
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.ActivityOptions
 import android.content.ContentResolver
 import android.content.Context
+import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -60,6 +65,7 @@ import androidx.core.animation.LinearInterpolator
 import androidx.core.animation.ValueAnimator
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.graphics.Insets
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
@@ -219,6 +225,9 @@ object Images{
         val file = File(directory, fullFilename) // Use proper context path
         val newbitmap = bitmap
         return try {
+            if(file.exists()){
+                file.delete()
+            }
             // Use auto-closing stream
             FileOutputStream(file).use { outputStream ->
 
@@ -239,11 +248,20 @@ object Images{
         }
     }
 
-    suspend fun loadFromFile(file: File?): Bitmap? {
+    suspend fun loadFromFile(fila: File?): Bitmap? {
+        var file = fila
+
         if(file!=null)
         return withContext(Dispatchers.IO) {
 
+            // daca nu are extensie pus in nume, ceea ce e o eroare a mea deasa, pune default ca .jpg
+            if(!file.path.contains(".")){
+                file=File(file.path+".jpg")
+                Log.i("TESTS","Images.loadFromFile was given a extensionless filename. Assigning .jpg as default. Result: ${file.path}")
+            }
+
             if (file.exists()) {
+                Log.i("TESTS","Images.loadFromFile a file that exists")
                 try {
                     if (file.length() <= 0)
                         file.delete()
@@ -274,8 +292,10 @@ object Images{
                     file.delete()
                     null // mapNotNull will filter this out
                 }
-            } else
-                 null
+            } else {
+                Log.i("TESTS","Images.loadFromFile a file that does NOT exist")
+                null
+            }
         }
         else
             return null
@@ -320,11 +340,70 @@ object Images{
         } ?: return null // return null if cursor is null
     }
 
+
+    /**
+     * Example of usage: val bitmap = decodeSampledBitmapFromUri(contentResolver, contentUri, 1000, 1000)
+     * */
+    fun decodeSampledBitmapFromUri(contentResolver: ContentResolver, uri: Uri, reqWidth: Int, reqHeight: Int): Bitmap? {
+        return try {
+            // Step 1: Decode with inJustDecodeBounds=true to get image dimensions
+            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                BitmapFactory.decodeStream(inputStream, null, options)
+            }
+
+            // Step 2: Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
+            options.inJustDecodeBounds = false
+
+            // Step 3: Decode bitmap with inSampleSize set
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                BitmapFactory.decodeStream(inputStream, null, options)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+        val height = options.outHeight
+        val width = options.outWidth
+        var inSampleSize = 1
+
+        if (height > reqHeight || width > reqWidth) {
+            val halfHeight = height / 2
+            val halfWidth = width / 2
+
+            while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+        return inSampleSize
+    }
+
 }
 
 fun map(x:Float, in_min:Float, in_max:Float, out_min:Float, out_max:Float):Float {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
+
+
+
+fun List<String>.concatenateWith(divider:String ="",exceptFor:List<Int>):String{
+    val stringBuilder = StringBuilder(this.first())
+
+    this.forEachIndexed { index,string->
+        if(!exceptFor.contains(index) && index!=0) {
+            stringBuilder.append(divider)
+            stringBuilder.append(string)
+        }
+    }
+    return stringBuilder.toString()
+}
+
+
 
 class Insets(view:View){
     val insets = ViewCompat.getRootWindowInsets(view)
@@ -661,6 +740,8 @@ fun WriteStringInFile(context:Context,filename:String,message:String) {
 }
 
 
+
+
 fun AskForPermissionsAtStart(activityContext:Activity, permissions:List<String>){
 
 
@@ -698,26 +779,21 @@ fun AskForPermissionsAtStart(activityContext:Activity, permissions:List<String>)
                 else -> {
                     // You can directly ask for the permission.
                     // The registered ActivityResultCallback gets the result of this request.
+                    requestPermissionLauncher.launch(permission)
+
 
                     val permisions_are_ok = VerifyPermissions(activityContext,GlobalValues.System.RequiredPermissions.subList(0,2))
 
                     if (!permisions_are_ok) {
                         OpenAppSettings(activityContext)
                     }
-                    requestPermissionLauncher.launch(permission)
+
                 }
             }
         }catch (ex: Exception){
             android.util.Log.i("EXCEPTIONS","Permission exception: "+ex.message.toString())
         }
     }
-
-
-
-
-
-
-
 
 }
 

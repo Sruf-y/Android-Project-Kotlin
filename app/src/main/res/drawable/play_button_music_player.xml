@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+
+        <layer-list>
+
+
+
+            <item>
+                <vector android:height="40dp" android:width="40dp"
+                    android:viewportWidth="100"
+                    android:viewportHeight="100">
+                    <path android:strokeWidth="1"
+                        android:strokeColor="@color/gray"
+                        android:fillColor="@color/white"
+                        android:pathData="
+                        M35,30
+                        L70,50
+                        L35,70
+
+                        L35,30
+                        L70,50
+"/>
+                </vector>
+
+            </item>
+        </layer-list>
+    </item>
+</selector>

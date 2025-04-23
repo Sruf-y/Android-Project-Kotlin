@@ -3,12 +3,16 @@ package SongsMain.Classes
 import DataClasses_Ojects.Logs
 import SongsMain.Classes.Events.SongWasStopped
 import SongsMain.Classes.Song.Companion.from
+import SongsMain.Tutorial.Application
+import SongsMain.Tutorial.MusicPlayerService
 import android.app.Activity
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
 import de.greenrobot.event.EventBus
 import java.time.LocalDateTime
 
@@ -18,11 +22,12 @@ object myMediaPlayer {
     var mediaplayer: MediaPlayer = MediaPlayer()
     private var isInitialized=false
     var currentlyPlayingSong:Song? = null
-    val currentPlaylist: Playlist? = null
-    var isLoopingInPlaylist:Boolean = true
+    var currentPlaylist: Playlist? = null
+    var isLoopingInPlaylist:Boolean = false // in the future if i add a loop button
 
 
-    fun initializeMediaPlayer(context: Context) {
+
+    fun initializeMediaPlayer() {
         //mediaplayer.reset()
         if (!isInitialized) {
             Log.i("TESTS","Media initialize requested")
@@ -35,27 +40,97 @@ object myMediaPlayer {
                 )
 
                 // Don't prepare here - wait until setDataSource() is called
-                isInitialized = true
+
 
 
                 Log.i(Logs.MEDIA_SOUND.toString(), "MediaPlayer initialized")
             }
+            isInitialized = true
+        }
+    }
+
+
+    fun seekTo(under100:Long){
+        if(myMediaPlayer.currentlyPlayingSong!=null){
+            try{
+                mediaplayer.seekTo(((under100/100)*currentlyPlayingSong!!.duration).toInt())
+            }catch (ex: Exception){
+                ex.printStackTrace()
+            }
+        }
+    }
+
+    fun openPlaylist(playlist: Playlist?){
+        if(isInitialized){
+
+            if(playlist!=null){
+
+                if(playlist.songsList!=null)
+                {
+                    if(playlist.songsList!!.isNotEmpty()){
+                        this.currentPlaylist=playlist
+
+                        // tells it to play the next in playlist IF the playlist was initialized. This means it will play until it stops finding a "next" song.
+                        mediaplayer.setOnCompletionListener {
+                            myMediaPlayer.playNextInPlaylist()
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    fun playNextInPlaylist(){
+        if(isInitialized&& currentlyPlayingSong!=null){
+            if(this.currentPlaylist!=null){
+                if(currentPlaylist!!.hasNextAfter(myMediaPlayer.currentlyPlayingSong!!))
+                {
+                    val currentIndex:Int = currentPlaylist!!.songsList!!.indexOf(currentlyPlayingSong)
+
+                    this.setSong(currentPlaylist!!.songsList!![currentIndex+1])
+                }
+            }
+        }
+    }
+
+    fun playPreviousInPlaylist(){
+        if(isInitialized && currentlyPlayingSong!=null) {
+            if (this.currentPlaylist != null) {
+                if(currentPlaylist!!.hasPreviousBefore(currentlyPlayingSong!!))
+                {
+                    val currentIndex:Int = currentPlaylist!!.songsList!!.indexOf(currentlyPlayingSong)
+
+                    this.setSong(currentPlaylist!!.songsList!![currentIndex-1])
+                }
+            }
+        }
+    }
+
+    fun setVolume(leftVolume:Float,rightVolume:Float){
+        if(isInitialized){
+            mediaplayer.setVolume(leftVolume,rightVolume)
         }
     }
 
 
 
+    fun getAudioSessionID(): Int {
+        return mediaplayer.audioSessionId
+    }
 
 
+    fun setSong(song:Song) {
 
-    fun setSong(activity: Activity, song:Song) {
+
+        initializeMediaPlayer()
 
 
         try {
             if (!mediaplayer.isPlaying){
                 Log.i("TESTS","Set song requested")
                 mediaplayer.apply {
-                    activity.applicationContext.contentResolver.openFileDescriptor(
+                    Application.instance.applicationContext.contentResolver.openFileDescriptor(
                         song.from(SongsGlobalVars.allSongs)!!.songUri.toUri(),
                         "r"
                     ).use { pfd ->
@@ -64,12 +139,33 @@ object myMediaPlayer {
                         prepareAsync()
 
 
-                        song.from(SongsGlobalVars.allSongs)?.timesListened++
-                        song.from(SongsGlobalVars.allSongs)?.lastPlayed= LocalDateTime.now().toString()
+                        mediaplayer.setOnPreparedListener {
 
-                        bus.post(Events.SongWasChanged(currentlyPlayingSong,song.from(SongsGlobalVars.allSongs)))
 
-                        currentlyPlayingSong=song.from(SongsGlobalVars.allSongs)
+
+
+
+                            val lastSong = currentlyPlayingSong
+                            currentlyPlayingSong=song.from(SongsGlobalVars.allSongs)
+
+
+                            bus.post(Events.SongWasChanged(lastSong,currentlyPlayingSong))
+                            _Playing=true
+
+
+                            // update the stats too
+                            song.from(SongsGlobalVars.allSongs)?.timesListened++
+                            song.from(SongsGlobalVars.allSongs)?.lastPlayed= LocalDateTime.now().toString()
+
+                            SongsGlobalVars.playingQueue.apply {
+                                if (this.contains(song.from(SongsGlobalVars.allSongs))) {
+                                    this.remove(song.from(SongsGlobalVars.allSongs))
+                                }
+                                this.add(song.from(SongsGlobalVars.allSongs)!!)
+                            }
+
+                            myMediaPlayer.start()
+                        }
 
 
                         Log.i(Logs.MEDIA_SOUND.toString(), "Mediaplayer song set to ${currentlyPlayingSong?.title}")
@@ -89,20 +185,12 @@ object myMediaPlayer {
 
     fun start() {
 
-        // also set the prepared listener
-        mediaplayer.setOnPreparedListener {
-            mediaplayer.start()
-            bus.post(Events.SongWasStarted())
-        }
-
-
         if(currentlyPlayingSong!=null && !isPlaying) {
             Log.i("TESTS","Start song requested")
             mediaplayer.start()
+            _Playing=true
             bus.post(Events.SongWasStarted())
         }
-
-
 
     }
 
@@ -111,6 +199,7 @@ object myMediaPlayer {
             Log.i("TESTS","Stop song requested")
             mediaplayer.stop()
             myMediaPlayer.currentlyPlayingSong=null
+            _Playing=false
             bus.post(SongWasStopped())
         }
     }
@@ -132,8 +221,13 @@ object myMediaPlayer {
         }
     }
 
-
-    val isPlaying get() = mediaplayer.isPlaying
+     var _Playing = false
+    var isPlaying
+        get() = try{mediaplayer.isPlaying}catch(ex:Exception){
+        myMediaPlayer.initializeMediaPlayer()
+            _Playing
+    }
+        set(value) {_Playing=value}
 
     fun getCurrentPosition(): Int {
 
@@ -143,22 +237,33 @@ object myMediaPlayer {
 
 
     fun reset() {
-        Log.i("TESTS","Reset song requested")
-        mediaplayer.reset()
-        bus.post(Events.SongWasReset())
+
+        if(isInitialized) {
+
+            if (currentlyPlayingSong != null) {
+
+                mediaplayer.reset()
+                _Playing=false
+                bus.post(Events.SongWasReset())
+            }
+        }
     }
 
     fun release() {
         mediaplayer.release()
+        _Playing=false
     }
 
     fun pause(){
         if(currentlyPlayingSong!=null) {
             mediaplayer.pause()
+            _Playing=false
             bus.post(Events.SongWasPaused())
 
         }
     }
+
+
 
 
 }

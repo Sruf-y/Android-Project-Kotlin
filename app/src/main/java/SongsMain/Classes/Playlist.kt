@@ -7,7 +7,7 @@ import android.util.Log
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class Playlist(var thumbnail: Drawable,var title: String,var songsList: ArrayList<Song>?=null,var isUserOrdered:Boolean=false) {
+data class Playlist(var title: String,var songsList: ArrayList<Song>?=null,var isUserOrdered:Boolean=true) {
 
 
     fun add(song:Song){
@@ -47,7 +47,8 @@ data class Playlist(var thumbnail: Drawable,var title: String,var songsList: Arr
         } catch (ex: Exception) {
             Log.e(Logs.LOGIC.toString(), ex.message.toString())
             ex.printStackTrace()
-        } as Boolean
+            false
+        }
         false
     }
 

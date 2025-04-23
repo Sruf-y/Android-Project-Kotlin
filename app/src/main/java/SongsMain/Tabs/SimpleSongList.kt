@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.Button
 import com.example.composepls.R
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.greenrobot.event.EventBus
@@ -32,6 +31,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
+import kotlinx.coroutines.CoroutineScope
 
 class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
@@ -43,7 +43,10 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
     lateinit var recyclerLayoutManager: LinearLayoutManager
 
-
+    val designatedList: ArrayList<Song>
+        get() {
+            return SongsGlobalVars.publicSongs
+        }
 
 
 
@@ -81,7 +84,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
             { song ->
 
                     myMediaPlayer.reset()
-                    myMediaPlayer.setSong(requireActivity(), song)
+                    myMediaPlayer.setSong( song)
 
                 myMediaPlayer.start()
             }, {song->
@@ -123,7 +126,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
         requireView().findViewById<ConstraintLayout>(R.id.progbar).visibility=View.VISIBLE
         butonplaystop.visibility= View.INVISIBLE
         audioRecycler.visibility=View.INVISIBLE
-        adaptor.mList= SongsGlobalVars.allSongs
+        adaptor.mList= designatedList
         adaptor.notifyItemRangeInserted(0,adaptor.mList.size)
 
             // after everything is good and ready
@@ -156,7 +159,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
         butonplaystop.setOnClickListener {
-            lifecycleScope.launch {
+            CoroutineScope(Dispatchers.Main).launch {
                 bus.post(Events.RequestGlobalDataUpdate())
                 butonplaystop.visibility= View.INVISIBLE
                 audioRecycler.visibility=View.INVISIBLE
@@ -173,7 +176,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
         var sf: SharedPreferences = requireContext().getSharedPreferences("My SF",Context.MODE_PRIVATE);
         lastposition=sf.getInt("SimpleSongListScrollPosition",0);
 
-        lifecycleScope.launch {
+        CoroutineScope(Dispatchers.Main).launch {
             nestedscrollview.isSmoothScrollingEnabled=true
 
             //only scroll on opening the app
@@ -212,7 +215,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
         val mlistSizeWas = adaptor.mList.size
-            adaptor.mList= SongsGlobalVars.allSongs
+            adaptor.mList= designatedList
         if(mlistSizeWas==0){
             adaptor.notifyItemRangeInserted(0,adaptor.mList.size)
         }
@@ -258,8 +261,8 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
     fun onEvent(event:Events.SongWasChanged){
 
 
-        if(event.currentSong!=null) {
-            (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(event.currentSong))
+        if(event.lastSong!=null) {
+            (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(event.lastSong))
                 ?.findViewById<TextView>(R.id.title))?.setTextColor(
                     ContextCompat.getColor(
                         requireContext(),
@@ -272,8 +275,8 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
 
-        if(event.nextSong!=null) {
-            (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(event.nextSong))
+        if(event.currentSong!=null) {
+            (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(event.currentSong))
                 ?.findViewById<TextView>(R.id.title))?.setTextColor(
                 ContextCompat.getColor(
                     requireContext(),

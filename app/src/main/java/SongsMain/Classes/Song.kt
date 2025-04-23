@@ -17,7 +17,7 @@ import kotlin.time.Duration
 class Song(
  var songUri: String,
  var title: String,
- var thumbnail: String = "",
+ var thumbnail: String? = "",
  var author: String,
  var duration: Long,
  var dateAdded: Long = LocalDateTime.now()
@@ -48,16 +48,21 @@ class Song(
           return aux // Returns the actual reference from the list
       }
 
+      fun ArrayList<Song>?.takeYourPartFromGlobal(from: ArrayList<Song> = SongsGlobalVars.allSongs){
 
-
-      fun quickSaveGlobalList(context:Context){
-
-          Functions.saveAsJson(
-              context,
-              "GlobalSongs",
-              SongsGlobalVars.allSongs
-          )
+          this?.forEachIndexed {index, song->
+              from.find { it->
+                  it==song
+              }.apply {
+                  if(this!=null)
+                    this@takeYourPartFromGlobal[index]=this
+              }
+          }
       }
+
+
+
+
 
 
 
@@ -72,18 +77,30 @@ class Song(
    fun compareAndCompleteTheFirst(resultInto: ArrayList<Song>, val2: ArrayList<Song>) {
 
     //updating
-    resultInto.forEach {
-     val2.indexOf(it).apply {
-      if (this > -1) {
-       // adica exista in val2 SI este pe o pozitie pe care o am ca "this"
+       val listOfNeededToDelete = ArrayList<Song>()
 
-       it.isHidden = val2[this].isHidden
-       it.isHidden = val2[this].isHidden
-       it.timesListened=val2[this].timesListened
-       it.lastPlayed=val2[this].lastPlayed
-      }
-     }
+
+    resultInto.forEach {
+        if (val2.contains(it)) {
+            val2.indexOf(it).apply {
+                if (this >= 0) {
+                    // adica exista in val2 SI este pe o pozitie pe care o am ca "this"
+
+                    it.isHidden = val2[this].isHidden
+                    it.isHidden = val2[this].isHidden
+                    it.timesListened = val2[this].timesListened
+                    it.lastPlayed = val2[this].lastPlayed
+                }
+            }
+        }
+        else{
+            listOfNeededToDelete.remove(it)
+        }
     }
+
+       listOfNeededToDelete.forEach {
+           resultInto.remove(it)
+       }
 
 
    }
@@ -92,39 +109,27 @@ class Song(
   }
 
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Song
 
 
-
-
-
-
-
-
-
-
-
-
-  override fun equals(other: Any?): Boolean {
-   if (this === other) return true
-   if (javaClass != other?.javaClass) return false
-
-   other as Song
-
-
-   if (songUri != other.songUri) return false
+        if (songUri != other.songUri) return false
 //   if (thumbnail != null && other.thumbnail != null) {
 //    if (thumbnail != other.thumbnail) return false
 //   }
 
 
-   return true
-  }
+        return true
+    }
 
-  override fun hashCode(): Int {
-   var result = duration.hashCode()
-   result = 31 * result + songUri.hashCode()
-   return result
-  }
+    override fun hashCode(): Int {
+        var result = duration.hashCode()
+        result = 31 * result + songUri.hashCode()
+        return result
+    }
 
 
- }
+}

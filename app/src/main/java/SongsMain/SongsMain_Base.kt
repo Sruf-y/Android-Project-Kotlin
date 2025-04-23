@@ -65,6 +65,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
     lateinit var bottomsheetCol_musictitle: TextView
     lateinit var bottomsheetCol_musicImage: ShapeableImageView
     lateinit var bottomsheetCol_musicBackground: ImageView
+    lateinit var progressbarCol: ProgressBar
 
     val bus: EventBus = EventBus.getDefault()
 
@@ -191,11 +192,11 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
         //setup progressbar
-        val progressBar: ProgressBar = requireView().findViewById(R.id.songProgressBar)
+        progressbarCol = requireView().findViewById(R.id.songProgressBar)
 
 
         progressViewModel.progress.observe(viewLifecycleOwner) { progress ->
-            progressBar.progress = progress
+            progressbarCol.progress = progress
         }
 
 
@@ -267,14 +268,14 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
     fun onEvent(event:Events.SongWasChanged){
         //for collapsed
 
-        if(event.nextSong!=null) {
-            if (File(event.nextSong?.thumbnail).exists()) {
+        if(event.currentSong!=null) {
+            if (File(event.currentSong?.thumbnail).exists()) {
                 Glide.with(requireContext())
-                    .load(event.nextSong?.thumbnail)
+                    .load(event.currentSong.thumbnail)
                     .into(bottomsheetCol_musicImage)
 
                 Glide.with(requireContext())
-                    .load(event.nextSong?.thumbnail)
+                    .load(event.currentSong.thumbnail)
                     .into(bottomsheetCol_musicBackground)
             } else {
                 Glide.with(requireContext())
@@ -285,7 +286,10 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
                     .load(R.drawable.blank_gray_musical_note)
                     .into(bottomsheetCol_musicBackground)
             }
-            bottomsheetCol_musictitle.text = event.nextSong?.title
+            bottomsheetCol_musictitle.text = event.currentSong.title
+
+            progressViewModel.startUpdates()
+            bottomsheetCol_musicToggle.isChecked= myMediaPlayer.isPlaying
 
 
             //for expanded

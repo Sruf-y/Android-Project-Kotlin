@@ -1,5 +1,6 @@
 package SongsMain.Classes
 
+import SongsMain.Tutorial.Application
 import android.content.Context
 import java.io.File
 
@@ -7,17 +8,21 @@ object SongsGlobalVars {
     val CHANNEL_ID = "CHANNEL_ID"
     val CHANNEL_NAME= "CHANNEL_NAME"
 
-    fun musicDirectory(context:Context):File{
-        return File(context.filesDir,"MusicDir")
+    fun musicDirectory(context:Context?=null):File{
+        return File(Application.instance.filesDir,"MusicDir")
     }
+
 
 
     var playingQueue:ArrayList<Song> = ArrayList<Song>()
 
-    var playlists: ArrayList<Playlist> = ArrayList<Playlist>()
-    var MyFavoritesPlaylist: Playlist? = null
-    var RecentlyAddedPlaylist: Playlist?=null
-    var RecentlyPlayed: Playlist?=null
+    var playlistsList: ArrayList<Playlist> = ArrayList<Playlist>()
+
+    var MyFavoritesPlaylist: Playlist = Playlist("Favorites",null,false)
+    var RecentlyPlayed: Playlist = Playlist("Recently Played",null,false)
+
+
+
 
     var allSongs: ArrayList<Song> = ArrayList<Song>()
 
@@ -25,6 +30,12 @@ object SongsGlobalVars {
     var publicSongs: ArrayList<Song> = ArrayList<Song>()
 
 
+
+
+
+
+    var refreshBufferIsFree = true
+    var saveBufferIsFree = true
 
 
 }

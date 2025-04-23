@@ -5,10 +5,11 @@ object Events {
     class GlobalDataWasUpdated()
     class RequestGlobalDataUpdate()
 
-    class SongWasChanged(val currentSong: Song?, val nextSong: Song?){
+    class SongWasChanged(val lastSong: Song?, val currentSong: Song?){
     }
     class SongWasPaused()
     class SongWasStarted()
     class SongWasReset()
     class SongWasStopped()
+    class SongWas_UsedSeek()
 }

@@ -2,11 +2,22 @@ package SongsMain
 
 import DataClasses_Ojects.Logs
 import Functions.AskForPermissionsAtStart
+import Functions.Images.decodeSampledBitmapFromUri
+import Functions.concatenateWith
+import Functions.saveAsJson
 import SongsMain.Classes.Events
+import SongsMain.Classes.Playlist
 import SongsMain.Classes.Song
+import SongsMain.Classes.Song.Companion.takeYourPartFromGlobal
 import SongsMain.Classes.SongsGlobalVars
 import SongsMain.Classes.myMediaPlayer
+import SongsMain.Tutorial.Application
+import SongsMain.Tutorial.MusicPlayerService
+import android.app.Activity
+import android.app.ActivityManager
 import android.content.ContentUris
+import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.provider.MediaStore
@@ -16,6 +27,9 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startForegroundService
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePaddingRelative
@@ -27,6 +41,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.composepls.R
 import com.google.android.material.navigation.NavigationView
 import de.greenrobot.event.EventBus
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,15 +59,26 @@ class SongMain_Activity : AppCompatActivity() {
 
     val bus:EventBus = EventBus.getDefault();
 
+
     lateinit var fragmentContainer: FragmentContainerView
     lateinit var drawer: DrawerLayout
 
-
+     object ActiveTracker {
+        var isRunningAnywhere: Boolean = false
+        var isPaused: Boolean=false
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
         setContentView(R.layout.activity_songs_main_activity)
+
+        AskForPermissionsAtStart( this,GlobalValues.System.RequiredPermissions.subList(0,4))
+
+        SongMain_Activity.ActiveTracker.isRunningAnywhere=true
+        SongMain_Activity.ActiveTracker.isPaused=false
+
+
 
 
 
@@ -67,9 +93,6 @@ class SongMain_Activity : AppCompatActivity() {
             makeCurrentFragment(fragmentContainer, SongsMain.SongsMain_Base::class.java)
 
         }
-
-
-
 
 
 
@@ -118,20 +141,19 @@ class SongMain_Activity : AppCompatActivity() {
 
 
 
-
-
-
-
-
-
-
-        myMediaPlayer.initializeMediaPlayer(this)
+        // should be getting initialized in the service launcher
+        //myMediaPlayer.initializeMediaPlayer(this)
 
         bus.register(this)
 
 
+        myMediaPlayer.initializeMediaPlayer()
 
+        startMusicService()
     }
+
+
+
 
     fun onEvent( event: OpenDrawerEvent){
         drawer.open()
@@ -139,7 +161,7 @@ class SongMain_Activity : AppCompatActivity() {
 
     fun onEvent(event:Events.RequestGlobalDataUpdate){
 
-        lifecycleScope.launch {
+        CoroutineScope(Dispatchers.Main).launch {
             SongsGlobalVars.allSongs.clear()
             SongsGlobalVars.allSongs.addAll(doSongsQuery())
             bus.post(Events.GlobalDataWasUpdated())
@@ -147,6 +169,34 @@ class SongMain_Activity : AppCompatActivity() {
 
 
     }
+
+    fun onEvent( event: Events.SongWasStarted){
+        startMusicService()
+    }
+
+
+    fun startMusicService(){
+        if(!MusicPlayerService.isServiceRunning())
+        {
+            val intent = Intent(this, MusicPlayerService::class.java)
+
+            startForegroundService(intent)
+
+            bus.post(Events.SongWasChanged(null,null))
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -160,64 +210,171 @@ class SongMain_Activity : AppCompatActivity() {
     override fun onDestroy() {
         Log.i(Logs.LIFECYCLE.toString(),"(Main_Activity) MusicPlayer activity destroyed")
 
+
         bus.unregister(this)
-        //myMediaPlayer.release()
+
+        SongMain_Activity.ActiveTracker.isRunningAnywhere=false
+        SongMain_Activity.ActiveTracker.isPaused=false
+
+
         super.onDestroy()
     }
 
     override fun onResume() {
         super.onResume()
+        SongMain_Activity.ActiveTracker.isPaused=false
 
-        AskForPermissionsAtStart( this,GlobalValues.System.RequiredPermissions.subList(0,2))
+        if(SongsGlobalVars.refreshBufferIsFree) {
+            SongsGlobalVars.refreshBufferIsFree=false
+            lifecycleScope.launch {
+                val songsLoadedSuccesfully = refreshGlobalSongList()
 
+                val playlistsLoadedSuccesfully = refreshSongLists()
 
-        SongsGlobalVars.allSongs.clear()
-        SongsGlobalVars.allSongs.addAll(Functions.loadFromJson(this, "GlobalSongs", SongsGlobalVars.allSongs))
+                var songsList: ArrayList<Song> = ArrayList<Song>()
+                CoroutineScope(Dispatchers.Main).launch {
+                    // fac un query light la inceputul aplicatiei, verific daca datele stocate sunt la fel ca cele din query. Daca da, continui. Daca nu, fac query heavy
+                    // Dupa ambele,la final, fac request ca datele din restul listelor si recyclelor sa fie updatate
 
-        var songsList: ArrayList<Song> = ArrayList<Song>()
-        lifecycleScope.launch {
-            // fac un query light la inceputul aplicatiei, verific daca datele stocate sunt la fel ca cele din query. Daca da, continui. Daca nu, fac query heavy
-            // Dupa ambele,la final, fac request ca datele din restul listelor si recyclelor sa fie updatate
+                    songsList = doSongsQuery(false)
+                    Log.i(
+                        "TESTS",
+                        "(Main_Activity) AllSongs list has a size of ${SongsGlobalVars.allSongs.size}"
+                    )
 
-            songsList=doSongsQuery(false)
-            Log.i("TESTS","(Main_Activity) AllSongs list has a size of ${SongsGlobalVars.allSongs.size}")
+                }.invokeOnCompletion {
 
-        }.invokeOnCompletion {
+                    // get the list of items that are not in concordance with the light query and handle them
 
-            // get the list of items that are not in concordance with the light query and handle them
+                    val listInNeedOfUpdates =
+                        Functions.differencesBetweenArrays(songsList, SongsGlobalVars.allSongs)
+                            .apply {
 
-            val listInNeedOfUpdates =
-                Functions.differencesBetweenArrays(songsList, SongsGlobalVars.allSongs).apply {
+                                if (this.isNotEmpty()) {
 
-                    if (this.isNotEmpty()) {
+                                    Log.i(
+                                        "TESTS",
+                                        "(Main_Activity) List in need of udpates of size " + this.size.toString()
+                                    )
+                                    // exista elemente in neconcordata, fac update cu query
 
-                        Log.i("TESTS", "(Main_Activity) List in need of udpates of size " + this.size.toString())
-                        // exista elemente in neconcordata, fac update cu query
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        var listaNouaQuery = doSongsQuery()
+                                        Song.compareAndCompleteTheFirst(
+                                            listaNouaQuery,
+                                            SongsGlobalVars.allSongs
+                                        )
 
-                        lifecycleScope.launch {
-                            var listaNouaQuery = doSongsQuery()
-                            Song.compareAndCompleteTheFirst(
-                                listaNouaQuery,
-                                SongsGlobalVars.allSongs
-                            )
-                            SongsGlobalVars.allSongs.clear()
-                            SongsGlobalVars.allSongs.addAll(listaNouaQuery)
+                                        SongsGlobalVars.allSongs.clear()
+                                        SongsGlobalVars.allSongs.addAll(listaNouaQuery)
 
+                                        redistributeLists()
 
-                            Functions.saveAsJson(
-                                this@SongMain_Activity,
-                                "GlobalSongs",
-                                SongsGlobalVars.allSongs
-                            )
-                            bus.post(Events.GlobalDataWasUpdated())
-                        }
+                                        // save songs
+                                        saveSongLists()
+                                        //
+                                        withContext(Dispatchers.Main) {
+                                            bus.post(Events.GlobalDataWasUpdated())
+                                            SongsGlobalVars.refreshBufferIsFree=true
+                                        }
 
-                    }
+                                    }
+
+                                } else {
+                                    // Everything is in order
+
+                                    bus.post(Events.GlobalDataWasUpdated())
+                                    SongsGlobalVars.refreshBufferIsFree=true
+
+                                }
+                            }
+
                 }
-
+            }
         }
 
 
+
+
+    }
+
+    suspend fun refreshGlobalSongList(){
+        return withContext(Dispatchers.IO) {
+            SongsGlobalVars.allSongs.clear()            // am facut load la lista de songs. Fac load si la playlists, si split pe public si hidden songs.
+            SongsGlobalVars.allSongs.addAll(Functions.loadFromJson(Application.instance, "GlobalSongs", SongsGlobalVars.allSongs))
+
+            true
+        }
+    }
+
+
+    suspend fun refreshSongLists():Boolean{
+        return withContext(Dispatchers.IO) {
+
+
+
+            SongsGlobalVars.playlistsList.clear()
+            SongsGlobalVars.playlistsList.addAll(Functions.loadFromJson(Application.instance,"PlaylistsList",ArrayList<Playlist>()))
+
+            SongsGlobalVars.playlistsList.forEach {
+                it.songsList.takeYourPartFromGlobal()
+            }
+
+            SongsGlobalVars.RecentlyPlayed=Functions.loadFromJson(Application.instance,"Recently Played",Playlist("Recently Played",null,false))
+            SongsGlobalVars.MyFavoritesPlaylist=Functions.loadFromJson(Application.instance,"Favorites",Playlist("Recently Played",null,true))
+
+            SongsGlobalVars.playingQueue.clear()
+            SongsGlobalVars.playingQueue.addAll(Functions.loadFromJson(Application.instance,"Playing Queue",ArrayList<Song>()))
+
+            SongsGlobalVars.hiddenSongs.clear()
+            SongsGlobalVars.publicSongs.clear()
+            SongsGlobalVars.allSongs.forEach {
+                if(it.isHidden){
+                    SongsGlobalVars.hiddenSongs.add(it)
+                }
+                else{
+                    SongsGlobalVars.publicSongs.add(it)
+                }
+            }
+
+            true
+        }
+    }
+
+    suspend fun redistributeLists():Boolean{
+        return withContext(Dispatchers.IO) {
+
+            SongsGlobalVars.playingQueue.takeYourPartFromGlobal()
+            SongsGlobalVars.RecentlyPlayed.songsList.takeYourPartFromGlobal()
+            SongsGlobalVars.MyFavoritesPlaylist.songsList.takeYourPartFromGlobal()
+            SongsGlobalVars.playlistsList.forEach {
+                it.songsList.takeYourPartFromGlobal()
+            }
+
+            SongsGlobalVars.allSongs.forEach {
+                if(it.isHidden){
+                    SongsGlobalVars.hiddenSongs.add(it)
+                }
+                else{
+                    SongsGlobalVars.publicSongs.add(it)
+                }
+            }
+
+            true
+        }
+    }
+
+
+
+    suspend fun saveSongLists():Boolean{
+        return withContext(Dispatchers.IO) {
+            Functions.saveAsJson(Application.instance, "GlobalSongs", SongsGlobalVars.allSongs)
+            Functions.saveAsJson(Application.instance, "PlaylistsList", SongsGlobalVars.playlistsList)
+            Functions.saveAsJson(Application.instance, "Recently Played", SongsGlobalVars.RecentlyPlayed)
+            Functions.saveAsJson(Application.instance, "Favorites", SongsGlobalVars.MyFavoritesPlaylist)
+            Functions.saveAsJson(Application.instance, "Playing Queue", SongsGlobalVars.playingQueue)
+            true
+        }
     }
 
 
@@ -225,22 +382,26 @@ class SongMain_Activity : AppCompatActivity() {
         super.onPause()
         //Glide.getPhotoCacheDir(this)?.deleteRecursively()
 
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                Song.quickSaveGlobalList(this@SongMain_Activity)
+        CoroutineScope(Dispatchers.Main).launch {
+            if(SongsGlobalVars.saveBufferIsFree) {
+                SongsGlobalVars.saveBufferIsFree=false
+                val savedSuccesfully = saveSongLists()
+                SongsGlobalVars.saveBufferIsFree=true
             }
 
         }
+        SongMain_Activity.ActiveTracker.isPaused=true
 
     }
 
 
-        suspend fun doSongsQuery(alsoPictures:Boolean=true): ArrayList<Song> =withContext(Dispatchers.IO){
+    suspend fun doSongsQuery(alsoPictures: Boolean = true): ArrayList<Song> =
+        withContext(Dispatchers.IO) {
             val FROM = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
             val lista = ArrayList<Song>()
 
 
-            val queryStartTime: LocalTime=LocalTime.now()
+            val queryStartTime: LocalTime = LocalTime.now()
 
 
             val projection = arrayOf(
@@ -257,8 +418,6 @@ class SongMain_Activity : AppCompatActivity() {
             // Initialize adapter with empty list
 
 
-
-
             // Phase 1: Stream items as they're found
 
             val cursor = contentResolver.query(
@@ -269,8 +428,11 @@ class SongMain_Activity : AppCompatActivity() {
                 while (cursor.moveToNext()) {
                     val id =
                         cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID))
-                    val title =
+                    val display_name =
                         cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME))
+                    val pieces = display_name.split(".")
+                    var title = pieces.concatenateWith(".", listOf(pieces.size-1))
+
                     val duration =
                         cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
                     val author =
@@ -280,15 +442,11 @@ class SongMain_Activity : AppCompatActivity() {
                     val contentUri = ContentUris.withAppendedId(FROM, id)
 
 
-                    var thumbnailFile:File=File("")
+                    var thumbnailFile: File = File("")
 
-                    if(alsoPictures) {
+                    if (alsoPictures) {
                         val thumbnail = try {
-                            contentResolver?.loadThumbnail(
-                                contentUri,
-                                Size(200, 200),
-                                null
-                            )
+                            decodeSampledBitmapFromUri(contentResolver,contentUri,400,400)
                         } catch (ex: Exception) {
                             null
                         }
@@ -301,13 +459,20 @@ class SongMain_Activity : AppCompatActivity() {
                             )
                         }
 
-                        thumbnailFile = File(SongsGlobalVars.musicDirectory(applicationContext),contentUri.lastPathSegment.toString()+".jpg")
+                        thumbnailFile = File(
+                            SongsGlobalVars.musicDirectory(applicationContext),
+                            contentUri.lastPathSegment.toString() + ".jpg"
+                        )
                     }
 
 
-
                     val song = Song(
-                        contentUri.toString(), title, thumbnailFile.toString(),author, duration,dateAddedinSeconds
+                        contentUri.toString(),
+                        title,
+                        thumbnailFile.toString(),
+                        author,
+                        duration,
+                        dateAddedinSeconds
                     )
 
 
@@ -316,11 +481,15 @@ class SongMain_Activity : AppCompatActivity() {
                     //adaptor.mList.add(song)
 
 
-
                 }
 
 
-                Log.i("TESTS","(Main_Activity) Query took ${Duration.between(queryStartTime, LocalTime.now()).toMillis()} miliseconds and had a lsit of size ${lista.size}")
+                Log.i(
+                    "TESTS",
+                    "(Main_Activity) Query took ${
+                        Duration.between(queryStartTime, LocalTime.now()).toMillis()
+                    } miliseconds and had a lsit of size ${lista.size}"
+                )
 
 
             }
