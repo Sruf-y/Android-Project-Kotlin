@@ -14,6 +14,9 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
@@ -25,6 +28,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.viewModels
@@ -39,6 +43,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.security.Provider
 import kotlin.getValue
+import androidx.core.graphics.createBitmap
 
 class MusicPlayerService: Service() {
 
@@ -94,9 +99,9 @@ class MusicPlayerService: Service() {
             }
 
             // Re-initialize metadata/session if needed
-            if (!::mediaSession.isInitialized) {
+
                 setupMediaSession()
-            }
+
 
             isRunning = true
         }
@@ -149,18 +154,27 @@ class MusicPlayerService: Service() {
 
 
         CoroutineScope(Dispatchers.Default).launch {
-            val song_art = Functions.Images.loadFromFile(File(File(Application.instance.filesDir,"MusicDir"),
-                SONG?.songUri?.toUri()?.lastPathSegment.toString() +".jpg"))
+
+
+
+
+            val song_art = Functions.Images.loadFromFile(File(SONG?.thumbnail))
 
 
             val metadata = MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, myMediaPlayer.currentlyPlayingSong?.title ?: "<unknown>")
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,myMediaPlayer.currentlyPlayingSong?.title ?: "<unknown>")
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,myMediaPlayer.currentlyPlayingSong?.author ?: "<unknown>")
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, myMediaPlayer.mediaplayer.duration.toLong())
                 .apply {
+
                     if(song_art!=null){
                         putBitmap(MediaMetadataCompat.METADATA_KEY_ART,
                         song_art)
+                    }
+                    else{
+                        val bitmap =  Functions.Images.getBitmapFromDrawable(R.drawable.blank_gray_musical_note)
+                        Log.i(Logs.MEDIA_IMAGES.name,"Value of song_art is ${bitmap.toString()}")
+                        putBitmap(MediaMetadataCompat.METADATA_KEY_ART,bitmap)
                     }
                 }
                 .build()
@@ -191,6 +205,7 @@ class MusicPlayerService: Service() {
                 .addAction(R.drawable.skip_to_next, "Next", nextPendingIntent())
                 .addAction(R.drawable.x,"Close",getStopServicePendingIntent())
                 .setOngoing(true)
+                .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
                 .apply {
                     if(song_art!=null)
@@ -205,9 +220,10 @@ class MusicPlayerService: Service() {
     }
 
 
-
-
-
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        //serviceStop()
+        super.onTaskRemoved(rootIntent)
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -234,12 +250,8 @@ class MusicPlayerService: Service() {
 
 
 
-
-
-
-
             //myMediaPlayer.mediaplayer.pause()
-            setupMediaSession()
+            onEvent(Events.SongWasStarted())
             CreateNotification()
 
 
@@ -252,6 +264,7 @@ class MusicPlayerService: Service() {
 
 
     private fun setupMediaSession(){
+
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
@@ -268,6 +281,7 @@ class MusicPlayerService: Service() {
 
     fun onEvent(event:Events.SongWasChanged){
         CreateNotification(event.currentSong)
+        onEvent(Events.SongWasStarted())
         Log.i("TESTS","(Service) Notitifaction was created once")
     }
 
@@ -293,17 +307,7 @@ class MusicPlayerService: Service() {
     fun onEvent(event:Events.SongWasStarted){
 
         myMediaPlayer.mediaplayer.pause()
-        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-        audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-            .setOnAudioFocusChangeListener(audioFocusChangeListener)
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-            )
-            .build()
+        setupMediaSession()
 
         val result = audioManager.requestAudioFocus(audioFocusRequest)
 
@@ -331,16 +335,17 @@ class MusicPlayerService: Service() {
     private fun serviceStop() {
         isRunning=false
         bus.unregister(this)
-
+        stopForeground(STOP_FOREGROUND_REMOVE)
         Log.i("TESTS","Service has STOPPED (serviceStop)")
         audioManager.abandonAudioFocusRequest(audioFocusRequest)
 
         if(!SongMain_Activity.ActiveTracker.isRunningAnywhere)
         {
             myMediaPlayer.release()
+            stopSelf()
         }
-        stopForeground(STOP_FOREGROUND_REMOVE)
-        stopSelf()
+
+
     }
 
     private fun getStopServicePendingIntent(): PendingIntent {

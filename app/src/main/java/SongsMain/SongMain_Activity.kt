@@ -63,8 +63,8 @@ class SongMain_Activity : AppCompatActivity() {
     lateinit var fragmentContainer: FragmentContainerView
     lateinit var drawer: DrawerLayout
 
-     object ActiveTracker {
-        var isRunningAnywhere: Boolean = false
+     companion object ActiveTracker {
+        var isRunningAnywhere: Boolean = true
         var isPaused: Boolean=false
     }
 

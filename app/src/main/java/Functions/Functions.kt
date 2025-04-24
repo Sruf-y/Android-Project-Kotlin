@@ -1,5 +1,6 @@
 package Functions
 
+import DataClasses_Ojects.Logs
 import SongsMain.Classes.ModifiedItem
 import SongsMain.Classes.TypeOfUpdate
 import SongsMain.SongMain_Activity
@@ -16,6 +17,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Point
 import android.media.ExifInterface
@@ -67,6 +69,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.graphics.Insets
+import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
@@ -257,11 +260,11 @@ object Images{
             // daca nu are extensie pus in nume, ceea ce e o eroare a mea deasa, pune default ca .jpg
             if(!file.path.contains(".")){
                 file=File(file.path+".jpg")
-                Log.i("TESTS","Images.loadFromFile was given a extensionless filename. Assigning .jpg as default. Result: ${file.path}")
+                Log.i(Logs.MEDIA_IMAGES.name,"Images.loadFromFile was given a extensionless filename. Assigning .jpg as default. Result: ${file.path}")
             }
 
             if (file.exists()) {
-                Log.i("TESTS","Images.loadFromFile a file that exists")
+                Log.i(Logs.MEDIA_IMAGES.name,"Images.loadFromFile a file that exists")
                 try {
                     if (file.length() <= 0)
                         file.delete()
@@ -282,18 +285,18 @@ object Images{
                         }
                     } else {
                         // Handle decode failure
-                        Log.e("loadPicturesFromFiles", "Could not decode image: ${file.name}")
+                        Log.e(Logs.MEDIA_IMAGES.name, "Could not decode image: ${file.name}")
                         file.delete()
                         null // mapNotNull will filter this out
                     }
                 } catch (e: Exception) {
                     // Handle potential exceptions like OutOfMemoryError
-                    Log.e("loadPicturesFromFiles", "Error processing image: ${file.name}", e)
+                    Log.e(Logs.MEDIA_IMAGES.name, "Error processing image: ${file.name}", e)
                     file.delete()
                     null // mapNotNull will filter this out
                 }
             } else {
-                Log.i("TESTS","Images.loadFromFile a file that does NOT exist")
+                Log.i(Logs.MEDIA_IMAGES.name,"Images.loadFromFile a file that does NOT exist")
                 null
             }
         }
@@ -301,7 +304,14 @@ object Images{
             return null
     }
 
-
+    fun getBitmapFromDrawable(drawableResId: Int): Bitmap {
+        val drawable = ContextCompat.getDrawable(Application.instance, drawableResId)!!
+        val bitmap = createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+        return bitmap
+    }
 
 
     fun loadFromUri(context: Context, uri: Uri): File? {
