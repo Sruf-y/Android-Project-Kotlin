@@ -18,16 +18,16 @@ object SongsGlobalVars {
 
     var playlistsList: ArrayList<Playlist> = ArrayList<Playlist>()
 
-    var MyFavoritesPlaylist: Playlist = Playlist("Favorites",null,false)
-    var RecentlyPlayed: Playlist = Playlist("Recently Played",null,false)
+    var MyFavoritesPlaylist: Playlist = Playlist("Favorites", ArrayList<Song>(),false)
+    var RecentlyPlayed: Playlist = Playlist("Recently Played",ArrayList<Song>(),false)
 
 
 
 
     var allSongs: ArrayList<Song> = ArrayList<Song>()
 
-    var hiddenSongs: ArrayList<Song> = ArrayList<Song>()
-    var publicSongs: ArrayList<Song> = ArrayList<Song>()
+    var hiddenSongs: Playlist = Playlist("Hidden Songs",ArrayList<Song>(),false)
+    var publicSongs: Playlist = Playlist("Public Songs",ArrayList<Song>(),false)
 
 
 

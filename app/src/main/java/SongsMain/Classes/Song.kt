@@ -55,7 +55,7 @@ class Song(
                   it==song
               }.apply {
                   if(this!=null)
-                    this@takeYourPartFromGlobal[index]=this
+                    this@takeYourPartFromGlobal[index]=this.from(from)!!
               }
           }
       }

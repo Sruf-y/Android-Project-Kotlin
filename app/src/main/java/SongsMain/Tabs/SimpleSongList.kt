@@ -45,7 +45,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
     val designatedList: ArrayList<Song>
         get() {
-            return SongsGlobalVars.publicSongs
+            return SongsGlobalVars.publicSongs.songsList!!
         }
 
 

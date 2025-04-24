@@ -326,8 +326,8 @@ class SongMain_Activity : AppCompatActivity() {
             SongsGlobalVars.playingQueue.clear()
             SongsGlobalVars.playingQueue.addAll(Functions.loadFromJson(Application.instance,"Playing Queue",ArrayList<Song>()))
 
-            SongsGlobalVars.hiddenSongs.clear()
-            SongsGlobalVars.publicSongs.clear()
+            SongsGlobalVars.hiddenSongs.songsList= ArrayList<Song>()
+            SongsGlobalVars.publicSongs.songsList= ArrayList<Song>()
             SongsGlobalVars.allSongs.forEach {
                 if(it.isHidden){
                     SongsGlobalVars.hiddenSongs.add(it)
@@ -353,10 +353,10 @@ class SongMain_Activity : AppCompatActivity() {
 
             SongsGlobalVars.allSongs.forEach {
                 if(it.isHidden){
-                    SongsGlobalVars.hiddenSongs.add(it)
+                    SongsGlobalVars.hiddenSongs.songsList?.add(it)
                 }
                 else{
-                    SongsGlobalVars.publicSongs.add(it)
+                    SongsGlobalVars.publicSongs.songsList?.add(it)
                 }
             }
 
@@ -368,6 +368,8 @@ class SongMain_Activity : AppCompatActivity() {
 
     suspend fun saveSongLists():Boolean{
         return withContext(Dispatchers.IO) {
+
+
             Functions.saveAsJson(Application.instance, "GlobalSongs", SongsGlobalVars.allSongs)
             Functions.saveAsJson(Application.instance, "PlaylistsList", SongsGlobalVars.playlistsList)
             Functions.saveAsJson(Application.instance, "Recently Played", SongsGlobalVars.RecentlyPlayed)
