@@ -38,32 +38,39 @@ data class Playlist(var title: String,var songsList: ArrayList<Song>?=null,var i
     }
 
     fun hasNextAfter(song: Song): Boolean {
-        return try {
-            if (songsList?.contains(song) == true) {
-                if (songsList!!.indexOf(song) < songsList!!.size)
-                    true
+        try {
+            if (songsList!!.contains(song)) {
+                Log.i("TESTS", "This playlist contains this song.")
+                if (songsList!!.indexOf(song) < songsList!!.size - 1) {
+                    return true
+                }
+                Log.i("TESTS", "This song's index is the last song in the playlist .")
+                return false
             }
-            false
+            Log.i("TESTS", "This is not in the playlist .")
+            return false
         } catch (ex: Exception) {
             Log.e(Logs.LOGIC.toString(), ex.message.toString())
             ex.printStackTrace()
-            false
+            return false
         }
-        false
+        return false
     }
 
     fun hasPreviousBefore(song: Song): Boolean {
-        return try {
-            if (songsList?.contains(song) == true) {
-                if (songsList!!.indexOf(song) > 0)
-                    true
+        try {
+            if (songsList!!.contains(song)) {
+                if (songsList!!.indexOf(song) > 0) {
+                    return true
+                }
+                return false
             }
-            false
+            return false
         } catch (ex: Exception) {
             Log.e(Logs.LOGIC.toString(), ex.message.toString())
             ex.printStackTrace()
         } as Boolean
-        false
+        return false
     }
 
 }

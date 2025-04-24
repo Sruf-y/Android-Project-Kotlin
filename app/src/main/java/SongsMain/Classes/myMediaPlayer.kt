@@ -57,6 +57,12 @@ object myMediaPlayer {
         }
     }
 
+    fun rewind(){
+        if(myMediaPlayer.currentlyPlayingSong!=null){
+            myMediaPlayer.reset()
+            myMediaPlayer.setSong(currentlyPlayingSong!!)
+        }
+    }
 
     fun seekTo(under100:Long){
         if(myMediaPlayer.currentlyPlayingSong!=null){
@@ -70,17 +76,17 @@ object myMediaPlayer {
 
     fun openPlaylist(playlist: Playlist?){
         if(isInitialized){
-
             if(playlist!=null){
 
                 if(playlist.songsList!=null)
                 {
-                    if(playlist.songsList!!.isNotEmpty()){
-                        this.currentPlaylist=playlist
 
+                    if(playlist.songsList!!.isNotEmpty()){
+                        myMediaPlayer.currentPlaylist=playlist
+                        Log.i("TESTS","(myMediaPlayer) Playlist was open succesfully")
                         // tells it to play the next in playlist IF the playlist was initialized. This means it will play until it stops finding a "next" song.
                         mediaplayer.setOnCompletionListener {
-                            myMediaPlayer.playNextInPlaylist()
+                           myMediaPlayer.playNextInPlaylist()
                         }
                     }
                 }
@@ -90,25 +96,28 @@ object myMediaPlayer {
     }
 
     fun playNextInPlaylist(){
-        if(isInitialized&& currentlyPlayingSong!=null){
+        if(isInitialized){
             if(this.currentPlaylist!=null){
+
                 if(currentPlaylist!!.hasNextAfter(myMediaPlayer.currentlyPlayingSong!!))
                 {
                     val currentIndex:Int = currentPlaylist!!.songsList!!.indexOf(currentlyPlayingSong)
 
-                    this.setSong(currentPlaylist!!.songsList!![currentIndex+1])
+
+                    myMediaPlayer.reset()
+                    myMediaPlayer.setSong(currentPlaylist?.songsList!![currentIndex+1].from(SongsGlobalVars.allSongs)!!)
                 }
             }
         }
     }
 
     fun playPreviousInPlaylist(){
-        if(isInitialized && currentlyPlayingSong!=null) {
+        if(isInitialized ) {
             if (this.currentPlaylist != null) {
                 if(currentPlaylist!!.hasPreviousBefore(currentlyPlayingSong!!))
                 {
                     val currentIndex:Int = currentPlaylist!!.songsList!!.indexOf(currentlyPlayingSong)
-
+                    myMediaPlayer.reset()
                     this.setSong(currentPlaylist!!.songsList!![currentIndex-1])
                 }
             }
@@ -265,6 +274,7 @@ object myMediaPlayer {
     }
 
     fun release() {
+        Log.i("TESTS","MEDIAPLAYER RELEASE requested")
         isPrepared=false
         isInitialized=false
         _Playing=false

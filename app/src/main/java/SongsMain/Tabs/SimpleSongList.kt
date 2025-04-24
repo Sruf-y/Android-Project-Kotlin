@@ -83,15 +83,18 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
             requireContext(),
             { song ->
 
-                    myMediaPlayer.initializeMediaPlayer()
-                    if(myMediaPlayer.iPrepared_)
-                        myMediaPlayer.reset()
-                    myMediaPlayer.setSong( song)
 
+                myMediaPlayer.initializeMediaPlayer()
+
+
+                if (myMediaPlayer.iPrepared_)
+                    myMediaPlayer.reset()
+                myMediaPlayer.setSong(song)
+                myMediaPlayer.openPlaylist(SongsGlobalVars.publicSongs)
                 myMediaPlayer.start()
             }, {song->
 
-                myMediaPlayer.stop()
+
             }
         )
 

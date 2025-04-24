@@ -26,6 +26,7 @@ import android.os.IBinder
 import android.provider.MediaStore
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -83,8 +84,12 @@ class MusicPlayerService: Service() {
                 serviceStop()
                 return START_NOT_STICKY}
             MediaPlayerServiceActions.TOGGLE.name -> myMediaPlayer.toggle()
-            MediaPlayerServiceActions.BACKWARD.name -> { /* Handle going back */ }
-            MediaPlayerServiceActions.FORWARD.name -> { /* Handle skip */ }
+            MediaPlayerServiceActions.BACKWARD.name -> {
+                myMediaPlayer.playPreviousInPlaylist()
+            }
+            MediaPlayerServiceActions.FORWARD.name -> {
+                myMediaPlayer.playNextInPlaylist()
+            }
             MediaPlayerServiceActions.SEEK.name -> {
                 val position = intent.getIntExtra("position", 0)
                 myMediaPlayer.mediaplayer.seekTo(position)
@@ -137,10 +142,10 @@ class MusicPlayerService: Service() {
 
 
 
-     fun CreateNotification(song:Song?=null){
+     fun CreateNotification(song:Song?=null,setSongAsStarted:Boolean=false){
 
 
-         val play_pause_icon = if (myMediaPlayer._Playing || myMediaPlayer.isPlaying) {
+         val play_pause_icon = if (myMediaPlayer._Playing || myMediaPlayer.isPlaying || setSongAsStarted) {
              R.drawable.pause_button_music_player
          } else {
              R.drawable.play_button_music_player
@@ -151,6 +156,8 @@ class MusicPlayerService: Service() {
          } else {
              myMediaPlayer.currentlyPlayingSong
          }
+
+
 
 
         CoroutineScope(Dispatchers.Default).launch {
@@ -178,6 +185,25 @@ class MusicPlayerService: Service() {
                     }
                 }
                 .build()
+
+            mediaSession.setPlaybackState(
+                PlaybackStateCompat.Builder()
+                    .setState(
+                        if (myMediaPlayer.isPlaying) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED,
+                        myMediaPlayer.getCurrentPosition().toLong(),
+                        1.0f
+                    )
+                    .setActions(
+                        PlaybackStateCompat.ACTION_PLAY_PAUSE or
+                                PlaybackStateCompat.ACTION_PLAY or
+                                PlaybackStateCompat.ACTION_PAUSE or
+                                PlaybackStateCompat.ACTION_SEEK_TO or
+                                PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+                                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                    )
+                    .build()
+            )
+
 
             mediaSession.setMetadata(metadata)
 
@@ -237,13 +263,17 @@ class MusicPlayerService: Service() {
             setCallback(object : MediaSessionCompat.Callback() {
                 override fun onPlay() = myMediaPlayer.start()
                 override fun onPause() = myMediaPlayer.pause()
-                override fun onSeekTo(pos: Long) = Unit
-                override fun onSkipToPrevious() = Unit
-                override fun onSkipToNext() = Unit
-                override fun onRewind() = Unit
+                override fun onSeekTo(pos: Long)  {
+                    myMediaPlayer.mediaplayer.seekTo(pos.toInt())
+                    CreateNotification()
+                }
+                override fun onSkipToPrevious() = myMediaPlayer.playPreviousInPlaylist()
+                override fun onSkipToNext() = myMediaPlayer.playNextInPlaylist()
+                override fun onRewind() = myMediaPlayer.rewind()
             })
             isActive = true
         }
+
 
         // stuff about audio focus (also throws exception if i pause before its reinitialized sooo)
         myMediaPlayer.initializeMediaPlayer()
@@ -279,11 +309,7 @@ class MusicPlayerService: Service() {
     }
 
 
-    fun onEvent(event:Events.SongWasChanged){
-        CreateNotification(event.currentSong)
-        onEvent(Events.SongWasStarted())
-        Log.i("TESTS","(Service) Notitifaction was created once")
-    }
+
 
 
 
@@ -306,7 +332,7 @@ class MusicPlayerService: Service() {
 
     fun onEvent(event:Events.SongWasStarted){
 
-        myMediaPlayer.mediaplayer.pause()
+        //myMediaPlayer.mediaplayer.pause()
         setupMediaSession()
 
         val result = audioManager.requestAudioFocus(audioFocusRequest)
@@ -314,8 +340,11 @@ class MusicPlayerService: Service() {
         if(result== AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
             myMediaPlayer.mediaplayer.start()
         }
+        else{
+            myMediaPlayer.pause()
+        }
 
-        CreateNotification(myMediaPlayer.currentlyPlayingSong)
+        CreateNotification(myMediaPlayer.currentlyPlayingSong,true)
     }
 
 

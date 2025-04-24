@@ -8,6 +8,7 @@ import Functions.setInsetsforItems
 import SongsMain.Classes.Events
 import SongsMain.Classes.Events.SongWasPaused
 import SongsMain.Classes.myMediaPlayer
+import SongsMain.Tutorial.Application
 import Utilities.Utils.Companion.dP
 import android.os.Bundle
 import android.util.Log
@@ -258,6 +259,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
     fun onEvent(event: Events.SongWasStarted) {
         //for collapsed
+        Log.i("TESTS","Bottomsheet  WAS STARTED")
         progressViewModel.startUpdates()
         bottomsheetCol_musicToggle.isChecked=true
 
@@ -268,30 +270,30 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
     fun onEvent(event:Events.SongWasChanged){
         //for collapsed
 
+        Log.i("TESTS","Bottomsheet received new song")
         if(event.currentSong!=null) {
             if (File(event.currentSong?.thumbnail).exists()) {
-                Glide.with(requireContext())
+                Glide.with(Application.instance)
                     .load(event.currentSong.thumbnail)
                     .into(bottomsheetCol_musicImage)
 
-                Glide.with(requireContext())
+                Glide.with(Application.instance)
                     .load(event.currentSong.thumbnail)
                     .into(bottomsheetCol_musicBackground)
             } else {
-                Glide.with(requireContext())
+                Glide.with(Application.instance)
                     .load(R.drawable.blank_gray_musical_note)
                     .into(bottomsheetCol_musicImage)
 
-                Glide.with(requireContext())
+                Glide.with(Application.instance)
                     .load(R.drawable.blank_gray_musical_note)
                     .into(bottomsheetCol_musicBackground)
             }
             bottomsheetCol_musictitle.text = event.currentSong.title
 
-            progressViewModel.startUpdates()
-            bottomsheetCol_musicToggle.isChecked= myMediaPlayer.isPlaying
 
 
+            onEvent(Events.SongWasStarted())
             //for expanded
 
 
@@ -313,9 +315,9 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         }.attach()
 
         // Restore selection after layout is complete
-        tabholder.post {
+
             tabsView.selectTab(tabsView.getTabAt(selectedTab))
-        }
+
     }
 
 
