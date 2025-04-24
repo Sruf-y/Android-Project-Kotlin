@@ -149,7 +149,8 @@ class SongMain_Activity : AppCompatActivity() {
 
         myMediaPlayer.initializeMediaPlayer()
 
-        startMusicService()
+        //if(!MusicPlayerService.isServiceRunning())
+            //startMusicService()
     }
 
 

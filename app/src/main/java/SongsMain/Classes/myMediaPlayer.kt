@@ -21,6 +21,14 @@ object myMediaPlayer {
     val bus: EventBus = EventBus.getDefault()
     var mediaplayer: MediaPlayer = MediaPlayer()
     private var isInitialized=false
+    val isInitialized_: Boolean
+        get() {return isInitialized}
+
+    private var isPrepared=false
+    val iPrepared_: Boolean
+        get() {return isPrepared}
+
+
     var currentlyPlayingSong:Song? = null
     var currentPlaylist: Playlist? = null
     var isLoopingInPlaylist:Boolean = false // in the future if i add a loop button
@@ -134,13 +142,13 @@ object myMediaPlayer {
                         song.from(SongsGlobalVars.allSongs)!!.songUri.toUri(),
                         "r"
                     ).use { pfd ->
-
+                        isPrepared=false
                         setDataSource(pfd?.fileDescriptor)
                         prepareAsync()
 
 
                         mediaplayer.setOnPreparedListener {
-
+                            isPrepared=true
 
 
 
@@ -185,7 +193,7 @@ object myMediaPlayer {
 
     fun start() {
 
-        if(currentlyPlayingSong!=null && !isPlaying) {
+        if(currentlyPlayingSong!=null && !isPlaying && isPrepared) {
             Log.i("TESTS","Start song requested")
             mediaplayer.start()
             _Playing=true
@@ -195,7 +203,7 @@ object myMediaPlayer {
     }
 
     fun stop() {
-        if(currentlyPlayingSong!=null) {
+        if(currentlyPlayingSong!=null && isPrepared) {
             Log.i("TESTS","Stop song requested")
             mediaplayer.stop()
             myMediaPlayer.currentlyPlayingSong=null
@@ -231,17 +239,24 @@ object myMediaPlayer {
 
     fun getCurrentPosition(): Int {
 
-        return mediaplayer.currentPosition
-
+        if(myMediaPlayer.currentlyPlayingSong!=null)
+            return try{
+                mediaplayer.currentPosition
+            }catch(ex: Exception){
+                ex.printStackTrace()
+                0
+            }
+        else
+            return 0
     }
 
 
     fun reset() {
 
-        if(isInitialized) {
+        if(isInitialized ) {
 
-            if (currentlyPlayingSong != null) {
-
+            if (currentlyPlayingSong != null && isPrepared) {
+                isPrepared=false
                 mediaplayer.reset()
                 _Playing=false
                 bus.post(Events.SongWasReset())
@@ -250,12 +265,16 @@ object myMediaPlayer {
     }
 
     fun release() {
-        mediaplayer.release()
+        isPrepared=false
+        isInitialized=false
         _Playing=false
+        currentPlaylist=null
+        currentlyPlayingSong=null
+        mediaplayer.release()
     }
 
     fun pause(){
-        if(currentlyPlayingSong!=null) {
+        if(currentlyPlayingSong!=null && isPrepared) {
             mediaplayer.pause()
             _Playing=false
             bus.post(Events.SongWasPaused())

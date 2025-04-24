@@ -1,6 +1,7 @@
 package SongsMain.Tutorial
 
 
+import DataClasses_Ojects.Logs
 import DataClasses_Ojects.MediaProgressViewModel
 import SongsMain.Classes.Events
 import SongsMain.Classes.Song
@@ -73,7 +74,9 @@ class MusicPlayerService: Service() {
 
         when (intent?.action) {
             MediaPlayerServiceActions.SERVICESTART.name -> serviceStart()
-            MediaPlayerServiceActions.SERVICESTOP.name -> serviceStop()
+            MediaPlayerServiceActions.SERVICESTOP.name -> {
+                serviceStop()
+                return START_NOT_STICKY}
             MediaPlayerServiceActions.TOGGLE.name -> myMediaPlayer.toggle()
             MediaPlayerServiceActions.BACKWARD.name -> { /* Handle going back */ }
             MediaPlayerServiceActions.FORWARD.name -> { /* Handle skip */ }
@@ -82,10 +85,24 @@ class MusicPlayerService: Service() {
                 myMediaPlayer.mediaplayer.seekTo(position)
             }
             MediaPlayerServiceActions.OPENAPP.name -> { /* Optional: open app intent */ }
+
+
+
+        else -> {
+            if (myMediaPlayer.isInitialized_) {
+                myMediaPlayer.initializeMediaPlayer()
+            }
+
+            // Re-initialize metadata/session if needed
+            if (!::mediaSession.isInitialized) {
+                setupMediaSession()
+            }
+
+            isRunning = true
         }
+    }
 
-
-        return START_NOT_STICKY
+    return START_STICKY
     }
 
 
@@ -194,6 +211,9 @@ class MusicPlayerService: Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+
+
         isRunning = true
         bus.register(this)
 
@@ -209,8 +229,29 @@ class MusicPlayerService: Service() {
             isActive = true
         }
 
-        // stuff about audio focus
-        myMediaPlayer.mediaplayer.pause()
+        // stuff about audio focus (also throws exception if i pause before its reinitialized sooo)
+        myMediaPlayer.initializeMediaPlayer()
+
+
+
+
+
+
+
+            //myMediaPlayer.mediaplayer.pause()
+            setupMediaSession()
+            CreateNotification()
+
+
+
+
+
+
+
+    }
+
+
+    private fun setupMediaSession(){
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
@@ -222,15 +263,8 @@ class MusicPlayerService: Service() {
                     .build()
             )
             .build()
-
-
-
-
-
-
-
-        CreateNotification()
     }
+
 
     fun onEvent(event:Events.SongWasChanged){
         CreateNotification(event.currentSong)
@@ -284,13 +318,7 @@ class MusicPlayerService: Service() {
 
 
     override fun onDestroy() {
-        isRunning=false
-        bus.unregister(this)
-        audioManager.abandonAudioFocusRequest(audioFocusRequest)
-        if(!SongMain_Activity.ActiveTracker.isRunningAnywhere)
-        {
-            myMediaPlayer.release()
-        }
+        Log.i("TESTS","Service has been DESTROYED (onDestroy)")
         super.onDestroy()
     }
 
@@ -301,13 +329,22 @@ class MusicPlayerService: Service() {
     }
 
     private fun serviceStop() {
+        isRunning=false
+        bus.unregister(this)
+
+        Log.i("TESTS","Service has STOPPED (serviceStop)")
+        audioManager.abandonAudioFocusRequest(audioFocusRequest)
+
+        if(!SongMain_Activity.ActiveTracker.isRunningAnywhere)
+        {
+            myMediaPlayer.release()
+        }
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
     private fun getStopServicePendingIntent(): PendingIntent {
-        isRunning=false
-
+        Log.i("TESTS","Service has been sent stop pending intent (getStopServicePendingIntent)")
         val stopIntent = Intent(this, MusicPlayerService::class.java).apply {
             action = MediaPlayerServiceActions.SERVICESTOP.name
         }
