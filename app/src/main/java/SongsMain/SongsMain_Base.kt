@@ -291,9 +291,10 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
             }
             bottomsheetCol_musictitle.text = event.currentSong.title
 
+            progressViewModel.startUpdates()
+            bottomsheetCol_musicToggle.isChecked= myMediaPlayer.isPlaying
 
-
-            onEvent(Events.SongWasStarted())
+            //onEvent(Events.SongWasStarted())
             //for expanded
 
 
@@ -303,6 +304,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
     private fun setupViewPager() {
         tabholder.adapter = TabSwipeAdaptor(this)
+
 
         TabLayoutMediator(tabsView, tabholder) { tab, position ->
             tab.text = when (position) {
@@ -315,8 +317,8 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         }.attach()
 
         // Restore selection after layout is complete
-
-            tabsView.selectTab(tabsView.getTabAt(selectedTab))
+        tabholder.setCurrentItem(selectedTab)
+        tabsView.selectTab(tabsView.getTabAt(selectedTab))
 
     }
 

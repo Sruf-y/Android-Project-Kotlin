@@ -9,6 +9,7 @@ import SongsMain.Classes.SongsGlobalVars
 import SongsMain.Classes.myMediaPlayer
 import SongsMain.SongMain_Activity
 import SongsMain.SongsMain_Base
+import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
@@ -21,6 +22,7 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaMetadata
+import android.media.session.MediaSession
 import android.os.Binder
 import android.os.IBinder
 import android.provider.MediaStore
@@ -136,9 +138,20 @@ class MusicPlayerService: Service() {
         }
         return PendingIntent.getService(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
+    private fun getOpenAppPendingIntent(): PendingIntent {
+        val openAppIntent = Intent(this, SongMain_Activity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            action = Intent.ACTION_MAIN
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
 
-
-
+        return PendingIntent.getActivity(
+            this,
+            0,
+            openAppIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
 
 
 
@@ -165,7 +178,7 @@ class MusicPlayerService: Service() {
 
 
 
-            val song_art = Functions.Images.loadFromFile(File(SONG?.thumbnail))
+            val song_art = Functions.Images.loadFromFile(File(SONG?.thumbnail?:""))
 
 
             val metadata = MediaMetadataCompat.Builder()
@@ -199,7 +212,9 @@ class MusicPlayerService: Service() {
                                 PlaybackStateCompat.ACTION_PAUSE or
                                 PlaybackStateCompat.ACTION_SEEK_TO or
                                 PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
-                                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
+                                PlaybackStateCompat.ACTION_REWIND or
+                                PlaybackStateCompat.ACTION_STOP
                     )
                     .build()
             )
@@ -222,16 +237,19 @@ class MusicPlayerService: Service() {
             val notification = NotificationCompat.Builder(this@MusicPlayerService, SongsGlobalVars.CHANNEL_ID)
                 .setSmallIcon(R.drawable.music_app_icon)
                 .setDeleteIntent(getStopServicePendingIntent())
-                .setStyle(androidx.media.app.NotificationCompat.MediaStyle()
+                .setContentIntent(getOpenAppPendingIntent())
+                .setStyle(androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle()
                     .setMediaSession(mediaSession.sessionToken)
-                    .setShowActionsInCompactView(0, 1, 2,3))
-                //.setProgress()
+                    .setShowActionsInCompactView(0, 1, 2)
+                    .setShowCancelButton(true)
+                    .setCancelButtonIntent(getStopServicePendingIntent())
+
+                )
                 .addAction(R.drawable.skip_to_previous, "Previous", prevPendingIntent())
                 .addAction(play_pause_icon, "Play/Pause", playPausePendingIntent())
                 .addAction(R.drawable.skip_to_next, "Next", nextPendingIntent())
                 .addAction(R.drawable.x,"Close",getStopServicePendingIntent())
                 .setOngoing(true)
-                .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
                 .apply {
                     if(song_art!=null)
@@ -263,16 +281,19 @@ class MusicPlayerService: Service() {
             setCallback(object : MediaSessionCompat.Callback() {
                 override fun onPlay() = myMediaPlayer.start()
                 override fun onPause() = myMediaPlayer.pause()
-                override fun onSeekTo(pos: Long)  {
-                    myMediaPlayer.mediaplayer.seekTo(pos.toInt())
-                    CreateNotification()
-                }
+                override fun onSeekTo(pos: Long)  = myMediaPlayer.seekTo(pos)
                 override fun onSkipToPrevious() = myMediaPlayer.playPreviousInPlaylist()
                 override fun onSkipToNext() = myMediaPlayer.playNextInPlaylist()
                 override fun onRewind() = myMediaPlayer.rewind()
+                override fun onStop() {
+                    super.onStop()
+                    serviceStop()
+                }
+
             })
             isActive = true
         }
+
 
 
         // stuff about audio focus (also throws exception if i pause before its reinitialized sooo)
@@ -346,6 +367,9 @@ class MusicPlayerService: Service() {
 
         CreateNotification(myMediaPlayer.currentlyPlayingSong,true)
     }
+    fun onEvent(event:Events.SongWas_UsedSeek){
+        CreateNotification()
+    }
 
 
 
@@ -365,7 +389,7 @@ class MusicPlayerService: Service() {
         isRunning=false
         bus.unregister(this)
         stopForeground(STOP_FOREGROUND_REMOVE)
-        Log.i("TESTS","Service has STOPPED (serviceStop)")
+        Log.i("TESTS","Service has STOPPED (serviceStop) and app running is ${SongMain_Activity.ActiveTracker.isRunningAnywhere}")
         audioManager.abandonAudioFocusRequest(audioFocusRequest)
 
         if(!SongMain_Activity.ActiveTracker.isRunningAnywhere)

@@ -70,7 +70,7 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
                              .asBitmap()
                              .load(file)
                              .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC) // caching pictures to not reload them every single time
-                             //.skipMemoryCache(true)
+                             .skipMemoryCache(true)
                              .placeholder(R.drawable.blank) // Show while loading
                              .error(R.drawable.blank_gray_musical_note) // Show if load fails
                              .transition(BitmapTransitionOptions.withCrossFade(500))

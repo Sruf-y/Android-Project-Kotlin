@@ -435,6 +435,11 @@ class Insets(view:View){
     }
 }
 
+
+
+/**
+ * Compares the primary list, val1, to val2. If an item is not in val1 but is in val2, it means it was added and val1 needs updating.
+ * */
 fun <T> differencesBetweenArrays(val1: ArrayList<T>, val2: ArrayList<T>): ArrayList<ModifiedItem<T>>{
 
     return if(val1.isNotEmpty()){

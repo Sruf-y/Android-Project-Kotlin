@@ -5,6 +5,7 @@ import SongsMain.Classes.Events.SongWasStopped
 import SongsMain.Classes.Song.Companion.from
 import SongsMain.Tutorial.Application
 import SongsMain.Tutorial.MusicPlayerService
+import android.R
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ApplicationInfo
@@ -64,10 +65,15 @@ object myMediaPlayer {
         }
     }
 
-    fun seekTo(under100:Long){
+    fun seekTo(pos:Long,rawPosition:Boolean=true){
         if(myMediaPlayer.currentlyPlayingSong!=null){
             try{
-                mediaplayer.seekTo(((under100/100)*currentlyPlayingSong!!.duration).toInt())
+                if(rawPosition){
+                    mediaplayer.seekTo(pos.toInt())
+                }else {
+                    mediaplayer.seekTo(((pos / 100) * currentlyPlayingSong!!.duration).toInt())
+                }
+                bus.post(Events.SongWas_UsedSeek())
             }catch (ex: Exception){
                 ex.printStackTrace()
             }
