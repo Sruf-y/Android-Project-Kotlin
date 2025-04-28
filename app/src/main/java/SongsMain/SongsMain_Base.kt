@@ -315,6 +315,11 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
             }
         })
 
+        if(myMediaPlayer.currentlyPlayingSong!=null){
+            progressViewModel2.startUpdates()
+            progressViewModel.startUpdates()
+        }
+
 
     }
 
