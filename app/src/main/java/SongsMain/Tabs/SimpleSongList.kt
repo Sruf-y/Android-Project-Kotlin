@@ -6,44 +6,40 @@ import SongsMain.Classes.Song
 import SongsMain.Classes.myMediaPlayer
 import SongsMain.Classes.SongListAdapter
 import SongsMain.Classes.SongsGlobalVars
-import SongsMain.Classes.TypeOfUpdate
-import android.content.ContentUris
+import SongsMain.Tutorial.Application
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
-import android.util.Size
 import androidx.fragment.app.Fragment
 import android.view.View
-import android.widget.Button
 import com.example.composepls.R
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.greenrobot.event.EventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.time.Duration
 import java.time.LocalTime
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Parcelable
 import android.view.animation.AnimationUtils
+import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.compose.runtime.DisposableEffect
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
+import java.io.File
 
 class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
-    var lastposition=0
 
 
+    lateinit var swipe_to_refresh: SwipeRefreshLayout
     lateinit var audioRecycler: RecyclerView
     lateinit var adaptor: SongListAdapter
 
     lateinit var recyclerLayoutManager: LinearLayoutManager
+
+    var recycleState: Parcelable?=null
 
     val designatedList: ArrayList<Song>
         get() {
@@ -55,17 +51,6 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
     val bus: EventBus = EventBus.getDefault()
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-
-
-
-
-
-
-
-    }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -119,30 +104,26 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
         Log.i(Logs.FILE_IO.toString(), "Handled recreation of songlist fragment from internal")
 
-        val butonplaystop = requireView().findViewById<Button>(R.id.button7)
+
+
+
+        adaptor.mList=designatedList
+        adaptor.notifyDataSetChanged()
 
 
 
 
 
 
+        swipe_to_refresh= requireView().findViewById<SwipeRefreshLayout>(R.id.swiperefresh)
 
-
-
-
-
-
-
-
-        butonplaystop.setOnClickListener {
+        swipe_to_refresh.setOnRefreshListener {
             CoroutineScope(Dispatchers.Main).launch {
                 bus.post(Events.RequestGlobalDataUpdate())
-                butonplaystop.visibility= View.INVISIBLE
-                audioRecycler.visibility=View.INVISIBLE
+                audioRecycler.visibility=View.GONE
 
-                requireView().findViewById<ConstraintLayout>(R.id.progbar).visibility=View.VISIBLE
+                requireView().findViewById<ProgressBar>(R.id.progbar).visibility=View.VISIBLE
             }
-
         }
 
 
@@ -150,36 +131,13 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
         var sf: SharedPreferences = requireContext().getSharedPreferences("My SF",Context.MODE_PRIVATE);
-        lastposition=sf.getInt("SimpleSongListScrollPosition",0);
 
-        CoroutineScope(Dispatchers.Main).launch {
-
-
-            //only scroll on opening the app
-
-            audioRecycler.post {
-
-                audioRecycler.smoothScrollToPosition( lastposition)
-            }
-
-
-
-
-            audioRecycler.setOnScrollChangeListener { recycler, _, scrollY, _, _ ->
-                audioRecycler.post {
-
-                    lastposition = audioRecycler.scrollY
-
-                }
-            }
-
-
-        }
 
 
 
 
         bus.register(this)
+
         audioRecycler.post {
             onEvent(Events.SongWasChanged(null, myMediaPlayer.currentlyPlayingSong))
         }
@@ -200,47 +158,35 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
         if(mlistSizeWas==0){
             adaptor.mList.clear()
             adaptor.mList.addAll(designatedList)
-            adaptor.notifyItemRangeInserted(0,adaptor.mList.size)
+            //adaptor.notifyItemRangeInserted(0,adaptor.mList.size)
+            adaptor.notifyDataSetChanged()
 
 
-            audioRecycler.post {
 
-                audioRecycler.smoothScrollToPosition( lastposition)
-            }
-//            var speed:Long = 100
-//            val acceleration =100
-//
-//            CoroutineScope(Dispatchers.Default).launch {
-//                designatedList.forEachIndexed { index, song ->
-//                    audioRecycler.post {
-//                        adaptor.mList.add(song)
-//                        adaptor.notifyItemInserted(index)
-//                    }
-//                    speed=if((speed-acceleration).toLong()>=0){(speed-acceleration).toLong()}else{0}
-//                    delay(speed)
-//
-//                }
-//            }
+
         }
         else{
-            val modifications = Functions.differencesBetweenArrays(adaptor.mList,designatedList)
+//            val modifications = Functions.differencesBetweenArrays(adaptor.mList,designatedList)
+//
+//            modifications.forEach {
+//                // THIS DEPENDS ON THE MEDIASTORE'S NATURE OF ADDING SONGS IN COADA!!!
+//                if(it.typeOfUpdate== TypeOfUpdate.added) {
+//                    adaptor.mList.add(it.item)
+//                    adaptor.notifyItemInserted(adaptor.mList.size)
+//                }
+//                else if(it.typeOfUpdate== TypeOfUpdate.removed){
+//                    adaptor.mList.remove(it.item)
+//                    adaptor.notifyItemRemoved(adaptor.mList.size)
+//                }
+//                else if(it.typeOfUpdate== TypeOfUpdate.modify){
+//                    val position = adaptor.mList.indexOf(it.item)
+//                    adaptor.mList[position]=it.item
+//                    adaptor.notifyItemChanged(position)
+//                }
+//            }
 
-            modifications.forEach {
-                // THIS DEPENDS ON THE MEDIASTORE'S NATURE OF ADDING SONGS IN COADA!!!
-                if(it.typeOfUpdate== TypeOfUpdate.added) {
-                    adaptor.mList.add(it.item)
-                    adaptor.notifyItemInserted(adaptor.mList.size)
-                }
-                else if(it.typeOfUpdate== TypeOfUpdate.removed){
-                    adaptor.mList.remove(it.item)
-                    adaptor.notifyItemRemoved(adaptor.mList.size)
-                }
-                else if(it.typeOfUpdate== TypeOfUpdate.modify){
-                    val position = adaptor.mList.indexOf(it.item)
-                    adaptor.mList[position]=it.item
-                    adaptor.notifyItemChanged(position)
-                }
-            }
+            adaptor.mList=designatedList
+            adaptor.notifyDataSetChanged()
 
         }
 
@@ -255,9 +201,9 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
         audioRecycler.post {
 
-            val butonplaystop = requireView().findViewById<Button>(R.id.button7)
-            butonplaystop.visibility=View.VISIBLE
-            requireView().findViewById<ConstraintLayout>(R.id.progbar).visibility=View.INVISIBLE
+
+
+            requireView().findViewById<ProgressBar>(R.id.progbar).visibility=View.GONE
 
             audioRecycler.visibility=View.VISIBLE
 
@@ -273,6 +219,8 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
                     )
             }
 
+            swipe_to_refresh.isRefreshing=false
+
 
         }
 
@@ -282,7 +230,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
     fun onEvent(event:Events.SongWasChanged){
 
 
-        if(event.lastSong!=null) {
+        if(event.lastSong!=null && adaptor.mList.contains(event.lastSong)) {
             (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(event.lastSong))
                 ?.findViewById<TextView>(R.id.title))?.setTextColor(
                     ContextCompat.getColor(
@@ -296,7 +244,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
 
-        if(event.currentSong!=null) {
+        if(event.currentSong!=null && adaptor.mList.contains(event.currentSong)) {
             (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(event.currentSong))
                 ?.findViewById<TextView>(R.id.title))?.setTextColor(
                 ContextCompat.getColor(
@@ -317,15 +265,25 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
     override fun onPause() {
         super.onPause()
-        var editor : SharedPreferences.Editor;
-        var sf: SharedPreferences = requireContext().getSharedPreferences("My SF",Context.MODE_PRIVATE);
+        // not working right now
 
-        editor= sf.edit()
 
-        editor.apply{
-            putInt("SimpleSongListScrollPosition",lastposition)
-            editor.apply()
+
+
+        recycleState = audioRecycler.layoutManager?.onSaveInstanceState()
+        //Functions.saveParcelableToFile(Application.instance,"SimpleSongList ScrollPosition",recycleState,File(requireContext().filesDir,"Various Saved Values"))
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        //recycleState=Functions.loadParcelableFromFile(Application.instance,"SimpleSongList ScrollPosition", LinearLayoutManager.SavedState.CREATOR ,File(requireContext().filesDir,"Various Saved Values"))
+        audioRecycler.post {
+            audioRecycler.layoutManager?.onRestoreInstanceState(recycleState)
         }
+
+        audioRecycler.layoutManager?.onRestoreInstanceState(recycleState)
+
     }
 
 

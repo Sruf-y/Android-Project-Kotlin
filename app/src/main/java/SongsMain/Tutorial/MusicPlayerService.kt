@@ -22,8 +22,11 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaMetadata
+import android.media.MediaSession2
+import android.media.MediaSession2Service
 import android.media.session.MediaSession
 import android.os.Binder
+import android.os.Bundle
 import android.os.IBinder
 import android.provider.MediaStore
 import android.support.v4.media.MediaMetadataCompat
@@ -47,19 +50,41 @@ import java.io.File
 import java.security.Provider
 import kotlin.getValue
 import androidx.core.graphics.createBitmap
+import androidx.media3.session.CommandButton
+import androidx.media3.session.MediaLibraryService
+import androidx.media3.session.SessionCommand
 
-class MusicPlayerService: Service() {
+class MusicPlayerService: MediaLibraryService() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     private lateinit var audioManager: AudioManager
     private lateinit var audioFocusRequest: AudioFocusRequest
 
     val bus = EventBus.getDefault()
-    val binder = MusicBinder()
     private lateinit var mediaSession: MediaSessionCompat
-    inner class MusicBinder:Binder(){
 
-    }
     companion object {
         private var isRunning = false
 
@@ -72,13 +97,11 @@ class MusicPlayerService: Service() {
 
 
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return binder
-    }
     val NOTIFICATION_ID = 105
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
 
         when (intent?.action) {
             MediaPlayerServiceActions.SERVICESTART.name -> serviceStart()
@@ -216,6 +239,7 @@ class MusicPlayerService: Service() {
                                 PlaybackStateCompat.ACTION_REWIND or
                                 PlaybackStateCompat.ACTION_STOP
                     )
+                    //.addCustomAction("","",R.drawable.x)
                     .build()
             )
 
@@ -426,5 +450,9 @@ class MusicPlayerService: Service() {
 
 
 
+
+    override fun onGetSession(controllerInfo: androidx.media3.session.MediaSession.ControllerInfo): MediaLibrarySession? {
+        TODO("Not yet implemented")
+    }
 
 }

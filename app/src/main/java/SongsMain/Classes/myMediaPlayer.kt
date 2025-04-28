@@ -71,9 +71,12 @@ object myMediaPlayer {
                 if(rawPosition){
                     mediaplayer.seekTo(pos.toInt())
                 }else {
-                    mediaplayer.seekTo(((pos / 100) * currentlyPlayingSong!!.duration).toInt())
+                    mediaplayer.seekTo(((pos / 100) * currentlyPlayingSong!!.duration).toInt().coerceIn(0,currentlyPlayingSong!!.duration.toInt()))
                 }
-                bus.post(Events.SongWas_UsedSeek())
+
+                mediaplayer.setOnSeekCompleteListener {
+                    bus.post(Events.SongWas_UsedSeek())
+                }
             }catch (ex: Exception){
                 ex.printStackTrace()
             }

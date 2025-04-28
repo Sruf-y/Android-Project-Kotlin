@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.util.Size
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -43,6 +44,7 @@ import com.google.android.material.navigation.NavigationView
 import de.greenrobot.event.EventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -57,8 +59,11 @@ class OpenDrawerEvent()
 
 class SongMain_Activity : AppCompatActivity() {
 
-    val bus:EventBus = EventBus.getDefault();
 
+
+    val bus:EventBus = EventBus.getDefault();
+    var saveBuffer_free=true
+    var restoreBuffer_free=true
 
     lateinit var fragmentContainer: FragmentContainerView
     lateinit var drawer: DrawerLayout
@@ -138,9 +143,6 @@ class SongMain_Activity : AppCompatActivity() {
 
 
 
-
-
-
         // should be getting initialized in the service launcher
         //myMediaPlayer.initializeMediaPlayer(this)
 
@@ -149,16 +151,34 @@ class SongMain_Activity : AppCompatActivity() {
 
         myMediaPlayer.initializeMediaPlayer()
 
-        //if(!MusicPlayerService.isServiceRunning())
-            //startMusicService()
+        if(savedInstanceState==null){
+            doStartDataLoad()
+        }
+    }
+
+    fun onEvent(event:Events.ReturnToMainBase){
+        makeCurrentFragment(fragmentContainer, SongsMain.SongsMain_Base::class.java)
+
+    }
+
+    fun onEvent(event:Events.SearchButtonPressed){
+        makeCurrentFragment(fragmentContainer, SongsMain.search::class.java)
     }
 
 
-
+    fun checkBackPressedDispatcherCondition(): Boolean{
+        if(fragmentContainer.getFragment<Fragment>()==SongsMain.SongsMain_Base::class.java){
+            return true
+        }
+        else
+            return false
+    }
 
     fun onEvent( event: OpenDrawerEvent){
         drawer.open()
     }
+
+    lateinit var serviceIntent:Intent
 
     fun onEvent(event:Events.RequestGlobalDataUpdate){
 
@@ -179,22 +199,15 @@ class SongMain_Activity : AppCompatActivity() {
     fun startMusicService(){
         if(!MusicPlayerService.isServiceRunning())
         {
-            val intent = Intent(this, MusicPlayerService::class.java)
+            serviceIntent = Intent(this, MusicPlayerService::class.java)
 
-            startForegroundService(intent)
+            startForegroundService(serviceIntent)
 
             bus.post(Events.SongWasChanged(null,null))
         }
     }
 
-
-
-
-
-
-
-
-
+    
 
 
 
@@ -217,6 +230,14 @@ class SongMain_Activity : AppCompatActivity() {
         SongMain_Activity.ActiveTracker.isRunningAnywhere=false
         SongMain_Activity.ActiveTracker.isPaused=false
 
+        CoroutineScope(Dispatchers.Main).launch {
+            if(SongsGlobalVars.saveBufferIsFree) {
+                SongsGlobalVars.saveBufferIsFree=false
+                val savedSuccesfully = saveSongLists()
+                SongsGlobalVars.saveBufferIsFree=true
+            }
+
+        }
 
         super.onDestroy()
     }
@@ -224,7 +245,11 @@ class SongMain_Activity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         SongMain_Activity.ActiveTracker.isPaused=false
+    }
 
+
+
+    fun doStartDataLoad(){
         if(SongsGlobalVars.refreshBufferIsFree) {
             SongsGlobalVars.refreshBufferIsFree=false
             lifecycleScope.launch {
@@ -293,12 +318,12 @@ class SongMain_Activity : AppCompatActivity() {
                 }
             }
         }
-
-
-
-
     }
 
+
+    /**
+     * Reloads from memory ONLY "SongsGlobalValues.alllist". It does NOT distribute NOR refresh any other playlists/lists
+     * */
     suspend fun refreshGlobalSongList(){
         return withContext(Dispatchers.IO) {
             SongsGlobalVars.allSongs.clear()            // am facut load la lista de songs. Fac load si la playlists, si split pe public si hidden songs.
@@ -308,40 +333,71 @@ class SongMain_Activity : AppCompatActivity() {
         }
     }
 
-
+    /**
+     * Reloads from memory all lists except the pre-existing "SongsGlobalValues.alllist". It does NOT also redistribute from the global list. Call redistributeLists() for that.
+     * */
     suspend fun refreshSongLists():Boolean{
         return withContext(Dispatchers.IO) {
 
+            while(!restoreBuffer_free){delay(50)}
+            if(restoreBuffer_free) {
+                restoreBuffer_free=false
+                SongsGlobalVars.playlistsList.clear()
+                SongsGlobalVars.playlistsList.addAll(
+                    Functions.loadFromJson(
+                        Application.instance,
+                        "PlaylistsList",
+                        ArrayList<Playlist>()
+                    )
+                )
 
-
-            SongsGlobalVars.playlistsList.clear()
-            SongsGlobalVars.playlistsList.addAll(Functions.loadFromJson(Application.instance,"PlaylistsList",ArrayList<Playlist>()))
-
-            SongsGlobalVars.playlistsList.forEach {
-                it.songsList.takeYourPartFromGlobal()
-            }
-
-            SongsGlobalVars.RecentlyPlayed=Functions.loadFromJson(Application.instance,"Recently Played",Playlist("Recently Played",null,false))
-            SongsGlobalVars.MyFavoritesPlaylist=Functions.loadFromJson(Application.instance,"Favorites",Playlist("Recently Played",null,true))
-
-            SongsGlobalVars.playingQueue.clear()
-            SongsGlobalVars.playingQueue.addAll(Functions.loadFromJson(Application.instance,"Playing Queue",ArrayList<Song>()))
-
-            SongsGlobalVars.hiddenSongs.songsList= ArrayList<Song>()
-            SongsGlobalVars.publicSongs.songsList= ArrayList<Song>()
-            SongsGlobalVars.allSongs.forEach {
-                if(it.isHidden){
-                    SongsGlobalVars.hiddenSongs.add(it)
+                SongsGlobalVars.playlistsList.forEach {
+                    it.songsList.takeYourPartFromGlobal()
                 }
-                else{
-                    SongsGlobalVars.publicSongs.add(it)
+
+                SongsGlobalVars.RecentlyPlayed = Functions.loadFromJson(
+                    Application.instance,
+                    "Recently Played",
+                    Playlist("Recently Played", null, false)
+                )
+                SongsGlobalVars.MyFavoritesPlaylist = Functions.loadFromJson(
+                    Application.instance,
+                    "Favorites",
+                    Playlist("Recently Played", null, true)
+                )
+
+                SongsGlobalVars.playingQueue.clear()
+                SongsGlobalVars.playingQueue.addAll(
+                    Functions.loadFromJson(
+                        Application.instance,
+                        "Playing Queue",
+                        ArrayList<Song>()
+                    )
+                )
+
+                SongsGlobalVars.hiddenSongs.songsList = ArrayList<Song>()
+                SongsGlobalVars.publicSongs.songsList = ArrayList<Song>()
+                SongsGlobalVars.allSongs.forEach {
+                    if (it.isHidden) {
+                        SongsGlobalVars.hiddenSongs.add(it)
+                    } else {
+                        SongsGlobalVars.publicSongs.add(it)
+                    }
                 }
+                SongsGlobalVars.publicSongs.songsList?.sortBy { p->p.title }
+                SongsGlobalVars.hiddenSongs.songsList?.sortBy { p->p.title }
+
+                restoreBuffer_free=true
             }
 
             true
         }
     }
 
+
+    /**
+     * Redistributes songs from the pre-existing "SongsGlobalValues.alllist" into every other list and playlist
+     * */
     suspend fun redistributeLists():Boolean{
         return withContext(Dispatchers.IO) {
 
@@ -360,22 +416,48 @@ class SongMain_Activity : AppCompatActivity() {
                     SongsGlobalVars.publicSongs.songsList?.add(it)
                 }
             }
+            SongsGlobalVars.publicSongs.songsList?.sortBy { p->p.title }
+            SongsGlobalVars.hiddenSongs.songsList?.sortBy { p->p.title }
 
             true
         }
     }
 
 
-
+    /**
+     * Saves all song lists (except public and private ones, those are distributed at runtime)
+     * */
     suspend fun saveSongLists():Boolean{
         return withContext(Dispatchers.IO) {
 
-
-            Functions.saveAsJson(Application.instance, "GlobalSongs", SongsGlobalVars.allSongs)
-            Functions.saveAsJson(Application.instance, "PlaylistsList", SongsGlobalVars.playlistsList)
-            Functions.saveAsJson(Application.instance, "Recently Played", SongsGlobalVars.RecentlyPlayed)
-            Functions.saveAsJson(Application.instance, "Favorites", SongsGlobalVars.MyFavoritesPlaylist)
-            Functions.saveAsJson(Application.instance, "Playing Queue", SongsGlobalVars.playingQueue)
+            while(!saveBuffer_free){
+                delay(50)
+            }
+            if(saveBuffer_free) {
+                saveBuffer_free=false
+                Functions.saveAsJson(Application.instance, "GlobalSongs", SongsGlobalVars.allSongs)
+                Functions.saveAsJson(
+                    Application.instance,
+                    "PlaylistsList",
+                    SongsGlobalVars.playlistsList
+                )
+                Functions.saveAsJson(
+                    Application.instance,
+                    "Recently Played",
+                    SongsGlobalVars.RecentlyPlayed
+                )
+                Functions.saveAsJson(
+                    Application.instance,
+                    "Favorites",
+                    SongsGlobalVars.MyFavoritesPlaylist
+                )
+                Functions.saveAsJson(
+                    Application.instance,
+                    "Playing Queue",
+                    SongsGlobalVars.playingQueue
+                )
+                saveBuffer_free=true
+            }
             true
         }
     }
@@ -385,14 +467,7 @@ class SongMain_Activity : AppCompatActivity() {
         super.onPause()
         //Glide.getPhotoCacheDir(this)?.deleteRecursively()
 
-        CoroutineScope(Dispatchers.Main).launch {
-            if(SongsGlobalVars.saveBufferIsFree) {
-                SongsGlobalVars.saveBufferIsFree=false
-                val savedSuccesfully = saveSongLists()
-                SongsGlobalVars.saveBufferIsFree=true
-            }
 
-        }
         SongMain_Activity.ActiveTracker.isPaused=true
 
     }

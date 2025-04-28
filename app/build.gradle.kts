@@ -96,4 +96,16 @@ dependencies {
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("de.greenrobot:eventbus:2.4.0")
+
+    implementation("androidx.media3:media3-exoplayer:1.2.1")
+    implementation ("androidx.media3:media3-ui:1.2.1") // optional UI
+
+    implementation("androidx.media3:media3-session")
+
+
+
+
+
+
+
 }

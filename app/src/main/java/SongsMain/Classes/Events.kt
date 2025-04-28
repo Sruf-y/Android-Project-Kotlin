@@ -12,4 +12,8 @@ object Events {
     class SongWasReset()
     class SongWasStopped()
     class SongWas_UsedSeek()
+
+    class SearchButtonPressed()
+    class ReturnToMainBase()
+
 }

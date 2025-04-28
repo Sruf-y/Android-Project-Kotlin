@@ -24,6 +24,8 @@ import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.util.Log
@@ -82,6 +84,7 @@ import com.example.composepls.R
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -1096,11 +1099,20 @@ fun getSharedPrefferencesStorage(context:Context): SharedPreferences? {
  *
  * Returns the shared preferences editor for putting values inside
  */
-fun getSharedPrefferencesEditor(context:Context): SharedPreferences.Editor? {
+fun getSharedPrefferencesEditor(context:Context?=null): SharedPreferences.Editor? {
     var editor : SharedPreferences.Editor;
-    var sf: SharedPreferences = context.getSharedPreferences("My SF",Context.MODE_PRIVATE);
+    if(context==null) {
+        var sf: SharedPreferences =
+            Application.instance.getSharedPreferences("My SF", Context.MODE_PRIVATE);
 
-    return sf.edit()
+        return sf.edit()
+    }
+    else{
+        var sf: SharedPreferences =
+            context.getSharedPreferences("My SF", Context.MODE_PRIVATE);
+
+        return sf.edit()
+    }
 }
 
 
@@ -1130,14 +1142,19 @@ fun sendPageToRight(context: Context):Bundle{
 
 
 fun saveAsJson(context: Context, filename:String, data:Any,parent:File=context.filesDir) {
+
+    if(!parent.exists()){
+        parent.mkdirs()
+    }
+
     val json=Gson().toJson(data);
     val Filename= "$filename.json"
 
     File(parent,Filename).writeText(json)
 }
 
-inline fun <reified T> loadFromJson(context:Context,filename: String,data: T,parent:File=context.filesDir): T {
 
+inline fun <reified T> loadFromJson(context:Context,filename: String,data: T,parent:File=context.filesDir): T {
     val Filename= "$filename.json"
     val file=File(parent,Filename)
 
@@ -1145,11 +1162,12 @@ inline fun <reified T> loadFromJson(context:Context,filename: String,data: T,par
         val loadedFile = file.readText()
         val type = object:TypeToken<T>(){}.type
         val readData:T = Gson().fromJson(loadedFile, type)
-
         return readData
     }
     return data
 }
+
+
 
 
 

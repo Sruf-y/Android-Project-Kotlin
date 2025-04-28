@@ -1,5 +1,6 @@
 package SongsMain.Classes
 
+import SongsMain.Tutorial.Application
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +24,9 @@ import java.io.File
 class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemClick:(Song)->Unit,var onItemLongPress:(Song)->Unit)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-
+    init {
+        stateRestorationPolicy = StateRestorationPolicy.PREVENT_WHEN_EMPTY
+    }
 
 
     private val differ = AsyncListDiffer<Song>(this, SongDiffUtilsCallback())
@@ -54,6 +59,7 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
 
 
             displayTitle.text = song.title
+             displayTitle.setTextColor(ContextCompat.getColor(Application.instance, R.color.white))
 
             displayAuthor.text = song.author
 
@@ -70,7 +76,7 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
                              .asBitmap()
                              .load(file)
                              .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC) // caching pictures to not reload them every single time
-                             .skipMemoryCache(true)
+                             //.skipMemoryCache(true)
                              .placeholder(R.drawable.blank) // Show while loading
                              .error(R.drawable.blank_gray_musical_note) // Show if load fails
                              .transition(BitmapTransitionOptions.withCrossFade(500))

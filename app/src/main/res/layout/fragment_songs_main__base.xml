@@ -211,7 +211,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/upper_rounded_corners"
-            android:backgroundTint="#FBFF00"
+            android:backgroundTintMode="add"
             android:clipToOutline="true"
             android:elevation="2dp"
             app:behavior_peekHeight="auto"
@@ -221,7 +221,7 @@
                 android:id="@+id/scene2"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
-                android:background="#FF0000"
+                android:background="#E4BFB3"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -230,13 +230,27 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.5">
 
+                <ImageView
+                    android:id="@+id/expanded_background"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:alpha="0.4"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.5" />
+
                 <CheckBox
-                    android:id="@+id/checkBox2"
+                    android:id="@+id/expanded_checkbox"
                     android:layout_width="wrap_content"
-                    android:layout_height="94dp"
+                    android:layout_height="wrap_content"
                     android:button="@drawable/play_pause_button_music_player_toggle"
-                    android:scaleX="4.5"
-                    android:scaleY="4.5"
+                    android:enabled="false"
+                    android:scaleX="3"
+                    android:scaleY="3"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -245,22 +259,50 @@
                     app:layout_constraintVertical_bias="0.5" />
 
                 <SeekBar
-                    android:id="@+id/seekBar"
+                    android:id="@+id/expanded_seekbar"
                     android:layout_width="0dp"
-                    android:layout_height="18dp"
+                    android:layout_height="20dp"
                     android:max="100"
-                    android:progress="20"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:progress="0"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/checkBox2" />
+                    app:layout_constraintTop_toBottomOf="@+id/expanded_play_pause" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/expanded_play_pause"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.5">
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/expanded_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="No song playing"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toTopOf="@+id/expanded_play_pause"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/scene1"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:background="#B9C1DB"
+                android:background="#E4BFB3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -354,17 +396,32 @@
                     app:layout_constraintVertical_bias="1.0" />
 
                 <CheckBox
-                    android:id="@+id/bottomSheetCollapsedToggle"
+                    android:id="@+id/colapsedCheckbox"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:background="@drawable/blank"
                     android:button="@drawable/play_pause_button_music_player_toggle"
+                    android:clickable="false"
+                    android:enabled="false"
+                    app:layout_constraintBottom_toBottomOf="@+id/serviceColorCode"
+                    app:layout_constraintEnd_toStartOf="@+id/bottomSheetCollapsedfindInPlaylists"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="@+id/bottomSheetCollapsedBackground"
+                    app:layout_constraintTop_toTopOf="@+id/serviceColorCode" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/bottomSheetCollapsedToggle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
                     app:layout_constraintBottom_toBottomOf="@+id/serviceColorCode"
                     app:layout_constraintEnd_toStartOf="@+id/bottomSheetCollapsedfindInPlaylists"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/serviceColorCode"
-                    app:layout_constraintVertical_bias="0.5" />
+                    app:layout_constraintVertical_bias="0.5">
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
