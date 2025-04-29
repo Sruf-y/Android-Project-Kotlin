@@ -24,6 +24,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePaddingRelative
@@ -32,6 +33,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
+import coil3.size.Size
 import com.example.composepls.R
 import com.google.android.material.navigation.NavigationView
 import de.greenrobot.event.EventBus
@@ -195,7 +197,8 @@ class SongMain_Activity : AppCompatActivity(){
 
         CoroutineScope(Dispatchers.Main).launch {
             SongsGlobalVars.allSongs.clear()
-            SongsGlobalVars.allSongs.addAll(doSongsQuery())
+            SongsGlobalVars.allSongs.addAll(doSongsQuery(true))
+
             bus.post(Events.GlobalDataWasUpdated())
         }
 
@@ -500,8 +503,8 @@ class SongMain_Activity : AppCompatActivity(){
                 MediaStore.Audio.Media.DATE_MODIFIED
             )
 
-            val selection = "${MediaStore.Audio.Media.RELATIVE_PATH} LIKE ?"
-            val selectionArgs = arrayOf("%")
+            val selection =null //"${MediaStore.Audio.Media.RELATIVE_PATH} LIKE ?"
+            val selectionArgs =null //arrayOf("%")
 
             // Initialize adapter with empty list
 
@@ -534,7 +537,8 @@ class SongMain_Activity : AppCompatActivity(){
 
                     if (alsoPictures) {
                         val thumbnail = try {
-                            decodeSampledBitmapFromUri(contentResolver,contentUri,400,400)
+                            //decodeSampledBitmapFromUri(contentResolver,contentUri,400,400)
+                            contentResolver.loadThumbnail(contentUri, android.util.Size(200,200),null)
                         } catch (ex: Exception) {
                             null
                         }
