@@ -2,57 +2,29 @@ package SongsMain.Tutorial
 
 
 import DataClasses_Ojects.Logs
-import DataClasses_Ojects.MediaProgressViewModel
 import SongsMain.Classes.Events
 import SongsMain.Classes.Song
-import SongsMain.Classes.SongsGlobalVars
+import SongsMain.Variables.SongsGlobalVars
 import SongsMain.Classes.myMediaPlayer
 import SongsMain.SongMain_Activity
-import SongsMain.SongsMain_Base
-import android.app.Notification
 import android.app.PendingIntent
-import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.media.MediaMetadata
-import android.media.MediaSession2
-import android.media.MediaSession2Service
-import android.media.session.MediaSession
-import android.os.Binder
-import android.os.Bundle
-import android.os.IBinder
-import android.provider.MediaStore
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.IconCompat
-import androidx.core.net.toUri
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelStore
 import com.example.composepls.R
 import de.greenrobot.event.EventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
-import java.security.Provider
-import kotlin.getValue
-import androidx.core.graphics.createBitmap
-import androidx.media3.session.CommandButton
 import androidx.media3.session.MediaLibraryService
-import androidx.media3.session.SessionCommand
 
 class MusicPlayerService: MediaLibraryService() {
 

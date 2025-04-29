@@ -4,16 +4,11 @@ import DataClasses_Ojects.Logs
 import SongsMain.Classes.Events.SongWasStopped
 import SongsMain.Classes.Song.Companion.from
 import SongsMain.Tutorial.Application
-import SongsMain.Tutorial.MusicPlayerService
-import android.R
-import android.app.Activity
-import android.content.Context
-import android.content.pm.ApplicationInfo
+import SongsMain.Variables.SongsGlobalVars
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.core.net.toUri
-import androidx.lifecycle.Lifecycle
 import de.greenrobot.event.EventBus
 import java.time.LocalDateTime
 
@@ -114,7 +109,8 @@ object myMediaPlayer {
 
 
                     myMediaPlayer.reset()
-                    myMediaPlayer.setSong(currentPlaylist?.songsList!![currentIndex+1].from(SongsGlobalVars.allSongs)!!)
+                    myMediaPlayer.setSong(currentPlaylist?.songsList!![currentIndex+1].from(
+                        SongsGlobalVars.allSongs)!!)
                 }
             }
         }

@@ -1,21 +1,15 @@
 package SongsMain
 
-import GlobalValues.Alarme.doingselection
-import GlobalValues.Alarme.nrOfChecks
 import SongsMain.Classes.Events
 import SongsMain.Classes.Song
 import SongsMain.Classes.SongListAdapter
-import SongsMain.Classes.SongsGlobalVars
+import SongsMain.Variables.SongsGlobalVars
 import SongsMain.Classes.myMediaPlayer
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.widget.TextView
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout

@@ -15,11 +15,14 @@ import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Point
+import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
 import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
@@ -69,6 +72,7 @@ import androidx.core.animation.LinearInterpolator
 import androidx.core.animation.ValueAnimator
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getColor
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.graphics.Insets
 import androidx.core.graphics.createBitmap
@@ -1182,3 +1186,113 @@ inline fun <reified T> loadFromJson(context:Context,filename: String,data: T,par
     return BitmapFactory.decodeByteArray(byteArray,0,byteArray.size, BitmapFactory.Options().apply { inScaled=true;inTargetDensity=10;inDensity=20 })
 }
 
+class ViewAttributes(public val view:View):Object(){
+
+
+    inner class ForegroundTint{
+        public fun Get(): ColorStateList? {
+            return view.foregroundTintList
+        }
+
+        public fun Compare(context:Context,colorId:Int):Boolean{
+            return view.foregroundTintList== ColorStateList.valueOf(getColor(context,colorId))
+        }
+
+        public fun Set(context:Context,colorId:Int){
+            view.foregroundTintList= ColorStateList.valueOf(getColor(context,colorId))
+        }
+    }
+
+    inner class BackgroundTint{
+        public fun Get(): ColorStateList? {
+            return view.backgroundTintList
+        }
+
+        public fun Compare(context:Context,colorId:Int):Boolean{
+            return view.backgroundTintList== ColorStateList.valueOf(getColor(context,colorId))
+        }
+
+        public fun Set(context:Context,colorId:Int){
+            view.backgroundTintList= ColorStateList.valueOf(getColor(context,colorId))
+        }
+    }
+
+    inner class Background{
+        public fun Get(): Drawable? {
+            return view.background
+        }
+
+        public fun Compare(context:Context,drawableId:Int):Boolean{
+            return view.background== ContextCompat.getDrawable(context,drawableId)
+        }
+
+        public fun Set(context:Context,drawableId:Int){
+            view.background=ContextCompat.getDrawable(context,drawableId)
+        }
+    }
+
+    inner class BackgroundTintMode{
+        public fun Get(): PorterDuff.Mode? {
+            return view.backgroundTintMode
+        }
+
+        public fun Compare(PorterduffMode: PorterDuff.Mode):Boolean{
+            return view.backgroundTintMode==PorterduffMode
+        }
+
+        public fun Set(PorterduffMode: PorterDuff.Mode){
+            view.backgroundTintMode= PorterduffMode
+        }
+    }
+
+    inner class Edges{
+        var Bottom:Int
+            get() {return view.bottom}
+            set(value:Int){view.bottom=value}
+
+        var Top:Int
+            get() {return view.top}
+            set(value) {view.top=value}
+
+        var Left: Int
+            get() {return view.left}
+            set(value:Int){view.left=value}
+
+        var Right: Int
+            get() {return view.right}
+            set(value:Int){view.right=value}
+        var TopLeft: List<Int>
+            get() {return listOf(view.top, view.left)}
+            set(value: List<Int>) {
+                if (value.size == 2)
+                    view.top = value[0]
+                view.left = value[1]
+            }
+        var TopRight: List<Int>
+            get() {return listOf(view.top, view.right)}
+            set(value:List<Int>){
+                if(value.size==2) {
+                    view.top = value[0]
+                    view.right = value[1]
+                }
+            }
+        var BottomLeft: List<Int>
+            get() {return listOf(view.bottom,view.left)}
+            set(value:List<Int>){
+                if(value.size==2) {
+                    view.bottom = value[0]
+                    view.left = value[1]
+                }
+            }
+        var BottomRight: List<Int>
+            get() {return listOf(view.bottom,view.right)}
+            set(value:List<Int>){
+                if(value.size==2) {
+                    view.bottom = value[0]
+                    view.right = value[1]
+                }
+            }
+
+
+    }
+}

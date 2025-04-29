@@ -1,18 +1,8 @@
 package SongsMain.Classes
 
-import SongsMain.SongMain_Activity
-import android.content.Context
-import android.graphics.Bitmap
-import android.net.Uri
-import android.util.Log
-import androidx.annotation.Nullable
-import androidx.core.net.toUri
-import kotlinx.serialization.Serializable
-import java.io.File
-import java.time.LocalDate
+import SongsMain.Variables.SongsGlobalVars
 import java.time.LocalDateTime
 import java.time.ZoneId
-import kotlin.time.Duration
 
 class Song(
  var songUri: String,

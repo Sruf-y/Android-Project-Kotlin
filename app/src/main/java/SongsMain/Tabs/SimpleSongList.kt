@@ -5,8 +5,7 @@ import SongsMain.Classes.Events
 import SongsMain.Classes.Song
 import SongsMain.Classes.myMediaPlayer
 import SongsMain.Classes.SongListAdapter
-import SongsMain.Classes.SongsGlobalVars
-import SongsMain.Tutorial.Application
+import SongsMain.Variables.SongsGlobalVars
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -27,7 +26,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import kotlinx.coroutines.CoroutineScope
-import java.io.File
 
 class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 

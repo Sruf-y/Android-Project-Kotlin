@@ -4,33 +4,26 @@ import DataClasses_Ojects.Logs
 import Functions.AskForPermissionsAtStart
 import Functions.Images.decodeSampledBitmapFromUri
 import Functions.concatenateWith
-import Functions.saveAsJson
 import SongsMain.Classes.Events
 import SongsMain.Classes.Playlist
 import SongsMain.Classes.Song
 import SongsMain.Classes.Song.Companion.takeYourPartFromGlobal
-import SongsMain.Classes.SongsGlobalVars
+import SongsMain.Variables.SongsGlobalVars
 import SongsMain.Classes.myMediaPlayer
+import SongsMain.Tabs.Music_App_Settings
 import SongsMain.Tutorial.Application
 import SongsMain.Tutorial.MusicPlayerService
-import android.app.Activity
-import android.app.ActivityManager
 import android.content.ContentUris
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.util.Size
-import androidx.activity.OnBackPressedCallback
+import android.view.MenuItem
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startForegroundService
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePaddingRelative
@@ -57,7 +50,7 @@ class OpenDrawerEvent()
 
 
 
-class SongMain_Activity : AppCompatActivity() {
+class SongMain_Activity : AppCompatActivity(){
 
 
 
@@ -139,6 +132,22 @@ class SongMain_Activity : AppCompatActivity() {
         //////////////////////////////////////////////
 
 
+        // onclick listeners for buttons, in the navView drawer. Currently just settings
+        navView.setNavigationItemSelectedListener(object:NavigationView.OnNavigationItemSelectedListener {
+            override fun onNavigationItemSelected(item: MenuItem): Boolean {
+                val id  = item.itemId;
+
+                when(id){
+                    R.id.nav_settings->{
+                        makeCurrentFragment(fragmentContainer,Music_App_Settings::class.java)
+                        return true
+                    }
+                }
+                drawer.close()
+
+                return true
+            }
+        })
 
 
 
@@ -154,6 +163,8 @@ class SongMain_Activity : AppCompatActivity() {
         if(savedInstanceState==null){
             doStartDataLoad()
         }
+
+
     }
 
     fun onEvent(event:Events.ReturnToMainBase){
@@ -187,7 +198,6 @@ class SongMain_Activity : AppCompatActivity() {
             SongsGlobalVars.allSongs.addAll(doSongsQuery())
             bus.post(Events.GlobalDataWasUpdated())
         }
-
 
     }
 
@@ -574,5 +584,7 @@ class SongMain_Activity : AppCompatActivity() {
 
             return@withContext lista
         }
+
+
 
 }

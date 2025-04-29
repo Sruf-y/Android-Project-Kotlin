@@ -9,6 +9,7 @@ import SongsMain.Classes.Events
 import SongsMain.Classes.Events.SongWasPaused
 import SongsMain.Classes.myMediaPlayer
 import SongsMain.Tutorial.Application
+import SongsMain.Variables.MusicAppSettings
 import Utilities.Utils.Companion.dP
 import android.media.Image
 import android.os.Bundle
@@ -45,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
@@ -68,6 +70,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
     lateinit var tabsView: TabLayout
     lateinit var tabholder: ViewPager2
+    lateinit var main:ConstraintLayout
 
     lateinit var bottomsheetCol_musicToggle: ConstraintLayout
     lateinit var bottomsheetCol_musictitle: TextView
@@ -101,7 +104,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         super.onViewCreated(view, savedInstanceState)
 
 
-        val main = requireView().findViewById<ConstraintLayout>(R.id.main)
+        main = requireView().findViewById<ConstraintLayout>(R.id.main)
         tabholder= requireView().findViewById(R.id.tabHolder)
         tabholder.setOffscreenPageLimit(3);
         tabsView = requireView().findViewById(R.id.tabLayout)
@@ -113,7 +116,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 //            selectedTab=this!!.getInt("Base tab",0)
 //
 //        }
-
+        applySettings()
 
 
 
@@ -427,7 +430,9 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
     }
 
 
-
+    fun applySettings(){
+        main.background= ContextCompat.getDrawable(requireContext(),MusicAppSettings.theme)
+    }
 
 
 

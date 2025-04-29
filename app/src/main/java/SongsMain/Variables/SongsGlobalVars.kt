@@ -1,5 +1,7 @@
-package SongsMain.Classes
+package SongsMain.Variables
 
+import SongsMain.Classes.Playlist
+import SongsMain.Classes.Song
 import SongsMain.Tutorial.Application
 import android.content.Context
 import java.io.File
