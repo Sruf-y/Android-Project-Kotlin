@@ -75,7 +75,7 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
                          Glide.with(itemView)
                              .asBitmap()
                              .load(file)
-                             .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC) // caching pictures to not reload them every single time
+                             .diskCacheStrategy(DiskCacheStrategy.ALL) // caching pictures to not reload them every single time
                              //.skipMemoryCache(true)
                              .placeholder(R.drawable.blank) // Show while loading
                              .error(R.drawable.blank_gray_musical_note) // Show if load fails

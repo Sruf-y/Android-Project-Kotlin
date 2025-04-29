@@ -11,6 +11,7 @@ import SongsMain.Classes.myMediaPlayer
 import SongsMain.Tutorial.Application
 import SongsMain.Variables.MusicAppSettings
 import Utilities.Utils.Companion.dP
+import android.content.pm.ActivityInfo
 import android.media.Image
 import android.os.Bundle
 import android.util.Log
@@ -72,6 +73,9 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
     lateinit var tabholder: ViewPager2
     lateinit var main:ConstraintLayout
 
+    lateinit var scena1: ConstraintLayout
+    lateinit var scena2: ConstraintLayout
+
     lateinit var bottomsheetCol_musicToggle: ConstraintLayout
     lateinit var bottomsheetCol_musictitle: TextView
     lateinit var bottomsheetCol_musicImage: ShapeableImageView
@@ -109,6 +113,9 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         tabholder.setOffscreenPageLimit(3);
         tabsView = requireView().findViewById(R.id.tabLayout)
         appbar=requireView().findViewById(R.id.appbar)
+
+        scena1 = requireView().findViewById<ConstraintLayout>(R.id.scene1)
+        scena2 = requireView().findViewById<ConstraintLayout>(R.id.scene2)
 
 //        selectedTab = savedInstanceState?.getInt("SELECTED_TAB", 0) ?: 0
 //
@@ -168,8 +175,6 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         }
 
 
-        val scena1 = requireView().findViewById<ConstraintLayout>(R.id.scene1)
-        val scena2 = requireView().findViewById<ConstraintLayout>(R.id.scene2)
         scena1.visibility=View.VISIBLE
         scena2.visibility=View.GONE
 
@@ -431,7 +436,13 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
     fun applySettings(){
-        main.background= ContextCompat.getDrawable(requireContext(),MusicAppSettings.theme)
+        MusicAppSettings.applySettings(mutableListOf(main,scena1,scena2))
+
+        when(MusicAppSettings.orientation){
+            0->{requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_PORTRAIT }
+            1->{requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED}
+            2->{requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE}
+        }
     }
 
 

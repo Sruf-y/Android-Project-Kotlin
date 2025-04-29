@@ -5,6 +5,7 @@ import SongsMain.Classes.Song
 import SongsMain.Classes.SongListAdapter
 import SongsMain.Variables.SongsGlobalVars
 import SongsMain.Classes.myMediaPlayer
+import SongsMain.Variables.MusicAppSettings
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -28,6 +29,7 @@ class search : Fragment(R.layout.fragment_search) {
 
     val bus = EventBus.getDefault()
 
+    lateinit var main: ConstraintLayout
 
     lateinit var recyclerLayoutManager: LinearLayoutManager
     lateinit var audioRecycler: RecyclerView
@@ -36,7 +38,9 @@ class search : Fragment(R.layout.fragment_search) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val main: ConstraintLayout = requireView().findViewById(R.id.main)
+        main = requireView().findViewById(R.id.main)
+
+        applySettings()
 
         Functions.setInsetsforItems(mutableListOf(main))
 
@@ -131,6 +135,9 @@ class search : Fragment(R.layout.fragment_search) {
 
     }
 
+    fun applySettings(){
+        main.background= ContextCompat.getDrawable(requireContext(),MusicAppSettings.theme)
+    }
 
     fun onEvent(event:Events.SongWasChanged){
 

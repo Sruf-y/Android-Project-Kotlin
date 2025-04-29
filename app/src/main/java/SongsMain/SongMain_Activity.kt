@@ -13,6 +13,8 @@ import SongsMain.Classes.myMediaPlayer
 import SongsMain.Tabs.Music_App_Settings
 import SongsMain.Tutorial.Application
 import SongsMain.Tutorial.MusicPlayerService
+import SongsMain.Variables.MusicAppSettings
+import SongsMain.Variables.MusicAppSettings.restoreSettings
 import android.content.ContentUris
 import android.content.Intent
 import android.content.res.Configuration
@@ -78,8 +80,8 @@ class SongMain_Activity : AppCompatActivity(){
         SongMain_Activity.ActiveTracker.isRunningAnywhere=true
         SongMain_Activity.ActiveTracker.isPaused=false
 
-
-
+        // restore app settings
+        restoreSettings()
 
 
 
@@ -168,6 +170,9 @@ class SongMain_Activity : AppCompatActivity(){
 
 
     }
+
+
+
 
     fun onEvent(event:Events.ReturnToMainBase){
         makeCurrentFragment(fragmentContainer, SongsMain.SongsMain_Base::class.java)
@@ -538,7 +543,7 @@ class SongMain_Activity : AppCompatActivity(){
                     if (alsoPictures) {
                         val thumbnail = try {
                             //decodeSampledBitmapFromUri(contentResolver,contentUri,400,400)
-                            contentResolver.loadThumbnail(contentUri, android.util.Size(200,200),null)
+                            contentResolver.loadThumbnail(contentUri, android.util.Size(500,500),null)
                         } catch (ex: Exception) {
                             null
                         }

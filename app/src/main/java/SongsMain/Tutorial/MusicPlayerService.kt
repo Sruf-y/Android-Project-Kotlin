@@ -79,35 +79,40 @@ class MusicPlayerService: MediaLibraryService() {
             MediaPlayerServiceActions.SERVICESTART.name -> serviceStart()
             MediaPlayerServiceActions.SERVICESTOP.name -> {
                 serviceStop()
-                return START_NOT_STICKY}
+                return START_NOT_STICKY
+            }
+
             MediaPlayerServiceActions.TOGGLE.name -> myMediaPlayer.toggle()
             MediaPlayerServiceActions.BACKWARD.name -> {
                 myMediaPlayer.playPreviousInPlaylist()
             }
+
             MediaPlayerServiceActions.FORWARD.name -> {
                 myMediaPlayer.playNextInPlaylist()
             }
+
             MediaPlayerServiceActions.SEEK.name -> {
                 val position = intent.getIntExtra("position", 0)
                 myMediaPlayer.mediaplayer.seekTo(position)
             }
-            MediaPlayerServiceActions.OPENAPP.name -> { /* Optional: open app intent */ }
 
-
-
-        else -> {
-            if (myMediaPlayer.isInitialized_) {
-                myMediaPlayer.initializeMediaPlayer()
+            MediaPlayerServiceActions.OPENAPP.name -> { /* Optional: open app intent */
             }
 
-            // Re-initialize metadata/session if needed
+
+            else -> {
+                if (myMediaPlayer.isInitialized_) {
+                    myMediaPlayer.initializeMediaPlayer()
+                }
+
+                // Re-initialize metadata/session if needed
 
                 setupMediaSession()
 
 
-            isRunning = true
+                isRunning = true
+            }
         }
-    }
 
     return START_STICKY
     }
@@ -332,6 +337,7 @@ class MusicPlayerService: MediaLibraryService() {
 
     fun onEvent(event:Events.SongWasPaused){
         CreateNotification()
+        stopForeground(STOP_FOREGROUND_DETACH)
     }
 
 
@@ -350,6 +356,7 @@ class MusicPlayerService: MediaLibraryService() {
     fun onEvent(event:Events.SongWasStarted){
 
         //myMediaPlayer.mediaplayer.pause()
+
         setupMediaSession()
 
         val result = audioManager.requestAudioFocus(audioFocusRequest)
