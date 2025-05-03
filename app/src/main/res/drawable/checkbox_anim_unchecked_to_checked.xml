@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/favorite_heart_unchecked">
+
+    <target android:name="path">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="500"
+
+                    android:propertyName="fillColor"
+                    android:valueFrom="@color/blue"
+                    android:valueTo="@color/blue"
+                    android:valueType="colorType" />
+
+
+
+
+                <objectAnimator
+                    android:duration="500"
+                    android:propertyName="strokeColor"
+                    android:valueFrom="@color/blue"
+                    android:valueTo="@color/blue"
+                    android:valueType="colorType" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="resizingGroup">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="250"
+
+                    android:propertyName="scaleX"
+                    android:valueFrom="1"
+                    android:valueTo="1.2"
+                    android:valueType="floatType" />
+                <objectAnimator
+                    android:duration="250"
+
+                    android:propertyName="scaleY"
+                    android:valueFrom="1"
+                    android:valueTo="1.2"
+                    android:valueType="floatType" />
+
+
+
+
+                <!-- Return animation from overshoot -->
+
+                <objectAnimator
+                    android:startOffset="250"
+
+                    android:duration="250"
+                    android:propertyName="scaleX"
+                    android:valueFrom="1.2"
+                    android:valueTo="1.1"
+                    android:valueType="floatType" />
+                <objectAnimator
+                    android:startOffset="250"
+
+                    android:duration="250"
+                    android:propertyName="scaleY"
+                    android:valueFrom="1.2"
+                    android:valueTo="1.1"
+                    android:valueType="floatType" />
+
+
+            </set>
+        </aapt:attr>
+    </target>
+
+</animated-vector>

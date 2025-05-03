@@ -4,10 +4,12 @@ import DataClasses_Ojects.Logs
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.Log
+import com.example.composepls.R
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class Playlist(var title: String,var songsList: ArrayList<Song>?=null,var isUserOrdered:Boolean=true) {
+data class Playlist(var title: String,var songsList: ArrayList<Song>?=null,var isUserOrdered:Boolean=true,var thumbnail: Int=R.drawable.blank_gray_musical_note) {
+
 
 
     fun add(song:Song){

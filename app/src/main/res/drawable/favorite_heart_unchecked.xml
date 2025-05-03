@@ -1,0 +1,26 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:viewportHeight="100"
+    android:viewportWidth="100"
+    android:height="40dp"
+    android:width="40dp">
+    <group
+        android:name="resizingGroup"
+        android:scaleX="1"
+        android:scaleY="1"
+        android:pivotX="50"
+        android:pivotY="50">
+    <path
+        android:name="path"
+        android:strokeLineCap="round"
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/white"
+        android:strokeWidth="5"
+        android:pathData="
+M50,30
+C60,13 88,25 75,45
+L55,75
+Q50,83 45,75
+L25,45
+C12,25 40,13 50,30" />
+    </group>
+</vector>

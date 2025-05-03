@@ -7,20 +7,25 @@ import SongsMain.Variables.SongsGlobalVars
 import SongsMain.Classes.myMediaPlayer
 import SongsMain.Variables.MusicAppSettings
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.TextView
+import androidx.activity.SystemBarStyle
 import androidx.activity.addCallback
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.composepls.R
 import de.greenrobot.event.EventBus
 
-class search : Fragment(R.layout.fragment_search) {
+class search : AppCompatActivity() {
 
     val designatedList: ArrayList<Song>
         get() {
@@ -35,28 +40,34 @@ class search : Fragment(R.layout.fragment_search) {
     lateinit var audioRecycler: RecyclerView
     lateinit var adaptor: SongListAdapter
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
-        main = requireView().findViewById(R.id.main)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.fragment_search)
+
+
+        main = this.findViewById(R.id.main)
+
+
+        val myStatusBarStyle = SystemBarStyle.dark(getColor(R.color.transparent))
+        val myNavigationBarStyle = SystemBarStyle.dark(getColor(R.color.black))
+
+        enableEdgeToEdge(myStatusBarStyle, myNavigationBarStyle)
+
 
         applySettings()
 
         Functions.setInsetsforItems(mutableListOf(main))
 
-        audioRecycler = requireView().findViewById(R.id.audioRecycler)
+        audioRecycler = this.findViewById(R.id.audioRecycler)
         adaptor = SongListAdapter(
             ArrayList<Song>(),
-            requireContext(),
+            this,
             {song->
 
                 myMediaPlayer.initializeMediaPlayer()
 
-
-                if (myMediaPlayer.iPrepared_)
-                    myMediaPlayer.reset()
-                myMediaPlayer.setSong(song)
-                myMediaPlayer.openPlaylist(SongsGlobalVars.publicSongs)
+                myMediaPlayer.setSong(song,SongsGlobalVars.publicSongs)
                 myMediaPlayer.start()
 
             }, { song ->
@@ -65,7 +76,7 @@ class search : Fragment(R.layout.fragment_search) {
         audioRecycler.adapter=adaptor
         adaptor.mList=ArrayList<Song>(designatedList)
         recyclerLayoutManager =
-            LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+            LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 
         audioRecycler.setHasFixedSize(true) // If items have consistent size
         audioRecycler.adapter = adaptor
@@ -73,7 +84,7 @@ class search : Fragment(R.layout.fragment_search) {
         adaptor.notifyDataSetChanged()
 
 
-        val searchview: SearchView = requireView().findViewById(R.id.searchView)
+        val searchview: SearchView = this.findViewById(R.id.searchView)
         searchview.isIconified = false
         searchview.requestFocus()
 
@@ -112,31 +123,19 @@ class search : Fragment(R.layout.fragment_search) {
 
 
 
-
-        val backbutton = requireActivity().onBackPressedDispatcher
-        //back button
-        backbutton.addCallback(viewLifecycleOwner) {
-            // Handle the back press
-
-
-            bus.post(Events.ReturnToMainBase())
-        //isEnabled=false
-
-        }
-
-
-
-
         bus.register(this)
 
         audioRecycler.post {
             onEvent(Events.SongWasChanged(null, myMediaPlayer.currentlyPlayingSong))
         }
 
+
     }
 
+
+
     fun applySettings(){
-        main.background= ContextCompat.getDrawable(requireContext(),MusicAppSettings.theme)
+        main.background= ContextCompat.getDrawable(this,MusicAppSettings.theme)
     }
 
     fun onEvent(event:Events.SongWasChanged){
@@ -146,7 +145,7 @@ class search : Fragment(R.layout.fragment_search) {
             (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(event.lastSong))
                 ?.findViewById<TextView>(R.id.title))?.setTextColor(
                     ContextCompat.getColor(
-                        requireContext(),
+                        this,
                         R.color.white
                     )
                 )
@@ -160,7 +159,7 @@ class search : Fragment(R.layout.fragment_search) {
             (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(event.currentSong))
                 ?.findViewById<TextView>(R.id.title))?.setTextColor(
                     ContextCompat.getColor(
-                        requireContext(),
+                        this,
                         R.color.amber
                     )
                 )

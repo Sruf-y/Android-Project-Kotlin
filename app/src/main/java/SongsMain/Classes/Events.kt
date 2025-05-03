@@ -1,5 +1,7 @@
 package SongsMain.Classes
 
+import androidx.fragment.app.Fragment
+
 object Events {
 
     class GlobalDataWasUpdated()
@@ -15,5 +17,7 @@ object Events {
 
     class SearchButtonPressed()
     class ReturnToMainBase()
+    class SettingsWereChanged()
+    class MakeCurrentMainFragment(val fragment: Class<out Fragment>)
 
 }

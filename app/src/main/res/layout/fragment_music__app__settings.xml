@@ -4,7 +4,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="SongsMain.Tabs.Music_App_Settings">
+    android:background="@drawable/gradient_right_corner"
+    android:stateListAnimator="@android:animator/fade_out"
+    tools:context="SongsMain.Variables.Music_App_Settings">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -14,7 +16,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:divider="@drawable/horizontal_divider"
+            android:orientation="vertical"
+            android:showDividers="middle">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -25,6 +29,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Theme"
+                    android:textColor="@color/white"
                     android:textSize="24sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@+id/constraintLayout3"
@@ -106,6 +111,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="10dp"
                     android:text="Orientation"
+                    android:textColor="@color/white"
                     android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -141,11 +147,36 @@
 
                     <RadioButton
                         android:id="@+id/radioButton3"
+                        style="@android:style/Widget.Material.Light.CompoundButton.RadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Horizontal" />
                 </RadioGroup>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp">
+
+                <CheckBox
+                    android:id="@+id/checkBox3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:button="@drawable/favorite_heart_button"
+                    android:enabled="true"
+                    android:focusable="auto"
+                    android:scaleX="5"
+                    android:scaleY="5"
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.5" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>

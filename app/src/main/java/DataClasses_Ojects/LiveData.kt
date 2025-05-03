@@ -65,7 +65,7 @@ class MediaProgressViewModel : ViewModel() {
         val duration = myMediaPlayer.currentlyPlayingSong?.duration ?: 0
 
         val progress = if (duration > 0) {
-            (currentPos.toFloat() / duration * 100).toInt().coerceIn(0, 100)
+            currentPos
         } else {
             0
         }

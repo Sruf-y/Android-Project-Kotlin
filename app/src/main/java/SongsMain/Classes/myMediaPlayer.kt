@@ -10,6 +10,8 @@ import android.media.MediaPlayer
 import android.util.Log
 import androidx.core.net.toUri
 import de.greenrobot.event.EventBus
+import okio.FileNotFoundException
+import java.io.File
 import java.time.LocalDateTime
 
 object myMediaPlayer {
@@ -142,61 +144,82 @@ object myMediaPlayer {
     }
 
 
-    fun setSong(song:Song) {
+    fun setSong(song:Song,playlist: Playlist?=null) {
 
+        val savedCurrentPosition = myMediaPlayer.mediaplayer.currentPosition
 
         initializeMediaPlayer()
-
+        if (myMediaPlayer.iPrepared_)
+            myMediaPlayer.reset()
 
         try {
             if (!mediaplayer.isPlaying){
                 Log.i("TESTS","Set song requested")
-                mediaplayer.apply {
-                    Application.instance.applicationContext.contentResolver.openFileDescriptor(
-                        song.from(SongsGlobalVars.allSongs)!!.songUri.toUri(),
-                        "r"
-                    ).use { pfd ->
-                        isPrepared=false
-                        setDataSource(pfd?.fileDescriptor)
-                        prepareAsync()
+                try {
+                    mediaplayer.apply {
+                        Application.instance.applicationContext.contentResolver.openFileDescriptor(
+                            song.from(SongsGlobalVars.allSongs)!!.songUri.toUri(),
+                            "r"
+                        ).use { pfd ->
+                            isPrepared = false
+                            setDataSource(pfd?.fileDescriptor)
+                            prepareAsync()
 
 
-                        mediaplayer.setOnPreparedListener {
-                            isPrepared=true
+                            mediaplayer.setOnPreparedListener {
+                                isPrepared = true
 
 
+                                val lastSong = currentlyPlayingSong
+                                currentlyPlayingSong = song.from(SongsGlobalVars.allSongs)
+
+                                Log.i(
+                                    "TESTS",
+                                    "Set song approved for song URI [${currentlyPlayingSong?.songUri}]"
+                                )
+
+                                bus.post(Events.SongWasChanged(lastSong, currentlyPlayingSong))
+                                _Playing = true
 
 
-                            val lastSong = currentlyPlayingSong
-                            currentlyPlayingSong=song.from(SongsGlobalVars.allSongs)
+                                // update the stats too
+                                song.from(SongsGlobalVars.allSongs)?.timesListened++
+                                song.from(SongsGlobalVars.allSongs)?.lastPlayed =
+                                    LocalDateTime.now().toString()
 
-
-                            bus.post(Events.SongWasChanged(lastSong,currentlyPlayingSong))
-                            _Playing=true
-
-
-                            // update the stats too
-                            song.from(SongsGlobalVars.allSongs)?.timesListened++
-                            song.from(SongsGlobalVars.allSongs)?.lastPlayed= LocalDateTime.now().toString()
-
-                            SongsGlobalVars.playingQueue.apply {
-                                if (this.contains(song.from(SongsGlobalVars.allSongs))) {
-                                    this.remove(song.from(SongsGlobalVars.allSongs))
+                                SongsGlobalVars.playingQueue.apply {
+                                    if (this.contains(song.from(SongsGlobalVars.allSongs))) {
+                                        this.remove(song.from(SongsGlobalVars.allSongs))
+                                    }
+                                    this.add(song.from(SongsGlobalVars.allSongs)!!)
                                 }
-                                this.add(song.from(SongsGlobalVars.allSongs)!!)
+
+
+
+                                if(playlist!=null){
+                                    myMediaPlayer.openPlaylist(playlist)
+                                }
+
+                                myMediaPlayer.start()
                             }
 
-                            myMediaPlayer.start()
+                            Log.i(
+                                Logs.MEDIA_SOUND.toString(),
+                                "Mediaplayer song set to ${currentlyPlayingSong?.title}"
+                            )
+
+
                         }
 
-
-                        Log.i(Logs.MEDIA_SOUND.toString(), "Mediaplayer song set to ${currentlyPlayingSong?.title}")
-
-
-
                     }
-                }
+                }catch (exception: FileNotFoundException){
+                    Log.e(Logs.FILE_IO.name,"File not found while setting song!",exception.cause)
+                    if(currentlyPlayingSong!=null) {
+                        myMediaPlayer.setSong(currentlyPlayingSong?.from(SongsGlobalVars.allSongs)!!)
+                        myMediaPlayer.seekTo(savedCurrentPosition.toLong())
+                    }
 
+                }
 
 
             }

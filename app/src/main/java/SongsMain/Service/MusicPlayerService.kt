@@ -1,14 +1,13 @@
-package SongsMain.Tutorial
-
+package SongsMain.Service
 
 import DataClasses_Ojects.Logs
+import Functions.Images
 import SongsMain.Classes.Events
 import SongsMain.Classes.Song
-import SongsMain.Variables.SongsGlobalVars
 import SongsMain.Classes.myMediaPlayer
 import SongsMain.SongMain_Activity
+import SongsMain.Variables.SongsGlobalVars
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
@@ -18,13 +17,14 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.media3.session.MediaLibraryService
+import androidx.media3.session.MediaSession
 import com.example.composepls.R
 import de.greenrobot.event.EventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
-import androidx.media3.session.MediaLibraryService
 
 class MusicPlayerService: MediaLibraryService() {
 
@@ -155,7 +155,7 @@ class MusicPlayerService: MediaLibraryService() {
 
 
 
-     fun CreateNotification(song:Song?=null,setSongAsStarted:Boolean=false){
+     fun CreateNotification(song: Song?=null, setSongAsStarted:Boolean=false,sendToBackground:Boolean=false){
 
 
          val play_pause_icon = if (myMediaPlayer._Playing || myMediaPlayer.isPlaying || setSongAsStarted) {
@@ -178,21 +178,24 @@ class MusicPlayerService: MediaLibraryService() {
 
 
 
-            val song_art = Functions.Images.loadFromFile(File(SONG?.thumbnail?:""))
+            val song_art = Images.loadFromFile(File(SONG?.thumbnail ?: ""))
 
 
             val metadata = MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, myMediaPlayer.currentlyPlayingSong?.title ?: "<unknown>")
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,myMediaPlayer.currentlyPlayingSong?.author ?: "<unknown>")
+                .putString(
+                    MediaMetadataCompat.METADATA_KEY_ARTIST,
+                    myMediaPlayer.currentlyPlayingSong?.author ?: "<unknown>")
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, myMediaPlayer.mediaplayer.duration.toLong())
                 .apply {
 
                     if(song_art!=null){
-                        putBitmap(MediaMetadataCompat.METADATA_KEY_ART,
+                        putBitmap(
+                            MediaMetadataCompat.METADATA_KEY_ART,
                         song_art)
                     }
                     else{
-                        val bitmap =  Functions.Images.getBitmapFromDrawable(R.drawable.blank_gray_musical_note)
+                        val bitmap =  Images.getBitmapFromDrawable(R.drawable.blank_gray_musical_note)
                         Log.i(Logs.MEDIA_IMAGES.name,"Value of song_art is ${bitmap.toString()}")
                         putBitmap(MediaMetadataCompat.METADATA_KEY_ART,bitmap)
                     }
@@ -260,7 +263,13 @@ class MusicPlayerService: MediaLibraryService() {
                 }
                 .build()
 
-            startForeground(NOTIFICATION_ID, notification)
+            if(!sendToBackground) {
+                startForeground(NOTIFICATION_ID, notification)
+            }
+            else{
+                stopForeground(STOP_FOREGROUND_DETACH)
+            }
+
         }
     }
 
@@ -317,7 +326,7 @@ class MusicPlayerService: MediaLibraryService() {
 
     private fun setupMediaSession(){
 
-        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
 
         audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
             .setOnAudioFocusChangeListener(audioFocusChangeListener)
@@ -335,9 +344,8 @@ class MusicPlayerService: MediaLibraryService() {
 
 
 
-    fun onEvent(event:Events.SongWasPaused){
-        CreateNotification()
-        stopForeground(STOP_FOREGROUND_DETACH)
+    fun onEvent(event: Events.SongWasPaused){
+        CreateNotification(sendToBackground = true)
     }
 
 
@@ -353,7 +361,7 @@ class MusicPlayerService: MediaLibraryService() {
         }
     }
 
-    fun onEvent(event:Events.SongWasStarted){
+    fun onEvent(event: Events.SongWasStarted){
 
         //myMediaPlayer.mediaplayer.pause()
 
@@ -370,7 +378,7 @@ class MusicPlayerService: MediaLibraryService() {
 
         CreateNotification(myMediaPlayer.currentlyPlayingSong,true)
     }
-    fun onEvent(event:Events.SongWas_UsedSeek){
+    fun onEvent(event: Events.SongWas_UsedSeek){
         CreateNotification()
     }
 
@@ -430,7 +438,7 @@ class MusicPlayerService: MediaLibraryService() {
 
 
 
-    override fun onGetSession(controllerInfo: androidx.media3.session.MediaSession.ControllerInfo): MediaLibrarySession? {
+    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaLibrarySession? {
         TODO("Not yet implemented")
     }
 

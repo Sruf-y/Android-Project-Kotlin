@@ -71,11 +71,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
                 myMediaPlayer.initializeMediaPlayer()
 
-
-                if (myMediaPlayer.iPrepared_)
-                    myMediaPlayer.reset()
-                myMediaPlayer.setSong(song)
-                myMediaPlayer.openPlaylist(SongsGlobalVars.publicSongs)
+                myMediaPlayer.setSong(song,SongsGlobalVars.publicSongs)
                 myMediaPlayer.start()
             }, {song->
 
@@ -137,6 +133,12 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
         bus.register(this)
 
         audioRecycler.post {
+
+
+            requireView().findViewById<ProgressBar>(R.id.progbar).visibility = View.GONE
+
+            audioRecycler.visibility = View.VISIBLE
+
             onEvent(Events.SongWasChanged(null, myMediaPlayer.currentlyPlayingSong))
         }
 

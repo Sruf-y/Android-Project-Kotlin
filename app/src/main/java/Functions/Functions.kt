@@ -5,7 +5,7 @@ import SongsMain.Classes.ModifiedItem
 import SongsMain.Classes.TypeOfUpdate
 import SongsMain.SongMain_Activity
 import SongsMain.Tutorial.Application
-import SongsMain.Tutorial.MusicPlayerService
+import SongsMain.Service.MusicPlayerService
 import android.app.Activity
 import android.app.ActivityManager
 import android.app.ActivityOptions
@@ -764,59 +764,46 @@ fun WriteStringInFile(context:Context,filename:String,message:String) {
 
 
 
-fun AskForPermissionsAtStart(activityContext:Activity, permissions:List<String>){
-
-
-    val requestPermissionLauncher = androidx.fragment.app.Fragment().registerForActivityResult(RequestPermission()){}
-
-    for(permission:String in permissions){
-        try {
-            when {
-                ContextCompat.checkSelfPermission(
-                    activityContext,
-                    permission
-                ) == PackageManager.PERMISSION_GRANTED -> {
-                    // You can use the API that requires the permission.
-                    // SUCCESS->
-                }
-
-                ActivityCompat.shouldShowRequestPermissionRationale(
-                    activityContext,
-                    permission
-                ) -> {
-                    // In an educational UI, explain to the user why your app requires this
-                    // permission for a specific feature to behave as expected, and what
-                    // features are disabled if it's declined. In this UI, include a
-                    // "cancel" or "no thanks" button that lets the user continue
-                    // using your app without granting the permission.
-
-
-                    // PERMISSION FULLY DENIED ->
-                    val permisions_are_ok = VerifyPermissions(activityContext,GlobalValues.System.RequiredPermissions.subList(0,2))
-
-                    if (!permisions_are_ok) {
-                        OpenAppSettings(activityContext)
-                    }
-                }
-                else -> {
-                    // You can directly ask for the permission.
-                    // The registered ActivityResultCallback gets the result of this request.
-                    requestPermissionLauncher.launch(permission)
-
-
-                    val permisions_are_ok = VerifyPermissions(activityContext,GlobalValues.System.RequiredPermissions.subList(0,2))
-
-                    if (!permisions_are_ok) {
-                        OpenAppSettings(activityContext)
+fun AskForPermissionsAtStart(activityContext: Activity, permissions: List<String>,rudimentaryFunction:Boolean=false) {
+    if (!rudimentaryFunction)
+        for (permission in permissions) {
+            try {
+                when {
+                    ContextCompat.checkSelfPermission(
+                        activityContext,
+                        permission
+                    ) == PackageManager.PERMISSION_GRANTED -> {
+                        // Already granted
                     }
 
+                    ActivityCompat.shouldShowRequestPermissionRationale(
+                        activityContext,
+                        permission
+                    ) -> {
+                        // Fully denied -> explain or redirect
+                        if (!VerifyPermission(activityContext, permission)) {
+                            OpenAppSettings(activityContext)
+                            return
+                        }
+                    }
+
+                    else -> {
+                        // Ask permission
+                        ActivityCompat.requestPermissions(activityContext, permissions.toTypedArray(), 0)
+                        // After result, you must handle in onRequestPermissionsResult or switch to ActivityResult API
+                    }
                 }
+            } catch (ex: Exception) {
+                Log.i("EXCEPTIONS", "Permission exception: ${ex.message}")
             }
-        }catch (ex: Exception){
-            android.util.Log.i("EXCEPTIONS","Permission exception: "+ex.message.toString())
+        }
+
+    else{
+        // just open the damn settings if any permission is missing
+        if(!VerifyPermissions(activityContext,permissions)){
+            OpenAppSettings(activityContext)
         }
     }
-
 }
 
 fun VerifyPermission(activityContext:Activity,Manifest_permission:String):Boolean{

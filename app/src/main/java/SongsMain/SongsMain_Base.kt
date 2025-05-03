@@ -12,6 +12,7 @@ import SongsMain.Tutorial.Application
 import SongsMain.Variables.MusicAppSettings
 import Utilities.Utils.Companion.dP
 import android.content.pm.ActivityInfo
+import android.graphics.Shader
 import android.media.Image
 import android.os.Bundle
 import android.util.Log
@@ -41,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -227,6 +229,9 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         //expandedinitial settings
         expanded_Seekbar=requireView().findViewById(R.id.expanded_seekbar)
         expanded_Background=requireView().findViewById(R.id.expanded_background)
+        expanded_Background.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(
+            20F, 20F,
+            Shader.TileMode.REPEAT))
         expanded_musicTitle=requireView().findViewById(R.id.expanded_title)
         //expanded_SkipForward
         //expanded_SkipBackward
@@ -239,6 +244,10 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         //collapsed values initial settings
 
         bottomsheetCol_musicBackground=requireView().findViewById(R.id.bottomSheetCollapsedBackground)
+        // This applies a blur effect
+        bottomsheetCol_musicBackground.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(
+            5F, 5f,
+            Shader.TileMode.REPEAT))
         bottomsheetCol_musicImage=requireView().findViewById(R.id.bottomSheetCollapsedImage)
         bottomsheetCol_musictitle=requireView().findViewById(R.id.serviceColorCode)
         bottomsheetCol_musicToggle=requireView().findViewById(R.id.bottomSheetCollapsedToggle)
@@ -315,8 +324,8 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
             }
 
             override fun onStopTrackingTouch(p0: SeekBar?) {
-                if(myMediaPlayer.isPlaying)
-                    myMediaPlayer.seekTo(((myprogress.toFloat()/100)* myMediaPlayer.currentlyPlayingSong!!.duration).toLong())
+                if(myMediaPlayer.currentlyPlayingSong!=null)
+                    myMediaPlayer.seekTo(myprogress.toLong())
                 expanded_Seekbar.progress=myprogress
                 progressViewModel2.startUpdates()
 
@@ -352,7 +361,8 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
     fun onEvent(event: Events.SongWasStarted) {
 
-        //for collapsed
+
+
         progressViewModel.startUpdates()
         requireView().findViewById<CheckBox>(R.id.colapsedCheckbox).isChecked=true
 
@@ -366,6 +376,12 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
         if(event.currentSong!=null) {
+
+            //for collapsed
+
+            expanded_Seekbar.max = event.currentSong.duration.toInt()
+            progressbarCol.max=event.currentSong.duration.toInt()
+
             if (File(event.currentSong?.thumbnail).exists()) {
                 Glide.with(Application.instance)
                     .load(event.currentSong.thumbnail)
@@ -377,10 +393,13 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
                     .fitCenter()
                     .into(bottomsheetCol_musicBackground)
 
+
                 Glide.with(Application.instance)
                     .load(event.currentSong.thumbnail)
                     .fitCenter()
                     .into(expanded_Background)
+
+
             } else {
                 Glide.with(Application.instance)
                     .load(R.drawable.blank_gray_musical_note)

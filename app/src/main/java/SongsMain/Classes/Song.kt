@@ -63,11 +63,14 @@ class Song(
      .epochSecond
    }
 
-
+    /**
+     *
+     *
+     *
+     * */
    fun compareAndCompleteTheFirst(resultInto: ArrayList<Song>, val2: ArrayList<Song>) {
 
-    //updating
-       val listOfNeededToDelete = ArrayList<Song>()
+
 
 
     resultInto.forEach {
@@ -80,17 +83,11 @@ class Song(
                     it.isHidden = val2[this].isHidden
                     it.timesListened = val2[this].timesListened
                     it.lastPlayed = val2[this].lastPlayed
+                    it.title=val2[this].title
                 }
             }
         }
-        else{
-            listOfNeededToDelete.remove(it)
-        }
     }
-
-       listOfNeededToDelete.forEach {
-           resultInto.remove(it)
-       }
 
 
    }

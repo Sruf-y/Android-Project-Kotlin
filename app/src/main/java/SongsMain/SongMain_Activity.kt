@@ -3,6 +3,7 @@ package SongsMain
 import DataClasses_Ojects.Logs
 import Functions.AskForPermissionsAtStart
 import Functions.Images.decodeSampledBitmapFromUri
+import Functions.ViewAttributes
 import Functions.concatenateWith
 import SongsMain.Classes.Events
 import SongsMain.Classes.Playlist
@@ -10,11 +11,10 @@ import SongsMain.Classes.Song
 import SongsMain.Classes.Song.Companion.takeYourPartFromGlobal
 import SongsMain.Variables.SongsGlobalVars
 import SongsMain.Classes.myMediaPlayer
-import SongsMain.Tabs.Music_App_Settings
+import SongsMain.Variables.Music_App_Settings
 import SongsMain.Tutorial.Application
-import SongsMain.Tutorial.MusicPlayerService
+import SongsMain.Service.MusicPlayerService
 import SongsMain.Variables.MusicAppSettings
-import SongsMain.Variables.MusicAppSettings.restoreSettings
 import android.content.ContentUris
 import android.content.Intent
 import android.content.res.Configuration
@@ -62,10 +62,14 @@ class SongMain_Activity : AppCompatActivity(){
     var saveBuffer_free=true
     var restoreBuffer_free=true
 
+
     lateinit var fragmentContainer: FragmentContainerView
     lateinit var drawer: DrawerLayout
+    lateinit var navView: NavigationView
 
      companion object ActiveTracker {
+         lateinit var serviceIntent:Intent
+
         var isRunningAnywhere: Boolean = true
         var isPaused: Boolean=false
     }
@@ -80,8 +84,7 @@ class SongMain_Activity : AppCompatActivity(){
         SongMain_Activity.ActiveTracker.isRunningAnywhere=true
         SongMain_Activity.ActiveTracker.isPaused=false
 
-        // restore app settings
-        restoreSettings()
+
 
 
 
@@ -106,7 +109,7 @@ class SongMain_Activity : AppCompatActivity(){
 
         enableEdgeToEdge(myStatusBarStyle, myNavigationBarStyle)
 
-        val navView: NavigationView = requireViewById(R.id.navView)
+        navView = requireViewById(R.id.navView)
 
 
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -156,10 +159,16 @@ class SongMain_Activity : AppCompatActivity(){
 
 
 
+
         // should be getting initialized in the service launcher
         //myMediaPlayer.initializeMediaPlayer(this)
 
         bus.register(this)
+
+
+        // restore app settings
+        MusicAppSettings.restoreSettings()
+        onEvent(Events.SettingsWereChanged())
 
 
         myMediaPlayer.initializeMediaPlayer()
@@ -171,7 +180,15 @@ class SongMain_Activity : AppCompatActivity(){
 
     }
 
+    fun onEvent(event:Events.MakeCurrentMainFragment){
+        makeCurrentFragment(fragmentContainer,event.fragment)
+    }
 
+    fun onEvent(event: Events.SettingsWereChanged){
+        MusicAppSettings.applySettings(null,{
+            ViewAttributes(navView).Background().Set(this,MusicAppSettings.theme)
+        })
+    }
 
 
     fun onEvent(event:Events.ReturnToMainBase){
@@ -180,7 +197,9 @@ class SongMain_Activity : AppCompatActivity(){
     }
 
     fun onEvent(event:Events.SearchButtonPressed){
-        makeCurrentFragment(fragmentContainer, SongsMain.search::class.java)
+        val intent = Intent(this, search::class.java)
+
+        startActivity(intent)
     }
 
 
@@ -196,20 +215,17 @@ class SongMain_Activity : AppCompatActivity(){
         drawer.open()
     }
 
-    lateinit var serviceIntent:Intent
+
 
     fun onEvent(event:Events.RequestGlobalDataUpdate){
 
-        CoroutineScope(Dispatchers.Main).launch {
-            SongsGlobalVars.allSongs.clear()
-            SongsGlobalVars.allSongs.addAll(doSongsQuery(true))
-
-            bus.post(Events.GlobalDataWasUpdated())
-        }
+        doStartDataLoad()
 
     }
 
     fun onEvent( event: Events.SongWasStarted){
+
+
         startMusicService()
     }
 
@@ -263,10 +279,13 @@ class SongMain_Activity : AppCompatActivity(){
     override fun onResume() {
         super.onResume()
         SongMain_Activity.ActiveTracker.isPaused=false
+
     }
 
 
-
+    /**
+     * Application start loading of data and distribution.
+     * */
     fun doStartDataLoad(){
         if(SongsGlobalVars.refreshBufferIsFree) {
             SongsGlobalVars.refreshBufferIsFree=false
@@ -402,8 +421,7 @@ class SongMain_Activity : AppCompatActivity(){
                         SongsGlobalVars.publicSongs.add(it)
                     }
                 }
-                SongsGlobalVars.publicSongs.songsList?.sortBy { p->p.title }
-                SongsGlobalVars.hiddenSongs.songsList?.sortBy { p->p.title }
+
 
                 restoreBuffer_free=true
             }
@@ -434,8 +452,7 @@ class SongMain_Activity : AppCompatActivity(){
                     SongsGlobalVars.publicSongs.songsList?.add(it)
                 }
             }
-            SongsGlobalVars.publicSongs.songsList?.sortBy { p->p.title }
-            SongsGlobalVars.hiddenSongs.songsList?.sortBy { p->p.title }
+
 
             true
         }

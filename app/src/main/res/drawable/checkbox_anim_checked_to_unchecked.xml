@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/favorite_heart_checked">
+
+    <target android:name="path">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="500"
+                    android:propertyName="fillColor"
+                    android:valueFrom="@color/blue"
+                    android:valueTo="@color/transparent"
+                    android:valueType="colorType" />
+
+
+
+                <objectAnimator
+                    android:duration="500"
+                    android:propertyName="strokeColor"
+                    android:valueFrom="@color/blue"
+                    android:valueTo="@color/white"
+                    android:valueType="colorType" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="resizingGroup">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="500"
+                    android:propertyName="scaleX"
+                    android:valueFrom="1.1"
+                    android:valueTo="1"
+                    android:valueType="floatType" />
+                <objectAnimator
+                    android:duration="500"
+                    android:propertyName="scaleY"
+                    android:valueFrom="1.1"
+                    android:valueTo="1"
+                    android:valueType="floatType" />
+            </set>
+        </aapt:attr>
+    </target>
+
+</animated-vector>

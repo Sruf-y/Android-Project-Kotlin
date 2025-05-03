@@ -2,16 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" >
 
-
-
-
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-
-
-
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <supports-screens
         android:largeScreens="true"
@@ -20,14 +13,11 @@
         android:smallScreens="true" />
 
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-
     <!--
  Required only if your app needs to access images or photos
      that other apps created.
     -->
-
-      <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <!--
  Required only if your app needs to access videos
          that other apps created.
@@ -38,13 +28,9 @@
  Required only if your app needs to access audio files
          that other apps created.
     -->
-
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
-
     <uses-feature android:name="android.hardware.camera" />
-
-    <!-- <uses-permission android:name="android.permission.CAMERA" />                                    -->
 
     <application
         android:name="SongsMain.Tutorial.Application"
@@ -55,9 +41,10 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/comehere"
         android:supportsRtl="true"
-        android:theme="@style/Theme.BotofanThemeNoActionBar"
-         >
-
+        android:theme="@style/Theme.BotofanThemeNoActionBar" >
+        <activity
+            android:name="SongsMain.Tabs.FullScreenSong"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -72,12 +59,8 @@
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-
-
-
-
-
-        <!-- <activity
+        <!--
+ <activity
             android:name="StorageTest.StorageMainActivity"
             android:exported="false" />
         <activity
@@ -86,7 +69,11 @@
         <activity
             android:name=".addAlarmActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" /> -->
+            android:windowSoftInputMode="adjustResize" />
+        -->
+        <activity
+            android:name="SongsMain.search"
+            android:exported="false" />
 
         <receiver
             android:name="Signals_Receivers.wakeupReceiver"
@@ -102,7 +89,7 @@
             android:name="SongsMain.SongMain_Activity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:resizeableActivity="true">
+            android:resizeableActivity="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -110,11 +97,10 @@
             </intent-filter>
         </activity>
 
-        <service android:name="SongsMain.Tutorial.MusicPlayerService"
-            android:foregroundServiceType="mediaPlayback"
-            android:exported="false"/>
-
-
+        <service
+            android:name="SongsMain.Service.MusicPlayerService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
     </application>
 
 </manifest>
