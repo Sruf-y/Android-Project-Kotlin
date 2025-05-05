@@ -1,11 +1,13 @@
 package SongsMain.Tabs
 
+import Functions.Images
 import SongsMain.Classes.Events
 import SongsMain.Classes.Playlist
 import SongsMain.Classes.PlaylistListAdapter
 import SongsMain.Classes.Song
 import SongsMain.Classes.SongListAdapter
 import SongsMain.Classes.myMediaPlayer
+import SongsMain.Tutorial.Application
 import SongsMain.Variables.SongsGlobalVars
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -13,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -21,9 +24,11 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
 import com.example.composepls.R
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import de.greenrobot.event.EventBus
+import java.util.concurrent.atomic.AtomicReference
 
 class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
 
@@ -40,14 +45,22 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
     lateinit var refreshLayout: SwipeRefreshLayout
     lateinit var collapsingToolbarLayout: CollapsingToolbarLayout
 
+    lateinit var playlist_thumbnail_imageview: ImageView
+
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        bus.apply {
+            if(!this.isRegistered(this@Playlist_Viewing))
+                this.register(this@Playlist_Viewing)
+        }
+
         collapsingToolbarLayout=requireView().findViewById(R.id.collapsingToolbarLayout)
         main=requireView().findViewById(R.id.main)
         refreshLayout=requireView().findViewById(R.id.swiperefresh)
+        playlist_thumbnail_imageview=requireView().findViewById(R.id.playlist_viewing_image)
 
         arguments?.let {
             try {
@@ -59,19 +72,28 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
 
         if(playlist!=null){
 
+
+                Glide.with(Application.instance)
+                    .asDrawable()
+                    .load(playlist!!.thumbnail?:R.drawable.blank_gray_musical_note)
+                    .placeholder(R.drawable.blank_gray_musical_note)
+                    .error(R.drawable.blank_gray_musical_note)
+                    .into(playlist_thumbnail_imageview)
+
+
             collapsingToolbarLayout.title = playlist!!.title
 
             audiorecycler=view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.audiorecycler)
 
             adaptor = SongListAdapter(
-                ArrayList<Song>(),
+                ArrayList(),
                 requireContext(),
                 {song->
 
 
                     myMediaPlayer.initializeMediaPlayer()
 
-                    myMediaPlayer.setSong(song,SongsGlobalVars.publicSongs)
+                    myMediaPlayer.setSong(song,AtomicReference(playlist))
                     myMediaPlayer.start()
 
                 },
@@ -139,8 +161,16 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
     }
 
 
+    override fun onDestroy() {
+        super.onDestroy()
 
-    // TODO // create an instance with the given arguments, this works KIND OF like a constructor
+        bus.apply {
+            if(this.isRegistered(this@Playlist_Viewing))
+                this.unregister(this@Playlist_Viewing)
+        }
+    }
+
+    // TODO just to make this green // create an instance with the given arguments, this works KIND OF like a constructor
     companion object {
         fun newInstance(playlist:Playlist): Playlist_Viewing {
             val fragment = Playlist_Viewing()

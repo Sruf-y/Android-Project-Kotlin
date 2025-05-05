@@ -87,6 +87,7 @@ data class Playlist(var title: String,var songsList: ArrayList<Song>?=null,var i
         other as Playlist
 
         if (title != other.title) return false
+        if(thumbnail!=other.thumbnail) return false
 
         return true
     }

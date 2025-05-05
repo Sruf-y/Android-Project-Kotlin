@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -10,81 +9,81 @@
     android:layout_height="match_parent"
     tools:context="SongsMain.Tabs.FullScreenSong">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appbar"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbarLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/transparent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="50dp"
+            android:background="@color/backgrounds"
+            app:collapsedTitleTextColor="@color/white"
+            app:contentScrim="?attr/colorPrimary"
+            app:layout_collapseMode="none"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:titleCollapseMode="scale"
+            app:toolbarId="@+id/toolbar">
 
-            <com.google.android.material.appbar.CollapsingToolbarLayout
-                android:id="@+id/collapsingToolbarLayout"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constr"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@color/backgrounds"
-                app:collapsedTitleTextColor="@color/white"
-                app:contentScrim="?attr/colorPrimary"
-                app:layout_collapseMode="none"
-                app:layout_scrollFlags="scroll"
-                app:titleCollapseMode="scale"
-                app:toolbarId="@+id/toolbar">
+                android:layout_height="match_parent"
+                android:background="@color/transparent"
+                app:layout_collapseMode="none">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/constr"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/transparent"
-                    app:layout_collapseMode="none">
+                <ImageView
+                    android:id="@+id/plusButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/ripple_circle"
+                    android:backgroundTint="@color/backgrounds"
+                    android:clickable="true"
+                    android:padding="5dp"
+                    android:scaleType="center"
+                    app:layout_constraintBottom_toBottomOf="@+id/optionsButton"
+                    app:layout_constraintEnd_toStartOf="@+id/optionsButton"
+                    app:layout_constraintTop_toTopOf="@+id/optionsButton"
+                    app:layout_constraintVertical_bias="1.0"
+                    app:srcCompat="@drawable/add_material_default" />
 
-                    <ImageView
-                        android:id="@+id/plusButton"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:background="@drawable/ripple_circle"
-                        android:backgroundTint="@color/backgrounds"
-                        android:clickable="true"
-                        android:padding="5dp"
-                        android:scaleType="center"
-                        app:layout_constraintBottom_toBottomOf="@+id/optionsButton"
-                        app:layout_constraintEnd_toStartOf="@+id/optionsButton"
-                        app:layout_constraintTop_toTopOf="@+id/optionsButton"
-                        app:layout_constraintVertical_bias="1.0"
-                        app:srcCompat="@drawable/add_material_default" />
+                <ImageView
+                    android:id="@+id/optionsButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/ripple_circle"
+                    android:backgroundTint="@color/backgrounds"
+                    android:clickable="true"
+                    android:padding="5dp"
+                    android:scaleType="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0"
+                    app:srcCompat="@drawable/options_vertical_default" />
 
-                    <ImageView
-                        android:id="@+id/optionsButton"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:background="@drawable/ripple_circle"
-                        android:backgroundTint="@color/backgrounds"
-                        android:clickable="true"
-                        android:padding="5dp"
-                        android:scaleType="center"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="1.0"
-                        app:srcCompat="@drawable/options_vertical_default" />
+                <TextView
+                    android:id="@+id/nrofPlaylists"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="Playlists: x"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/plusButton"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/plusButton" />
 
-                    <TextView
-                        android:id="@+id/textView3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:text="Playlists: x"
-                        android:textSize="20sp"
-                        app:layout_constraintBottom_toBottomOf="@+id/plusButton"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/plusButton" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </com.google.android.material.appbar.CollapsingToolbarLayout>
-        </com.google.android.material.appbar.AppBarLayout>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swiperefresh"
@@ -96,6 +95,6 @@
             android:id="@+id/audiorecycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:overScrollMode="never" />
+            android:overScrollMode="ifContentScrolls" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

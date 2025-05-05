@@ -1,7 +1,6 @@
 package SongsMain.Classes
 
 import androidx.fragment.app.Fragment
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 object Events {
 
@@ -21,6 +20,12 @@ object Events {
     class SettingsWereChanged()
     class MakeCurrentMainFragment(val fragment: Fragment)
     class MakeCurrent_BottomSheet_Fragment(val fragment: Fragment)
+
+    object PlaylistEvents{
+        class NotifyAdded()
+        class NotifyDeleted(val playlistToDelete: Playlist?)
+        class NotifyChanged(val previousTitle:String,val playlistThatChanged: Playlist?)
+    }
 
 
     //class ShowSetting_BottomDialog(val bottomDialog: BottomSheetDialogFragment)

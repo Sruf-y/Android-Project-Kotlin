@@ -403,11 +403,7 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet) {
     fun applySettings(){
         MusicAppSettings.applySettings(mutableListOf(main,scena1,scena2))
 
-        when(MusicAppSettings.orientation){
-            0->{requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_PORTRAIT }
-            1->{requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED}
-            2->{requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE}
-        }
+
     }
 
 

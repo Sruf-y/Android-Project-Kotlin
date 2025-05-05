@@ -26,11 +26,12 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import kotlinx.coroutines.CoroutineScope
+import java.util.concurrent.atomic.AtomicReference
 
 class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
-
+    lateinit var loadingScreen: ProgressBar
     lateinit var swipe_to_refresh: SwipeRefreshLayout
     lateinit var audioRecycler: RecyclerView
     lateinit var adaptor: SongListAdapter
@@ -38,6 +39,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
     lateinit var recyclerLayoutManager: LinearLayoutManager
 
     var recycleState: Parcelable?=null
+
 
     val designatedList: ArrayList<Song>
         get() {
@@ -64,7 +66,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
         audioRecycler = requireView().findViewById(R.id.songView);
-
+        loadingScreen = requireView().findViewById<ProgressBar>(R.id.progbar)
 
         Log.i("TESTS", "SimplesongList created once! +${LocalTime.now()}")
 
@@ -76,7 +78,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
                 myMediaPlayer.initializeMediaPlayer()
 
-                myMediaPlayer.setSong(song,SongsGlobalVars.publicSongs)
+                myMediaPlayer.setSong(song,AtomicReference(SongsGlobalVars.publicSongs))
                 myMediaPlayer.start()
             }, {song->
 
@@ -121,7 +123,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
                 bus.post(Events.RequestGlobalDataUpdate())
                 audioRecycler.visibility=View.GONE
 
-                requireView().findViewById<ProgressBar>(R.id.progbar).visibility=View.VISIBLE
+                loadingScreen.visibility=View.VISIBLE
             }
         }
 
@@ -140,7 +142,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
         audioRecycler.post {
 
 
-            requireView().findViewById<ProgressBar>(R.id.progbar).visibility = View.GONE
+            loadingScreen.visibility = View.GONE
 
             audioRecycler.visibility = View.VISIBLE
 
@@ -208,7 +210,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
 
-            requireView().findViewById<ProgressBar>(R.id.progbar).visibility=View.GONE
+            loadingScreen.visibility=View.GONE
 
             audioRecycler.visibility=View.VISIBLE
 

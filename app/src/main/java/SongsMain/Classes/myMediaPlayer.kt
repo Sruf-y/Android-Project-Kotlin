@@ -9,6 +9,7 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.core.net.toUri
+import androidx.lifecycle.AtomicReference
 import de.greenrobot.event.EventBus
 import okio.FileNotFoundException
 import java.io.File
@@ -28,7 +29,7 @@ object myMediaPlayer {
 
 
     var currentlyPlayingSong:Song? = null
-    var currentPlaylist: Playlist? = null
+    var currentPlaylist: AtomicReference<Playlist>?=null
     var isLoopingInPlaylist:Boolean = false // in the future if i add a loop button
 
 
@@ -80,14 +81,14 @@ object myMediaPlayer {
         }
     }
 
-    fun openPlaylist(playlist: Playlist?){
+    fun openPlaylist(playlist: AtomicReference<Playlist>){
         if(isInitialized){
             if(playlist!=null){
 
-                if(playlist.songsList!=null)
+                if(playlist.get().songsList!=null)
                 {
 
-                    if(playlist.songsList!!.isNotEmpty()){
+                    if(playlist.get().songsList!!.isNotEmpty()){
                         myMediaPlayer.currentPlaylist=playlist
                         Log.i("TESTS","(myMediaPlayer) Playlist was open succesfully")
                         // tells it to play the next in playlist IF the playlist was initialized. This means it will play until it stops finding a "next" song.
@@ -105,13 +106,13 @@ object myMediaPlayer {
         if(isInitialized){
             if(this.currentPlaylist!=null){
 
-                if(currentPlaylist!!.hasNextAfter(myMediaPlayer.currentlyPlayingSong!!))
+                if(currentPlaylist!!.get().hasNextAfter(myMediaPlayer.currentlyPlayingSong!!))
                 {
-                    val currentIndex:Int = currentPlaylist!!.songsList!!.indexOf(currentlyPlayingSong)
+                    val currentIndex:Int = currentPlaylist!!.get().songsList!!.indexOf(currentlyPlayingSong)
 
 
                     myMediaPlayer.reset()
-                    myMediaPlayer.setSong(currentPlaylist?.songsList!![currentIndex+1].from(
+                    myMediaPlayer.setSong(currentPlaylist?.get()?.songsList!![currentIndex+1].from(
                         SongsGlobalVars.allSongs)!!)
                 }
             }
@@ -121,11 +122,11 @@ object myMediaPlayer {
     fun playPreviousInPlaylist(){
         if(isInitialized ) {
             if (this.currentPlaylist != null) {
-                if(currentPlaylist!!.hasPreviousBefore(currentlyPlayingSong!!))
+                if(currentPlaylist!!.get().hasPreviousBefore(currentlyPlayingSong!!))
                 {
-                    val currentIndex:Int = currentPlaylist!!.songsList!!.indexOf(currentlyPlayingSong)
+                    val currentIndex:Int = currentPlaylist!!.get().songsList!!.indexOf(currentlyPlayingSong)
                     myMediaPlayer.reset()
-                    this.setSong(currentPlaylist!!.songsList!![currentIndex-1])
+                    this.setSong(currentPlaylist!!.get().songsList!![currentIndex-1])
                 }
             }
         }
@@ -144,7 +145,7 @@ object myMediaPlayer {
     }
 
 
-    fun setSong(song:Song,playlist: Playlist?=null) {
+    fun setSong(song:Song,playlist: AtomicReference<Playlist>?=null) {
 
         val savedCurrentPosition = myMediaPlayer.mediaplayer.currentPosition
 
@@ -187,11 +188,17 @@ object myMediaPlayer {
                                 song.from(SongsGlobalVars.allSongs)?.lastPlayed =
                                     LocalDateTime.now().toString()
 
-                                SongsGlobalVars.playingQueue.apply {
-                                    if (this.contains(song.from(SongsGlobalVars.allSongs))) {
-                                        this.remove(song.from(SongsGlobalVars.allSongs))
+
+                                SongsGlobalVars.RecentlyPlayed.apply {
+                                    if(this.songsList!=null) {
+                                        if (this.songsList!!.isNotEmpty() && this.songsList!!.contains(
+                                                song.from(SongsGlobalVars.allSongs)
+                                            )
+                                        ) {
+                                            this.songsList!!.remove(song.from(SongsGlobalVars.allSongs))
+                                        }
+                                        this.add(song.from(SongsGlobalVars.allSongs)!!)
                                     }
-                                    this.add(song.from(SongsGlobalVars.allSongs)!!)
                                 }
 
 

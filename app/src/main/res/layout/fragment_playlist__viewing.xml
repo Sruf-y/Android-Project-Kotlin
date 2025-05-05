@@ -5,7 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="SongsMain.Tabs.FullScreenSong">
+    android:backgroundTintMode="multiply"
+    tools:context="SongsMain.SongMain_Activity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -48,8 +49,26 @@
                 android:id="@+id/constr"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/transparent"
+                android:background="@drawable/thin_underline"
+                android:backgroundTint="#30979595"
                 app:layout_collapseMode="pin">
+
+                <ImageView
+                    android:id="@+id/playlist_viewing_image"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_gravity="center|end"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:clipToOutline="true"
+                    android:scaleType="fitCenter"
+                    app:layout_collapseMode="none"
+                    app:layout_constraintBottom_toTopOf="@+id/plusButton"
+                    app:layout_constraintEnd_toStartOf="@+id/plusButton"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="@+id/guideline5"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
 
                 <ImageView
                     android:id="@+id/plusButton"
@@ -76,6 +95,15 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="1.0"
                     app:srcCompat="@drawable/options_vertical_default" />
+
+
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_end="250dp" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

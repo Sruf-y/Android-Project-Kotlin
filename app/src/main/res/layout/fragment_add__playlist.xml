@@ -21,6 +21,18 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5">
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintGuide_percent="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5" />
+
         <EditText
             android:id="@+id/editPlaylistName"
             android:layout_width="0dp"
@@ -38,12 +50,11 @@
             android:textColorHint="#A6A4A4"
             android:textSize="16sp"
             android:translationZ="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/guideline2"
             app:layout_constraintEnd_toStartOf="@+id/constraintLayout4"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.19999999" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout4"
@@ -83,33 +94,40 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/flexboxLayout2"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            app:flexWrap="wrap"
+            app:justifyContent="space_around"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editPlaylistName"
-            app:layout_constraintVertical_bias="0.5">
+            app:layout_constraintTop_toTopOf="@+id/guideline2">
 
             <Button
                 android:id="@+id/cancelButton"
-                style="@style/AndreiButonStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="40dp"
-                android:text="Cancel" />
+                android:background="@drawable/default_button_andrei"
+                android:paddingVertical="15dp"
+                android:text="Cancel"
+                android:textSize="20sp"
+                tools:layout_editor_absoluteX="47dp" />
 
             <Button
                 android:id="@+id/confirmButton"
-                style="@style/AndreiButonStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="40dp"
-                android:text="Confirm" />
-        </LinearLayout>
+                android:background="@drawable/default_button_andrei"
+                android:backgroundTint="@color/ConfirmTint"
+                android:backgroundTintMode="src_over"
+                android:paddingVertical="15dp"
+                android:text="Confirm"
+                android:textSize="20sp"
+                tools:layout_editor_absoluteX="249dp" />
+        </com.google.android.flexbox.FlexboxLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

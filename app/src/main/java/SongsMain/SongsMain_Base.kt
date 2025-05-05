@@ -103,12 +103,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
 
-//        selectedTab = savedInstanceState?.getInt("SELECTED_TAB", 0) ?: 0
-//
-//        Functions.getSharedPrefferencesStorage(Application.instance).apply {
-//            selectedTab=this!!.getInt("Base tab",0)
-//
-//        }
+
         applySettings()
 
 
@@ -210,7 +205,8 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt("SELECTED_TAB", tabsView.selectedTabPosition)
+
+
 
     }
 

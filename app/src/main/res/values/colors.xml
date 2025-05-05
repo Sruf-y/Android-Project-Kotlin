@@ -8,6 +8,9 @@
     <color name="invertedLiftedBackgrounds">#1D1D1D</color>
 
     <color name="flash_glow_for_items">#7EFFFFFF</color>
+    <color name="ConfirmTint">#274FE015</color>
+    <color name="DeleteTint">#49F80404</color>
+
 
 
     <!-- Primary Colors -->

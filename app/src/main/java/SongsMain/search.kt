@@ -20,6 +20,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.AtomicReference
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.composepls.R
@@ -67,7 +68,7 @@ class search : AppCompatActivity() {
 
                 myMediaPlayer.initializeMediaPlayer()
 
-                myMediaPlayer.setSong(song,SongsGlobalVars.publicSongs)
+                myMediaPlayer.setSong(song, AtomicReference(SongsGlobalVars.publicSongs))
                 myMediaPlayer.start()
 
             }, { song ->

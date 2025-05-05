@@ -1,44 +1,34 @@
 package SongsMain.BottomSheetDialogs
 
 import Functions.ViewAttributes
+import SongsMain.Classes.Events
+import SongsMain.Classes.Playlist
 import SongsMain.Variables.MusicAppSettings
 import SongsMain.Variables.SongsGlobalVars
-import SongsMain.bottomSheetFragment
 import Utilities.Utils.Companion.dP
+import android.app.Application
 import android.app.Dialog
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.LayoutInflater
+import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
-import android.view.WindowInsets
-import android.view.WindowInsetsAnimation
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.compose.ui.unit.lerp
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.ContextCompat.getColor
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.doOnLayout
-import androidx.core.view.updatePadding
 import com.example.composepls.R
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.greenrobot.event.EventBus
-import kotlin.math.max
 
 
 private const val ARG_PARAM1 = "title"
@@ -84,6 +74,9 @@ class Add_Playlist : BottomSheetDialogFragment(R.layout.fragment_add__playlist) 
         cancelButton=requireView().findViewById(R.id.cancelButton)
         confirmButton=requireView().findViewById(R.id.confirmButton)
 
+        if(title!=null) {
+            editPlaylistName.setText(title)
+        }
 
         //Functions.setInsetsforItems(mutableListOf(main))
 
@@ -105,6 +98,14 @@ class Add_Playlist : BottomSheetDialogFragment(R.layout.fragment_add__playlist) 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 // Called *as* the text is changing
 
+                // constantly set the text as white, in case text was made red by pressing "Confirm" for a pre-existing playlist
+                editPlaylistName.setTextColor(resources.getColor(R.color.white))
+
+                ViewAttributes(confirmButton).BackgroundTint().Set(SongsMain.Tutorial.Application.instance,R.color.ConfirmTint)
+                confirmButton.isEnabled=true
+
+
+
                 charcounter.text=s?.length.toString()
                 if((s?.length ?: 0) > maxchar){
                     // if name is invalid, too long
@@ -121,6 +122,8 @@ class Add_Playlist : BottomSheetDialogFragment(R.layout.fragment_add__playlist) 
 
             }
         })
+
+
 
 
 
@@ -170,6 +173,61 @@ class Add_Playlist : BottomSheetDialogFragment(R.layout.fragment_add__playlist) 
 
 
                 Functions.setAnimationForKeyboard(bottomSheet)
+
+
+                //TODO nothing, just green //////////////////////////////////////////////////////////
+
+
+
+
+                cancelButton.setOnClickListener {
+                    dialog.dismiss()
+                }
+
+
+                confirmButton.setOnClickListener {
+                    editPlaylistName.text.length.apply {
+                        if(this>0 && this<maxchar && !(SongsGlobalVars.listOfAllPlaylists.get().map { p->p.title }.contains(editPlaylistName.text.toString()))){
+                            if(title==null) {
+                                SongsGlobalVars.userMadePlaylists.add(
+                                    Playlist(
+                                        editPlaylistName.text.toString(),
+                                        ArrayList()
+                                    )
+                                )
+                                SongsGlobalVars.listOfAllPlaylists.reload()
+                                SongsGlobalVars.SongsStorageOperations.SaveSpecifficList.List_Of_Playlists()
+                                bus.post(Events.PlaylistEvents.NotifyAdded())
+                                dialog.dismiss()
+                            }else{
+                                // title was given, is in rename mode
+                                val songToChange = SongsGlobalVars.userMadePlaylists.find { p->p.title==title }
+                                SongsGlobalVars.userMadePlaylists.find { p->p.title==title }?.title=editPlaylistName.text.toString()
+                                SongsGlobalVars.listOfAllPlaylists.reload()
+                                SongsGlobalVars.SongsStorageOperations.SaveSpecifficList.List_Of_Playlists()
+                                bus.post(Events.PlaylistEvents.NotifyChanged(title.toString(),songToChange))
+
+                                dialog.dismiss()
+
+                            }
+                        }
+                        else{
+
+                            if(this>0)
+                                Toast.makeText(SongsMain.Tutorial.Application.instance,"Playlist already exists.",Toast.LENGTH_SHORT).show()
+                            else if(this>=maxchar)
+                            {/*NO OP*/}
+                            else
+                                Toast.makeText(SongsMain.Tutorial.Application.instance,"Add a title.",Toast.LENGTH_SHORT).show()
+
+                            confirmButton.isEnabled=false
+                            ViewAttributes(confirmButton).BackgroundTint().Set(SongsMain.Tutorial.Application.instance,R.color.gray_light)
+
+                            editPlaylistName.setTextColor(resources.getColor(R.color.red))
+                        }
+
+                    }
+                }
 
             }
         }

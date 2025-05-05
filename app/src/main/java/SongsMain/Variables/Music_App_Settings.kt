@@ -56,14 +56,14 @@ class Music_App_Settings : Fragment(R.layout.fragment_music__app__settings) {
                 when(id){
                     R.id.radioButton->{
                         MusicAppSettings.orientation=0
-                        requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_PORTRAIT}
+                        requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT}
                     R.id.radioButton2->{
                         MusicAppSettings.orientation=1
                         requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                     }
                     R.id.radioButton3->{
                         MusicAppSettings.orientation=2
-                        requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                        requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
                     }
                 }
             }

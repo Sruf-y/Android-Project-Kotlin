@@ -4,6 +4,7 @@ package SongsMain.Classes
 import SongsMain.Tutorial.Application
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +24,7 @@ import java.io.File
 
 
 
-class PlaylistListAdapter(var mList:ArrayList<Playlist>, val context:Context, var onItemClick:(Playlist)->Unit, var onItemLongPress:(Playlist)->Unit)
+class PlaylistListAdapter(var mList:ArrayList<Playlist>, val context:Context, var onItemClick:(Playlist)->Unit, var onItemLongPress:(Playlist)->Unit,var onOptionsButtonPress:(Playlist)->Unit)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     init {
@@ -99,7 +100,10 @@ class PlaylistListAdapter(var mList:ArrayList<Playlist>, val context:Context, va
 //             }
 
 
+            displayOptionsButton.setOnClickListener {
+                onOptionsButtonPress(playlist)
 
+            }
 
             itemView.setOnClickListener {
 
