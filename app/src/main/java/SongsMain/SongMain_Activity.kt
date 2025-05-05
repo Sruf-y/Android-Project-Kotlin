@@ -15,7 +15,9 @@ import SongsMain.Variables.Music_App_Settings
 import SongsMain.Tutorial.Application
 import SongsMain.Service.MusicPlayerService
 import SongsMain.Variables.MusicAppSettings
+import android.app.Activity
 import android.content.ContentUris
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -28,9 +30,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePaddingRelative
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
@@ -85,7 +89,7 @@ class SongMain_Activity : AppCompatActivity(){
         SongMain_Activity.ActiveTracker.isPaused=false
 
 
-
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
 
 
@@ -95,7 +99,7 @@ class SongMain_Activity : AppCompatActivity(){
         if (savedInstanceState == null) {
             Log.i("TESTS","(Main_Activity) Activity set the initial fragment! +${LocalTime.now()}")
 
-            makeCurrentFragment(fragmentContainer, SongsMain.SongsMain_Base::class.java)
+            makeCurrentFragment(fragmentContainer, SongsMain.bottomSheetFragment())
 
         }
 
@@ -146,7 +150,7 @@ class SongMain_Activity : AppCompatActivity(){
 
                 when(id){
                     R.id.nav_settings->{
-                        makeCurrentFragment(fragmentContainer,Music_App_Settings::class.java)
+                        makeCurrentFragment(fragmentContainer,Music_App_Settings(),addtoBackStack = true)
                         return true
                     }
                 }
@@ -181,7 +185,7 @@ class SongMain_Activity : AppCompatActivity(){
     }
 
     fun onEvent(event:Events.MakeCurrentMainFragment){
-        makeCurrentFragment(fragmentContainer,event.fragment)
+        makeCurrentFragment(fragmentContainer,event.fragment, addtoBackStack = true)
     }
 
     fun onEvent(event: Events.SettingsWereChanged){
@@ -191,10 +195,7 @@ class SongMain_Activity : AppCompatActivity(){
     }
 
 
-    fun onEvent(event:Events.ReturnToMainBase){
-        makeCurrentFragment(fragmentContainer, SongsMain.SongsMain_Base::class.java)
 
-    }
 
     fun onEvent(event:Events.SearchButtonPressed){
         val intent = Intent(this, search::class.java)
@@ -241,18 +242,33 @@ class SongMain_Activity : AppCompatActivity(){
         }
     }
 
-    
 
 
 
 
 
+//    private fun replaceCurrentFragment(activity: FragmentActivity, container: FragmentContainerView, fragmentClass: Class<out Fragment>, args:Bundle=Bundle()) {
+//        activity.supportFragmentManager.commit {
+//            setReorderingAllowed(true)
+//            replace(container.id, fragmentClass, args, fragmentClass.name)
+//        }
+//    }
 
-    private fun makeCurrentFragment(container: FragmentContainerView, fragmentClass: Class<out Fragment>) {
-        supportFragmentManager.commit {
-            setReorderingAllowed(true)
-            replace(container.id, fragmentClass, null, fragmentClass.name)
+    private fun makeCurrentFragment(container: FragmentContainerView, fragment: Fragment,addtoBackStack:Boolean=false) {
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.setReorderingAllowed(true)
+        if(addtoBackStack)
+            transaction.addToBackStack(null)
+
+        // Remove any existing fragment in the container
+        val currentFragment = supportFragmentManager.findFragmentById(container.id)
+        if (currentFragment != null) {
+            transaction.remove(currentFragment)
         }
+
+        // Add the new fragment with arguments
+        transaction.add(container.id, fragment, fragment::class.java.name)
+        transaction.commit()
     }
 
     override fun onDestroy() {
@@ -400,7 +416,7 @@ class SongMain_Activity : AppCompatActivity(){
                 SongsGlobalVars.MyFavoritesPlaylist = Functions.loadFromJson(
                     Application.instance,
                     "Favorites",
-                    Playlist("Recently Played", null, true)
+                    Playlist("Favorites", null, true)
                 )
 
                 SongsGlobalVars.playingQueue.clear()

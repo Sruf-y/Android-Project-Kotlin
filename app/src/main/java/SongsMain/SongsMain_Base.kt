@@ -67,30 +67,14 @@ import java.time.LocalTime
 
 class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
-    private val progressViewModel: MediaProgressViewModel by viewModels()
-    private val progressViewModel2: MediaProgressViewModel by viewModels()
+
 
 
     lateinit var tabsView: TabLayout
     lateinit var tabholder: ViewPager2
     lateinit var main:ConstraintLayout
 
-    lateinit var scena1: ConstraintLayout
-    lateinit var scena2: ConstraintLayout
 
-    lateinit var bottomsheetCol_musicToggle: ConstraintLayout
-    lateinit var bottomsheetCol_musictitle: TextView
-    lateinit var bottomsheetCol_musicImage: ShapeableImageView
-    lateinit var bottomsheetCol_musicBackground: ImageView
-    lateinit var progressbarCol: ProgressBar
-
-    lateinit var expanded_musicToggle: ConstraintLayout
-    lateinit var expanded_musicToggleCheckbox: CheckBox
-    lateinit var expanded_SkipForward: ConstraintLayout
-    lateinit var expanded_SkipBackward: ConstraintLayout
-    lateinit var expanded_Seekbar: SeekBar
-    lateinit var expanded_Background: ImageView
-    lateinit var expanded_musicTitle: TextView
 
 
     val bus: EventBus = EventBus.getDefault()
@@ -104,6 +88,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -116,8 +101,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         tabsView = requireView().findViewById(R.id.tabLayout)
         appbar=requireView().findViewById(R.id.appbar)
 
-        scena1 = requireView().findViewById<ConstraintLayout>(R.id.scene1)
-        scena2 = requireView().findViewById<ConstraintLayout>(R.id.scene2)
+
 
 //        selectedTab = savedInstanceState?.getInt("SELECTED_TAB", 0) ?: 0
 //
@@ -151,140 +135,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
 
-        setInsetsforItems(mutableListOf(main))
 
-
-
-
-        val composeview: ComposeView = requireView().findViewById(R.id.composeview)
-
-
-        setInsetsforItems(mutableListOf(composeview))
-
-
-        val bottomsheet: ConstraintLayout = requireView().findViewById(R.id.bottomsheet)
-
-        val behavior = BottomSheetBehavior.from(bottomsheet).apply {
-
-            val value = 60.dP
-
-            this.peekHeight=value
-            Log.i("TESTS","PeekHeight of bottom sheet"+value.toString())
-
-
-            isGestureInsetBottomIgnored=true
-            this.state= BottomSheetBehavior.STATE_COLLAPSED
-        }
-
-
-        scena1.visibility=View.VISIBLE
-        scena2.visibility=View.GONE
-
-
-        behavior.addBottomSheetCallback(object:BottomSheetBehavior.BottomSheetCallback(){
-            override fun onStateChanged(bottomSheet: View, newState: Int){
-                when(newState){
-                    BottomSheetBehavior.STATE_COLLAPSED->{
-                        scena1.visibility=View.VISIBLE
-                        scena2.visibility=View.GONE
-                    }
-
-                    BottomSheetBehavior.STATE_DRAGGING -> {
-
-                    }
-
-                    BottomSheetBehavior.STATE_EXPANDED -> {
-                        scena1.visibility=View.GONE
-                        scena2.visibility=View.VISIBLE
-                    }
-
-                    BottomSheetBehavior.STATE_HALF_EXPANDED -> {
-
-                    }
-
-                    BottomSheetBehavior.STATE_HIDDEN -> {
-
-                    }
-
-                    BottomSheetBehavior.STATE_SETTLING -> {
-
-                    }
-                }
-            }
-
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-
-                scena1.alpha=Functions.map(slideOffset,0F,1F,1F,0F)
-                scena2.alpha= slideOffset
-
-                scena1.visibility=View.VISIBLE
-                scena2.visibility=View.VISIBLE
-            }
-        })
-
-
-
-
-
-        //expandedinitial settings
-        expanded_Seekbar=requireView().findViewById(R.id.expanded_seekbar)
-        expanded_Background=requireView().findViewById(R.id.expanded_background)
-        expanded_Background.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(
-            20F, 20F,
-            Shader.TileMode.REPEAT))
-        expanded_musicTitle=requireView().findViewById(R.id.expanded_title)
-        //expanded_SkipForward
-        //expanded_SkipBackward
-        expanded_musicToggle=requireView().findViewById(R.id.expanded_play_pause)
-        expanded_musicToggleCheckbox=requireView().findViewById(R.id.expanded_checkbox)
-
-
-
-
-        //collapsed values initial settings
-
-        bottomsheetCol_musicBackground=requireView().findViewById(R.id.bottomSheetCollapsedBackground)
-        // This applies a blur effect
-        bottomsheetCol_musicBackground.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(
-            5F, 5f,
-            Shader.TileMode.REPEAT))
-        bottomsheetCol_musicImage=requireView().findViewById(R.id.bottomSheetCollapsedImage)
-        bottomsheetCol_musictitle=requireView().findViewById(R.id.serviceColorCode)
-        bottomsheetCol_musicToggle=requireView().findViewById(R.id.bottomSheetCollapsedToggle)
-
-
-        //setup progressbar
-        progressbarCol = requireView().findViewById(R.id.songProgressBar)
-
-
-        progressViewModel.progress.observe(viewLifecycleOwner) { progress ->
-            progressbarCol.progress = progress
-        }
-        progressViewModel2.progress.observe(viewLifecycleOwner){progress->
-            expanded_Seekbar.progress= progress
-        }
-
-
-
-
-        // auto-rolling textview
-        bottomsheetCol_musictitle.isSelected = true;
-
-
-        bottomsheetCol_musicToggle.setOnClickListener {
-
-            myMediaPlayer.toggle()
-        }
-        expanded_musicToggle.setOnClickListener {
-            myMediaPlayer.toggle()
-        }
-
-
-        val radius:Float = 15F.dP.toFloat();
-        bottomsheetCol_musicImage.setShapeAppearanceModel(bottomsheetCol_musicImage.getShapeAppearanceModel()
-            .toBuilder()
-            .setAllCorners(CornerFamily.ROUNDED,radius)
-            .build());
 
 
         // restore the appbar's state
@@ -300,42 +151,15 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
 
-        composeview.setContent {
-            //ComposeViewInterrior()
-        }
 
 
-        onEvent(Events.SongWasChanged(null, myMediaPlayer.currentlyPlayingSong))
-        bus.register(this)
 
 
-        expanded_Seekbar.setOnSeekBarChangeListener(object:SeekBar.OnSeekBarChangeListener{
-            var myprogress = 0
-            override fun onProgressChanged(
-                p0: SeekBar?,
-                p1: Int,
-                p2: Boolean
-            ) {
-                myprogress = p0!!.progress
-            }
 
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-                progressViewModel2.stopUpdates()
-            }
 
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-                if(myMediaPlayer.currentlyPlayingSong!=null)
-                    myMediaPlayer.seekTo(myprogress.toLong())
-                expanded_Seekbar.progress=myprogress
-                progressViewModel2.startUpdates()
 
-            }
-        })
 
-        if(myMediaPlayer.currentlyPlayingSong!=null){
-            progressViewModel2.startUpdates()
-            progressViewModel.startUpdates()
-        }
+
 
 
     }
@@ -348,87 +172,9 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
 
-    fun onEvent(event:SongWasPaused) {
-
-        //for collapsed
-        progressViewModel.stopUpdates()
-        requireView().findViewById<CheckBox>(R.id.colapsedCheckbox).isChecked=false
-
-        //for expanded
-        progressViewModel2.stopUpdates()
-        expanded_musicToggleCheckbox.isChecked=false
-    }
-
-    fun onEvent(event: Events.SongWasStarted) {
 
 
 
-        progressViewModel.startUpdates()
-        requireView().findViewById<CheckBox>(R.id.colapsedCheckbox).isChecked=true
-
-        //for expanded
-        progressViewModel2.startUpdates()
-        expanded_musicToggleCheckbox.isChecked=true
-    }
-
-    fun onEvent(event:Events.SongWasChanged){
-        //for collapsed
-
-
-        if(event.currentSong!=null) {
-
-            //for collapsed
-
-            expanded_Seekbar.max = event.currentSong.duration.toInt()
-            progressbarCol.max=event.currentSong.duration.toInt()
-
-            if (File(event.currentSong?.thumbnail).exists()) {
-                Glide.with(Application.instance)
-                    .load(event.currentSong.thumbnail)
-                    .centerCrop()
-                    .into(bottomsheetCol_musicImage)
-
-                Glide.with(Application.instance)
-                    .load(event.currentSong.thumbnail)
-                    .fitCenter()
-                    .into(bottomsheetCol_musicBackground)
-
-
-                Glide.with(Application.instance)
-                    .load(event.currentSong.thumbnail)
-                    .fitCenter()
-                    .into(expanded_Background)
-
-
-            } else {
-                Glide.with(Application.instance)
-                    .load(R.drawable.blank_gray_musical_note)
-                    .centerCrop()
-                    .into(bottomsheetCol_musicImage)
-
-                Glide.with(Application.instance)
-                    .load(R.drawable.blank_gray_musical_note)
-                    .fitCenter()
-                    .into(bottomsheetCol_musicBackground)
-
-                Glide.with(Application.instance)
-                    .load(R.drawable.blank)
-                    .fitCenter()
-                    .into(expanded_Background)
-            }
-
-            bottomsheetCol_musictitle.text = event.currentSong.title
-            expanded_musicTitle.text = event.currentSong.title
-
-            progressViewModel.startUpdates()
-            progressViewModel2.startUpdates()
-            requireView().findViewById<CheckBox>(R.id.colapsedCheckbox).isChecked= myMediaPlayer.isPlaying
-            expanded_musicToggleCheckbox.isChecked= myMediaPlayer.isPlaying
-
-
-
-        }
-    }
 
 
     private fun setupViewPager() {
@@ -455,13 +201,8 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
     fun applySettings(){
-        MusicAppSettings.applySettings(mutableListOf(main,scena1,scena2))
+        MusicAppSettings.applySettings(mutableListOf(main))
 
-        when(MusicAppSettings.orientation){
-            0->{requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_PORTRAIT }
-            1->{requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED}
-            2->{requireActivity().requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE}
-        }
     }
 
 
@@ -490,7 +231,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
 
-        bottomsheetCol_musictitle.isSelected = false;
+
     }
 
 
@@ -522,12 +263,6 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
 
-
-
-
-
-
-        bottomsheetCol_musictitle.isSelected = true;
     }
 
 

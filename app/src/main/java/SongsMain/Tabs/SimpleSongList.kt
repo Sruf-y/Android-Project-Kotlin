@@ -49,6 +49,11 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
     val bus: EventBus = EventBus.getDefault()
 
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if(!bus.isRegistered(this))
+            bus.register(this)
+    }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -130,7 +135,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
 
-        bus.register(this)
+
 
         audioRecycler.post {
 
@@ -282,7 +287,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
             audioRecycler.layoutManager?.onRestoreInstanceState(recycleState)
         }
 
-        audioRecycler.layoutManager?.onRestoreInstanceState(recycleState)
+        //audioRecycler.layoutManager?.onRestoreInstanceState(recycleState)
 
     }
 

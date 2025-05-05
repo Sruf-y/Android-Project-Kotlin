@@ -1,6 +1,7 @@
 package SongsMain.Classes
 
 import androidx.fragment.app.Fragment
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 object Events {
 
@@ -18,6 +19,10 @@ object Events {
     class SearchButtonPressed()
     class ReturnToMainBase()
     class SettingsWereChanged()
-    class MakeCurrentMainFragment(val fragment: Class<out Fragment>)
+    class MakeCurrentMainFragment(val fragment: Fragment)
+    class MakeCurrent_BottomSheet_Fragment(val fragment: Fragment)
+
+
+    //class ShowSetting_BottomDialog(val bottomDialog: BottomSheetDialogFragment)
 
 }

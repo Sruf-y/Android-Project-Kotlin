@@ -71,10 +71,18 @@
 
 
 
-
-
     <style name="SelectedTextAppearance">
         <item name="android:textStyle">bold</item>
+    </style>
+
+
+
+    <style name="ExpandedAppBar" parent="TextAppearance.AppCompat.Large">
+        <item name="android:textSize">25sp</item> <!-- expanded size -->
+    </style>
+
+    <style name="CollapsedAppBar" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">18sp</item> <!-- collapsed size -->
     </style>
 
 </resources>

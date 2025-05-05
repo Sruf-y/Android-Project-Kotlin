@@ -3,12 +3,17 @@ package SongsMain.Classes
 import DataClasses_Ojects.Logs
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.os.Parcelable
 import android.util.Log
 import com.example.composepls.R
+import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class Playlist(var title: String,var songsList: ArrayList<Song>?=null,var isUserOrdered:Boolean=true,var thumbnail: Int=R.drawable.blank_gray_musical_note) {
+
+@Parcelize
+data class Playlist(var title: String,var songsList: ArrayList<Song>?=null,var isUserOrdered:Boolean=true,var thumbnail: Int?=null):
+    Parcelable {
 
 
 
@@ -74,5 +79,21 @@ data class Playlist(var title: String,var songsList: ArrayList<Song>?=null,var i
         } as Boolean
         return false
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Playlist
+
+        if (title != other.title) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return title.hashCode()
+    }
+
 
 }

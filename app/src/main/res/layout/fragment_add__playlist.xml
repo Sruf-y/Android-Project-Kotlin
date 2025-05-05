@@ -1,0 +1,115 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/upper_rounded_corners"
+    android:clipToOutline="true"
+    android:fitsSystemWindows="true"
+    tools:context="SongsMain.BottomSheetDialogs.Add_Playlist">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main2"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@drawable/gradient_right_corner"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5">
+
+        <EditText
+            android:id="@+id/editPlaylistName"
+            android:layout_width="0dp"
+            android:layout_height="53dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/datapicker_background"
+            android:backgroundTint="#717070"
+            android:clipToOutline="true"
+            android:ems="10"
+            android:hint="Title"
+            android:inputType="text"
+            android:paddingHorizontal="10dp"
+            android:textColor="@color/white"
+            android:textColorHint="#A6A4A4"
+            android:textSize="16sp"
+            android:translationZ="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/constraintLayout4"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.19999999" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/datapicker_background"
+            android:backgroundTint="#D0999797"
+            android:clipToOutline="true"
+            android:padding="5dp"
+            android:translationZ="5dp"
+            app:layout_constraintBottom_toBottomOf="@+id/editPlaylistName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/editPlaylistName">
+
+            <TextView
+                android:id="@+id/nextToCharCounter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="/40"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5" />
+
+            <TextView
+                android:id="@+id/charcounter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="15"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/nextToCharCounter"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editPlaylistName"
+            app:layout_constraintVertical_bias="0.5">
+
+            <Button
+                android:id="@+id/cancelButton"
+                style="@style/AndreiButonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="40dp"
+                android:text="Cancel" />
+
+            <Button
+                android:id="@+id/confirmButton"
+                style="@style/AndreiButonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="40dp"
+                android:text="Confirm" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

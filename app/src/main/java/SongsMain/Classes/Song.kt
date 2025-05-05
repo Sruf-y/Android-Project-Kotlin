@@ -1,9 +1,13 @@
 package SongsMain.Classes
 
 import SongsMain.Variables.SongsGlobalVars
+import android.os.Parcelable
+import androidx.versionedparcelable.VersionedParcelize
+import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
 import java.time.ZoneId
 
+@Parcelize
 class Song(
  var songUri: String,
  var title: String,
@@ -14,14 +18,12 @@ class Song(
   .atZone(ZoneId.systemDefault())  // Convert to ZonedDateTime
   .toInstant()                     // Convert to Instant
   .epochSecond
-) : java.io.Serializable {
+) : java.io.Serializable, Parcelable {
 
   var timesListened:Int=0
   var lastPlayed:String? = null
   var isHidden:Boolean = false
   var isFavorite: Boolean = false
-
-
 
   constructor( songUri:String, title: String, thumbnail:String="", author:String, duration: Long, isHidden:Boolean,isFavorite:Boolean):this(songUri,title,thumbnail,author,duration){
    this.isHidden=isHidden

@@ -79,6 +79,8 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsAnimationCompat
+import androidx.core.view.WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updatePadding
@@ -128,7 +130,91 @@ import java.io.IOException
 //
 //}
 
+/**
+ * Requires the view to NOT be aware of the keyboard beforehand. Only other system insets
+ * */
+fun setAnimationForKeyboard(view: View,initialTranslationY:Float = 0f,typeMask:Int=WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()) {
+    ViewCompat.setWindowInsetsAnimationCallback(
+        view,
+        object : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+            var initialBottomInset = 0
 
+            var offset: Float = 0f
+
+
+            override fun onPrepare(animation: WindowInsetsAnimationCompat) {
+                super.onPrepare(animation)
+
+                initialBottomInset = ViewCompat.getRootWindowInsets(view)?.getInsets(WindowInsetsCompat.Type.ime())?.bottom ?: 0
+
+            }
+
+            override fun onStart(
+                animation: WindowInsetsAnimationCompat,
+                bounds: WindowInsetsAnimationCompat.BoundsCompat
+            ): WindowInsetsAnimationCompat.BoundsCompat {
+
+
+
+                return super.onStart(animation, bounds)
+            }
+
+
+
+            override fun onProgress(
+                insets: WindowInsetsCompat,
+                runningAnimations: List<WindowInsetsAnimationCompat?>
+            ): WindowInsetsCompat {
+                var currentImeBottom =
+                    insets.getInsets(WindowInsetsCompat.Type.ime()).toPlatformInsets().bottom
+
+
+                val progress = runningAnimations.firstOrNull()?.interpolatedFraction ?: 0f
+
+                val systembarsBottom =
+                    insets.getInsets(typeMask).bottom
+
+
+
+                if (currentImeBottom < initialBottomInset) {
+                    // keyboard going down
+
+                    //                                                                 inversedly map the progress for going down
+                    val auxoffset = -currentImeBottom.toFloat() + (systembarsBottom * Functions.map(progress.toFloat(), 0f, 1f, 1f, 0f))
+
+                    // apply the initial translationY as given by the parameter
+                    offset = auxoffset+initialTranslationY
+
+
+                } else if(currentImeBottom > initialBottomInset) {
+                    //keyboard going up
+
+                    val auxoffset = -currentImeBottom.toFloat() + (systembarsBottom * progress)
+
+                    offset = auxoffset + initialTranslationY
+                }
+
+
+                // set the translation of the view, it will return to the initial one upon the keyboard's closing
+                view.translationY = offset
+
+
+
+                return insets
+            }
+
+            override fun onEnd(animation: WindowInsetsAnimationCompat) {
+                super.onEnd(animation)
+
+                // NO OP
+
+                // Do not reset translation, as it will result in the view snapping back down (if ime insets were not accounted for, which should always be the case when using this)
+
+                //view.translationY = offset
+            }
+        }
+    )
+}
 
 class Extensions{
     companion object{

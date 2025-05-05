@@ -123,10 +123,14 @@ class Music_App_Settings : Fragment(R.layout.fragment_music__app__settings) {
                 File(requireContext().filesDir, "Settings")
             )
 
-            bus.post(Events.SettingsWereChanged())
-            bus.post(Events.ReturnToMainBase())
-            //isEnabled=false
 
+
+            bus.post(Events.SettingsWereChanged())
+
+
+            isEnabled=false
+
+            backbutton.onBackPressed()
         }
 
 
