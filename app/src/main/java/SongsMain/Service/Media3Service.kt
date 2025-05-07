@@ -46,7 +46,7 @@ class Media3Service : MediaSessionService() {
     val bus = EventBus.getDefault()
 
     private lateinit var notificationManager: PlayerNotificationManager
-    private lateinit var mediaSession: MediaSession
+
 
     override fun onCreate() {
         super.onCreate()
@@ -270,6 +270,7 @@ class Media3Service : MediaSessionService() {
     companion object {
         const val NOTIFICATION_ID = 110
         var isServiceRunning = false
+        lateinit var mediaSession: MediaSession
     }
 
 

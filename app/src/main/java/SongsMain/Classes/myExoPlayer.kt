@@ -2,6 +2,7 @@ package SongsMain.Classes
 
 import DataClasses_Ojects.Logs
 import SongsMain.Classes.Song.Companion.from
+import SongsMain.Classes.Song.Companion.toMediaItem
 import SongsMain.Tutorial.Application
 import SongsMain.Variables.SongsGlobalVars
 import android.content.Context
@@ -148,7 +149,10 @@ object myExoPlayer {
                     add(song.from(SongsGlobalVars.allSongs)!!)
                 }
 
-                playlist?.let { openPlaylist(it) }
+                playlist?.let {
+                    openPlaylist(it)
+                    //exoPlayer!!.setMediaItems(currentPlaylist!!.get().songsList!!.map { p->p.toMediaItem() })
+                }
                 start()
 
                 bus.post(Events.SongWasChanged(lastSong, currentlyPlayingSong))

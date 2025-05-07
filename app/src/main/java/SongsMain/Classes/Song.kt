@@ -36,20 +36,21 @@ class Song(
 
   }
 
-    // Add this to your Song class or as an extension
-    fun Song.toMediaItem(): MediaItem {
-        return MediaItem.Builder()
-            .setMediaId(this.id.toString())  // Unique identifier
-            .setUri(this.songUri)      // File path/URL
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(this.title)
-                    .setArtist(this.author)
-                    .setArtworkUri(File(this.thumbnail).toUri())
-                    .build()
-            ).build()
-    }
+
   companion object {
+      // Add this to your Song class or as an extension
+      fun Song.toMediaItem(): MediaItem {
+          return MediaItem.Builder()
+              .setMediaId(this.id.toString())  // Unique identifier
+              .setUri(this.songUri)      // File path/URL
+              .setMediaMetadata(
+                  MediaMetadata.Builder()
+                      .setTitle(this.title)
+                      .setArtist(this.author)
+                      .setArtworkUri(File(this.thumbnail).toUri())
+                      .build()
+              ).build()
+      }
 
       fun Song.from(list: ArrayList<Song>): Song? {
 

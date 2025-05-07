@@ -1,7 +1,9 @@
 package SongsMain.Service
 
+import android.R.attr.action
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.media3.common.Player
@@ -17,11 +19,22 @@ object MyMediaController {
     private val listeners = mutableListOf<Player.Listener>()
 
     fun initialize(context: Context) {
-        if (controllerFuture != null) return
+        if (controllerFuture != null || mediaController != null) return
+
+        // Ensure the service is running BEFORE connecting the controller
+        if (!Media3Service.isServiceRunning) {
+            ContextCompat.startForegroundService(
+                context,
+                Intent(context, Media3Service::class.java).apply {
+                    action = "ACTION_START_FOREGROUND"
+                }
+            )
+            return // Wait for the service to fully initialize before connecting
+        }
 
         controllerFuture = MediaController.Builder(
             context,
-            SessionToken(context, ComponentName(context, Media3Service::class.java))
+            Media3Service.mediaSession.token
         ).buildAsync().apply {
             addListener({
                 try {
@@ -34,6 +47,8 @@ object MyMediaController {
             }, ContextCompat.getMainExecutor(context))
         }
     }
+
+
 
     fun getController(): MediaController? = mediaController
 
