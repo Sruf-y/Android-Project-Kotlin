@@ -4,7 +4,8 @@ import DataClasses_Ojects.MediaProgressViewModel
 import Functions.setInsetsforItems
 import SongsMain.Classes.Events
 import SongsMain.Classes.Events.SongWasPaused
-import SongsMain.Classes.myMediaPlayer
+import SongsMain.Classes.myExoPlayer
+import SongsMain.Service.MyMediaController
 import SongsMain.Tutorial.Application
 import SongsMain.Variables.MusicAppSettings
 import Utilities.Utils.Companion.dP
@@ -21,9 +22,12 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.annotation.OptIn
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.viewModels
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import com.bumptech.glide.Glide
 import com.example.composepls.R
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -39,6 +43,9 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet) {
+
+
+
 
     private var param1: String? = null
     private var param2: String? = null
@@ -102,6 +109,7 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet) {
     }
 
 
+    @OptIn(UnstableApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -230,10 +238,10 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet) {
 
         bottomsheetCol_musicToggle.setOnClickListener {
 
-            myMediaPlayer.toggle()
+            myExoPlayer.toggle()
         }
         expanded_musicToggle.setOnClickListener {
-            myMediaPlayer.toggle()
+            myExoPlayer.toggle()
         }
 
 
@@ -245,7 +253,7 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet) {
 
 
         // to update the bottom_sheet on creating it
-        onEvent(Events.SongWasChanged(null, myMediaPlayer.currentlyPlayingSong))
+        onEvent(Events.SongWasChanged(null, myExoPlayer.currentlyPlayingSong))
 
 
         expanded_Seekbar.setOnSeekBarChangeListener(object:SeekBar.OnSeekBarChangeListener{
@@ -263,18 +271,23 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet) {
             }
 
             override fun onStopTrackingTouch(p0: SeekBar?) {
-                if(myMediaPlayer.currentlyPlayingSong!=null)
-                    myMediaPlayer.seekTo(myprogress.toLong())
+                if(myExoPlayer.currentlyPlayingSong!=null)
+                    myExoPlayer.seekTo(myprogress.toLong())
                 expanded_Seekbar.progress=myprogress
                 progressViewModel2.startUpdates()
 
             }
         })
 
-        if(myMediaPlayer.currentlyPlayingSong!=null){
+        if(myExoPlayer.currentlyPlayingSong!=null){
             progressViewModel2.startUpdates()
             progressViewModel.startUpdates()
         }
+
+
+
+
+
 
 
     }
@@ -335,6 +348,7 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet) {
         expanded_musicToggleCheckbox.isChecked=true
     }
 
+    @OptIn(UnstableApi::class)
     fun onEvent(event:Events.SongWasChanged){
         //for collapsed
 
@@ -386,8 +400,8 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet) {
 
             progressViewModel.startUpdates()
             progressViewModel2.startUpdates()
-            requireView().findViewById<CheckBox>(R.id.colapsedCheckbox).isChecked= myMediaPlayer.isPlaying
-            expanded_musicToggleCheckbox.isChecked= myMediaPlayer.isPlaying
+            requireView().findViewById<CheckBox>(R.id.colapsedCheckbox).isChecked= myExoPlayer.isPlaying
+            expanded_musicToggleCheckbox.isChecked= myExoPlayer.isPlaying
 
 
 

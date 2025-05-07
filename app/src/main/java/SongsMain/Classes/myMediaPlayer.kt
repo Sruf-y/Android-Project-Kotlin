@@ -7,15 +7,34 @@ import SongsMain.Tutorial.Application
 import SongsMain.Variables.SongsGlobalVars
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.os.Looper
 import android.util.Log
+import android.view.Surface
+import android.view.SurfaceHolder
+import android.view.SurfaceView
+import android.view.TextureView
 import androidx.core.net.toUri
 import androidx.lifecycle.AtomicReference
+import androidx.media3.common.DeviceInfo
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.PlaybackParameters
+import androidx.media3.common.Player
+import androidx.media3.common.Timeline
+import androidx.media3.common.TrackSelectionParameters
+import androidx.media3.common.Tracks
+import androidx.media3.common.VideoSize
+import androidx.media3.common.text.CueGroup
+import androidx.media3.common.util.Size
+import androidx.media3.common.util.UnstableApi
 import de.greenrobot.event.EventBus
 import okio.FileNotFoundException
 import java.io.File
 import java.time.LocalDateTime
 
-object myMediaPlayer {
+
+private object myMediaPlayer {
 
     val bus: EventBus = EventBus.getDefault()
     var mediaplayer: MediaPlayer = MediaPlayer()
@@ -246,7 +265,7 @@ object myMediaPlayer {
 
     }
 
-    fun stop() {
+     fun stop() {
         if(currentlyPlayingSong!=null && isPrepared) {
             Log.i("TESTS","Stop song requested")
             mediaplayer.stop()
@@ -281,11 +300,11 @@ object myMediaPlayer {
     }
         set(value) {_Playing=value}
 
-    fun getCurrentPosition(): Int {
+     fun getCurrentPosition(): Long {
 
         if(myMediaPlayer.currentlyPlayingSong!=null)
             return try{
-                mediaplayer.currentPosition
+                mediaplayer.currentPosition.toLong()
             }catch(ex: Exception){
                 ex.printStackTrace()
                 0
@@ -293,6 +312,7 @@ object myMediaPlayer {
         else
             return 0
     }
+
 
 
     fun reset() {
@@ -308,7 +328,7 @@ object myMediaPlayer {
         }
     }
 
-    fun release() {
+     fun release() {
         Log.i("TESTS","MEDIAPLAYER RELEASE requested")
         isPrepared=false
         isInitialized=false
@@ -318,7 +338,13 @@ object myMediaPlayer {
         mediaplayer.release()
     }
 
-    fun pause(){
+
+
+
+
+
+
+     fun pause(){
         if(currentlyPlayingSong!=null && isPrepared) {
             mediaplayer.pause()
             _Playing=false
@@ -326,6 +352,10 @@ object myMediaPlayer {
 
         }
     }
+
+
+
+
 
 
 

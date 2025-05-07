@@ -2,9 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/constrlayout"
     android:layout_width="match_parent"
     android:layout_height="70dp"
+    android:background="@drawable/ripple_circle_white"
     android:clickable="true"
     android:paddingHorizontal="15dp"
     app:cardCornerRadius="0dp">
@@ -19,11 +20,13 @@
         android:singleLine="true"
         android:text="Titluandreinowuacumamdajndsakdknsajdnsajkdnsajkdb"
         android:textColor="@color/white"
-        android:textSize="18sp"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/songOptions"
+        app:layout_constraintEnd_toStartOf="@+id/songCheck"
+        app:layout_constraintHorizontal_bias="0.14"
         app:layout_constraintStart_toEndOf="@+id/thumbnail"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.187" />
 
     <ImageView
         android:id="@+id/thumbnail"
@@ -38,19 +41,20 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5" />
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/songOptions"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@drawable/ripple_circle_white"
-        android:clickable="true"
-        android:scaleX="0.8"
-        android:scaleY="0.8"
-        android:src="@drawable/options_vertical_default"
+    <TextView
+        android:id="@+id/author"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:singleLine="true"
+        android:text="Author"
+        android:textColor="#C8C8C8"
+        android:textSize="13sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearance="@style/roundedImageViewRounded" />
+        app:layout_constraintEnd_toEndOf="@+id/title"
+        app:layout_constraintStart_toEndOf="@+id/thumbnail"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintVertical_bias="0.26" />
 
     <ImageView
         android:id="@+id/movementHandle"
@@ -63,4 +67,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5"
         app:srcCompat="@drawable/double_lines_horizontal_handle" />
+
+    <CheckBox
+        android:id="@+id/songCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/blank"
+        android:clickable="false"
+        android:longClickable="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,35 +2,53 @@ package SongsMain.Classes
 
 import SongsMain.Variables.SongsGlobalVars
 import android.os.Parcelable
+import androidx.core.net.toUri
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.versionedparcelable.VersionedParcelize
 import kotlinx.parcelize.Parcelize
+import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneId
 
 @Parcelize
 class Song(
+    var id:Long,
  var songUri: String,
  var title: String,
- var thumbnail: String? = "",
+ var thumbnail: String = "",
  var author: String,
  var duration: Long,
  var dateAdded: Long = LocalDateTime.now()
   .atZone(ZoneId.systemDefault())  // Convert to ZonedDateTime
   .toInstant()                     // Convert to Instant
-  .epochSecond
-) : java.io.Serializable, Parcelable {
+  .epochSecond,
+    var timesListened:Int=0,
+    var lastPlayed:String? = null,
+    var isHidden:Boolean = false,
+    var isFavorite: Boolean = false) : java.io.Serializable, Parcelable {
 
-  var timesListened:Int=0
-  var lastPlayed:String? = null
-  var isHidden:Boolean = false
-  var isFavorite: Boolean = false
 
-  constructor( songUri:String, title: String, thumbnail:String="", author:String, duration: Long, isHidden:Boolean,isFavorite:Boolean):this(songUri,title,thumbnail,author,duration){
+
+  constructor( id:Long,songUri:String, title: String, thumbnail:String="", author:String, duration: Long, isHidden:Boolean,isFavorite:Boolean):this(id,songUri,title,thumbnail,author,duration){
    this.isHidden=isHidden
    this.isFavorite=isFavorite
 
   }
 
+    // Add this to your Song class or as an extension
+    fun Song.toMediaItem(): MediaItem {
+        return MediaItem.Builder()
+            .setMediaId(this.id.toString())  // Unique identifier
+            .setUri(this.songUri)      // File path/URL
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setTitle(this.title)
+                    .setArtist(this.author)
+                    .setArtworkUri(File(this.thumbnail).toUri())
+                    .build()
+            ).build()
+    }
   companion object {
 
       fun Song.from(list: ArrayList<Song>): Song? {

@@ -2,10 +2,13 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constrlayout"
     android:layout_width="match_parent"
     android:layout_height="70dp"
+    android:background="@drawable/ripple_circle_white"
     android:clickable="true"
     android:paddingHorizontal="15dp"
+    android:clipChildren="false"
     app:cardCornerRadius="0dp">
 
     <TextView
@@ -55,17 +58,19 @@
         app:layout_constraintTop_toBottomOf="@+id/title"
         app:layout_constraintVertical_bias="0.26" />
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/songOptions"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:background="@drawable/ripple_circle_white"
         android:clickable="true"
         android:scaleX="0.8"
         android:scaleY="0.8"
         android:src="@drawable/options_vertical_default"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/roundedImageViewRounded" />
 
     <ImageView
         android:id="@+id/movementHandle"

@@ -6,7 +6,7 @@ import SongsMain.Classes.Playlist
 import SongsMain.Classes.PlaylistListAdapter
 import SongsMain.Classes.Song
 import SongsMain.Classes.SongListAdapter
-import SongsMain.Classes.myMediaPlayer
+import SongsMain.Classes.myExoPlayer
 import SongsMain.Tutorial.Application
 import SongsMain.Variables.SongsGlobalVars
 import android.os.Bundle
@@ -18,9 +18,11 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.OptIn
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -48,7 +50,7 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
     lateinit var playlist_thumbnail_imageview: ImageView
 
 
-
+    @OptIn(UnstableApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -91,10 +93,10 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
                 {song->
 
 
-                    myMediaPlayer.initializeMediaPlayer()
+                    myExoPlayer.initializePlayer(requireContext())
 
-                    myMediaPlayer.setSong(song,AtomicReference(playlist))
-                    myMediaPlayer.start()
+                    myExoPlayer.setSong(song,AtomicReference(playlist))
+                    myExoPlayer.start()
 
                 },
                 {song->
@@ -113,7 +115,7 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
             adaptor.updateData(playlist?.songsList?:ArrayList<Song>())
 
             audiorecycler.post {
-                onEvent(Events.SongWasChanged(null, myMediaPlayer.currentlyPlayingSong))
+                onEvent(Events.SongWasChanged(null, myExoPlayer.currentlyPlayingSong))
             }
 
         }else{

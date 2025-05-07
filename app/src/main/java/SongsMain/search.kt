@@ -3,8 +3,8 @@ package SongsMain
 import SongsMain.Classes.Events
 import SongsMain.Classes.Song
 import SongsMain.Classes.SongListAdapter
+import SongsMain.Classes.myExoPlayer
 import SongsMain.Variables.SongsGlobalVars
-import SongsMain.Classes.myMediaPlayer
 import SongsMain.Variables.MusicAppSettings
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -15,12 +15,14 @@ import android.widget.TextView
 import androidx.activity.SystemBarStyle
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AtomicReference
+import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.composepls.R
@@ -42,6 +44,7 @@ class search : AppCompatActivity() {
     lateinit var adaptor: SongListAdapter
 
 
+    @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fragment_search)
@@ -66,10 +69,9 @@ class search : AppCompatActivity() {
             this,
             {song->
 
-                myMediaPlayer.initializeMediaPlayer()
 
-                myMediaPlayer.setSong(song, AtomicReference(SongsGlobalVars.publicSongs))
-                myMediaPlayer.start()
+                myExoPlayer.setSong(song, AtomicReference(SongsGlobalVars.publicSongs))
+                myExoPlayer.start()
 
             }, { song ->
 
@@ -127,7 +129,7 @@ class search : AppCompatActivity() {
         bus.register(this)
 
         audioRecycler.post {
-            onEvent(Events.SongWasChanged(null, myMediaPlayer.currentlyPlayingSong))
+            onEvent(Events.SongWasChanged(null, myExoPlayer.currentlyPlayingSong))
         }
 
 

@@ -15,8 +15,8 @@ import java.util.LinkedList
 import java.util.Queue
 
 object SongsGlobalVars {
-    val CHANNEL_ID = "CHANNEL_ID"
-    val CHANNEL_NAME= "CHANNEL_NAME"
+    val CHANNEL_ID = "CHANNEL_ID_botofan"
+    val CHANNEL_NAME= "CHANNEL_NAME_botofan"
 
     fun musicDirectory(context:Context?=null):File{
         return File(Application.instance.filesDir,"MusicDir")

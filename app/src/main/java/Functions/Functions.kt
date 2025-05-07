@@ -5,7 +5,6 @@ import SongsMain.Classes.ModifiedItem
 import SongsMain.Classes.TypeOfUpdate
 import SongsMain.SongMain_Activity
 import SongsMain.Tutorial.Application
-import SongsMain.Service.MusicPlayerService
 import android.app.Activity
 import android.app.ActivityManager
 import android.app.ActivityOptions
@@ -347,17 +346,77 @@ object Images{
     suspend fun loadFromFile(fila: File?): Bitmap? {
         var file = fila
 
-        if(file!=null)
-        return withContext(Dispatchers.IO) {
+        if (file != null)
+            return withContext(Dispatchers.IO) {
 
+                // daca nu are extensie pus in nume, ceea ce e o eroare a mea deasa, pune default ca .jpg
+                if (!file.path.contains(".")) {
+                    file = File(file.path + ".jpg")
+                    Log.i(
+                        Logs.MEDIA_IMAGES.name,
+                        "Images.loadFromFile was given a extensionless filename. Assigning .jpg as default. Result: ${file.path}"
+                    )
+                }
+
+                if (file.exists()) {
+                    Log.i(Logs.MEDIA_IMAGES.name, "Images.loadFromFile a file that exists")
+                    try {
+                        if (file.length() <= 0)
+                            file.delete()
+                        val bytes = file.readBytes()
+
+                        if (bytes.size <= 0)
+                            file.delete()
+
+
+                        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                        if (bitmap != null) {
+
+                            try {
+                                Images.returnFixBitmapRotation(
+                                    bitmap,
+                                    file
+                                ) // the result is returned
+                            } catch (ex: Exception) {
+                                ex.printStackTrace()
+                                bitmap
+                            }
+                        } else {
+                            // Handle decode failure
+                            Log.e(Logs.MEDIA_IMAGES.name, "Could not decode image: ${file.name}")
+                            file.delete()
+                            null // mapNotNull will filter this out
+                        }
+                    } catch (e: Exception) {
+                        // Handle potential exceptions like OutOfMemoryError
+                        Log.e(Logs.MEDIA_IMAGES.name, "Error processing image: ${file.name}", e)
+                        file.delete()
+                        null // mapNotNull will filter this out
+                    }
+                } else {
+                    Log.i(Logs.MEDIA_IMAGES.name, "Images.loadFromFile a file that does NOT exist")
+                    null
+                }
+            }
+        else
+            return null
+    }
+
+    fun loadFromFileinSync(fila:File?):Bitmap?{
+        var file = fila
+
+        if (file != null) {
             // daca nu are extensie pus in nume, ceea ce e o eroare a mea deasa, pune default ca .jpg
-            if(!file.path.contains(".")){
-                file=File(file.path+".jpg")
-                Log.i(Logs.MEDIA_IMAGES.name,"Images.loadFromFile was given a extensionless filename. Assigning .jpg as default. Result: ${file.path}")
+            if (!file.path.contains(".")) {
+                file = File(file.path + ".jpg")
+                Log.i(
+                    Logs.MEDIA_IMAGES.name,
+                    "Images.loadFromFile was given a extensionless filename. Assigning .jpg as default. Result: ${file.path}"
+                )
             }
 
             if (file.exists()) {
-                Log.i(Logs.MEDIA_IMAGES.name,"Images.loadFromFile a file that exists")
+                Log.i(Logs.MEDIA_IMAGES.name, "Images.loadFromFile a file that exists")
                 try {
                     if (file.length() <= 0)
                         file.delete()
@@ -371,26 +430,29 @@ object Images{
                     if (bitmap != null) {
 
                         try {
-                            Images.returnFixBitmapRotation(bitmap, file) // the result is returned
+                            return Images.returnFixBitmapRotation(
+                                bitmap,
+                                file
+                            ) // the result is returned
                         } catch (ex: Exception) {
                             ex.printStackTrace()
-                            bitmap
+                            return bitmap
                         }
                     } else {
                         // Handle decode failure
                         Log.e(Logs.MEDIA_IMAGES.name, "Could not decode image: ${file.name}")
                         file.delete()
-                        null // mapNotNull will filter this out
+                        return null // mapNotNull will filter this out
                     }
                 } catch (e: Exception) {
                     // Handle potential exceptions like OutOfMemoryError
                     Log.e(Logs.MEDIA_IMAGES.name, "Error processing image: ${file.name}", e)
                     file.delete()
-                    null // mapNotNull will filter this out
+                    return null // mapNotNull will filter this out
                 }
             } else {
-                Log.i(Logs.MEDIA_IMAGES.name,"Images.loadFromFile a file that does NOT exist")
-                null
+                Log.i(Logs.MEDIA_IMAGES.name, "Images.loadFromFile a file that does NOT exist")
+                return null
             }
         }
         else

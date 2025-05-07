@@ -3,8 +3,8 @@ package SongsMain.Tabs
 import DataClasses_Ojects.Logs
 import SongsMain.Classes.Events
 import SongsMain.Classes.Song
-import SongsMain.Classes.myMediaPlayer
 import SongsMain.Classes.SongListAdapter
+import SongsMain.Classes.myExoPlayer
 import SongsMain.Variables.SongsGlobalVars
 import android.os.Bundle
 import android.util.Log
@@ -23,7 +23,9 @@ import android.os.Parcelable
 import android.view.animation.AnimationUtils
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.annotation.OptIn
 import androidx.core.content.ContextCompat
+import androidx.media3.common.util.UnstableApi
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.atomic.AtomicReference
@@ -58,6 +60,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
     }
 
 
+    @OptIn(UnstableApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -76,10 +79,10 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
             { song ->
 
 
-                myMediaPlayer.initializeMediaPlayer()
+                myExoPlayer.initializePlayer(requireContext())
 
-                myMediaPlayer.setSong(song,AtomicReference(SongsGlobalVars.publicSongs))
-                myMediaPlayer.start()
+                myExoPlayer.setSong(song,AtomicReference(SongsGlobalVars.publicSongs))
+                myExoPlayer.start()
             }, {song->
 
 
@@ -146,11 +149,12 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
             audioRecycler.visibility = View.VISIBLE
 
-            onEvent(Events.SongWasChanged(null, myMediaPlayer.currentlyPlayingSong))
+            onEvent(Events.SongWasChanged(null, myExoPlayer.currentlyPlayingSong))
         }
 
     }
 
+    @OptIn(UnstableApi::class)
     fun onEvent(event:Events.GlobalDataWasUpdated){
         Log.i("TESTS","Global data was updated via event and this is from simplesonglist")
 
@@ -216,8 +220,8 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
             //don't forget about visually setting the currently playing song
-            if(myMediaPlayer.currentlyPlayingSong!=null && adaptor.mList.contains(myMediaPlayer.currentlyPlayingSong)) {
-                (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(myMediaPlayer.currentlyPlayingSong))
+            if(myExoPlayer.currentlyPlayingSong!=null && adaptor.mList.contains(myExoPlayer.currentlyPlayingSong)) {
+                (recyclerLayoutManager.findViewByPosition(adaptor.mList.indexOf(myExoPlayer.currentlyPlayingSong))
                     ?.findViewById<TextView>(R.id.title))?.setTextColor(
                         ContextCompat.getColor(
                             requireContext(),

@@ -18,13 +18,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:stateListAnimator="@animator/appbarlayout_not_animated">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbarLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@color/backgrounds"
             app:collapsedTitleTextColor="@color/white"
             app:contentScrim="?attr/colorPrimary"
             app:layout_collapseMode="none"
@@ -43,7 +43,6 @@
                     android:id="@+id/plusButton"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:background="@drawable/ripple_circle"
                     android:backgroundTint="@color/backgrounds"
                     android:clickable="true"
                     android:padding="5dp"
@@ -58,8 +57,6 @@
                     android:id="@+id/optionsButton"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:background="@drawable/ripple_circle"
-                    android:backgroundTint="@color/backgrounds"
                     android:clickable="true"
                     android:padding="5dp"
                     android:scaleType="center"

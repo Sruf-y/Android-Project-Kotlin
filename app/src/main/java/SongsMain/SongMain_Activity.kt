@@ -8,16 +8,18 @@ import SongsMain.Classes.Events
 import SongsMain.Classes.Playlist
 import SongsMain.Classes.Song
 import SongsMain.Classes.Song.Companion.takeYourPartFromGlobal
+import SongsMain.Classes.myExoPlayer
 import SongsMain.Variables.SongsGlobalVars
-import SongsMain.Classes.myMediaPlayer
+import SongsMain.Service.Media3Service
+import SongsMain.Service.MyMediaController
 import SongsMain.Variables.Music_App_Settings
 import SongsMain.Tutorial.Application
-import SongsMain.Service.MusicPlayerService
 import SongsMain.Variables.MusicAppSettings
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.redistributeLists
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.refreshGlobalSongList
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.refreshSongLists
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.saveSongLists
+import android.content.ComponentName
 import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -28,8 +30,10 @@ import android.util.Log
 import android.view.MenuItem
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -38,8 +42,18 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionCommand
+import androidx.media3.session.SessionResult
+import androidx.media3.session.SessionToken
 import com.example.composepls.R
 import com.google.android.material.navigation.NavigationView
+import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.MoreExecutors
 import de.greenrobot.event.EventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,9 +72,14 @@ class OpenDrawerEvent()
 
 class SongMain_Activity : AppCompatActivity(){
 
+    private val controllerListener = object : Player.Listener {
+        override fun onPlaybackStateChanged(playbackState: Int){
 
+        }
+    }
 
     val bus:EventBus = EventBus.getDefault();
+
 
 
     lateinit var fragmentContainer: FragmentContainerView
@@ -74,6 +93,10 @@ class SongMain_Activity : AppCompatActivity(){
         var isPaused: Boolean=false
     }
 
+    var mediaController: MediaController? = null
+
+
+    @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -83,6 +106,9 @@ class SongMain_Activity : AppCompatActivity(){
 
         SongMain_Activity.ActiveTracker.isRunningAnywhere=true
         SongMain_Activity.ActiveTracker.isPaused=false
+
+
+
 
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -168,7 +194,10 @@ class SongMain_Activity : AppCompatActivity(){
 
 
 
-        myMediaPlayer.initializeMediaPlayer()
+        myExoPlayer.initializePlayer(this)
+
+        myExoPlayer.initializePlayer(this)
+
 
         MusicAppSettings.restoreSettings()
 
@@ -181,7 +210,52 @@ class SongMain_Activity : AppCompatActivity(){
         }
 
 
+
+
+
+
+        MyMediaController.initialize(this)
+
+
+
+
+
     }
+
+
+
+
+     fun updatePlaybackState() {
+        val isPlaying = mediaController?.isPlaying ?: false
+//        binding.playPauseButton.setImageResource(
+//            if (isPlaying) R.drawable.pause_button_music_player else R.drawable.play_button_music_player )
+
+         // same as underneath
+    }
+
+     fun updateMetadata() {
+        val song = mediaController?.currentMediaItem?.localConfiguration?.tag as? Song
+        song?.let {
+            // here i can get the song's info in case i need it for some ui or something
+        }
+    }
+
+    // UI Control Examples
+    fun onPlayPauseClick() {
+        mediaController?.let {
+            if (it.isPlaying) it.pause() else it.play()
+        }
+    }
+
+    fun onSkipNextClick() {
+        mediaController?.seekToNext()
+    }
+
+
+
+
+
+
 
     fun onEvent(event:Events.MakeCurrentMainFragment){
         makeCurrentFragment(fragmentContainer,event.fragment, addtoBackStack = true)
@@ -237,9 +311,17 @@ class SongMain_Activity : AppCompatActivity(){
 
 
     fun startMusicService(){
-        if(!MusicPlayerService.isServiceRunning())
+        if(!Media3Service.isServiceRunning)
         {
-            serviceIntent = Intent(this, MusicPlayerService::class.java)
+            Media3Service.isServiceRunning=true
+
+            serviceIntent = Intent(this, Media3Service::class.java).apply {
+                // Add this action to distinguish from normal starts
+                action = "ACTION_START_PLAYBACK"
+            }
+
+
+            Log.d("ServiceLifecycle", "onStartCommand with action: ${intent?.action}")
 
             startForegroundService(serviceIntent)
 
@@ -294,6 +376,8 @@ class SongMain_Activity : AppCompatActivity(){
 
         }
 
+
+        mediaController?.release()
         super.onDestroy()
     }
 
@@ -464,6 +548,7 @@ class SongMain_Activity : AppCompatActivity(){
 
 
                     val song = Song(
+                        id,
                         contentUri.toString(),
                         title,
                         thumbnailFile.toString(),

@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorRes
+import androidx.compose.ui.graphics.Shape
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -18,6 +20,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.composepls.R
+import com.google.android.material.imageview.ShapeableImageView
 import de.greenrobot.event.EventBus
 import java.io.File
 
@@ -39,10 +42,11 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
 
 
     inner class itemInList(itemView:View):RecyclerView.ViewHolder(itemView){
+        val constrLayout: ConstraintLayout=itemView.findViewById(R.id.constrlayout)
         val displayTitle: TextView=itemView.findViewById(R.id.title)
         val displayAuthor:TextView=itemView.findViewById(R.id.author)
         val displayImageView: ImageView=itemView.findViewById(R.id.thumbnail)
-        val displayOptionsButton: ImageView=itemView.findViewById(R.id.songOptions)
+        val displayOptionsButton: ShapeableImageView=itemView.findViewById(R.id.songOptions)
         val movementHandle: ImageView=itemView.findViewById(R.id.movementHandle)
 
         var myPosition=-1
@@ -100,13 +104,13 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
 
 
 
-            itemView.setOnClickListener {
+             constrLayout.setOnClickListener {
 
 
                 onItemClick(song)
             }
 
-            itemView.setOnLongClickListener {
+             constrLayout.setOnLongClickListener {
 
 
                 onItemLongPress(song)

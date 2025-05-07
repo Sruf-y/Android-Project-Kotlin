@@ -1,11 +1,13 @@
 package DataClasses_Ojects
 
-import SongsMain.Classes.myMediaPlayer
+import SongsMain.Classes.myExoPlayer
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.OptIn
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.media3.common.util.UnstableApi
 import kotlinx.coroutines.Runnable
 import java.time.LocalDateTime
 
@@ -60,9 +62,10 @@ class MediaProgressViewModel : ViewModel() {
         }
     }
 
+    @OptIn(UnstableApi::class)
     private fun updateProgress() {
-        val currentPos = myMediaPlayer.getCurrentPosition()
-        val duration = myMediaPlayer.currentlyPlayingSong?.duration ?: 0
+        val currentPos = myExoPlayer.getCurrentPosition()
+        val duration = myExoPlayer.currentlyPlayingSong?.duration ?: 0
 
         val progress = if (duration > 0) {
             currentPos
@@ -70,7 +73,7 @@ class MediaProgressViewModel : ViewModel() {
             0
         }
 
-        _progress.postValue(progress)
+        _progress.postValue(progress.toInt())
     }
 
     fun startUpdates() {

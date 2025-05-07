@@ -17,7 +17,7 @@ class Application: Application(), LifecycleObserver {
 
         SongsGlobalVars
 
-        createNotificationChannel()
+        //createNotificationChannel()
         instance = this
     }
 

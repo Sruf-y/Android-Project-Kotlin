@@ -7,7 +7,8 @@ import DataClasses_Ojects.MediaProgressViewModel
 import Functions.setInsetsforItems
 import SongsMain.Classes.Events
 import SongsMain.Classes.Events.SongWasPaused
-import SongsMain.Classes.myMediaPlayer
+import SongsMain.Classes.myExoPlayer
+import SongsMain.Service.MyMediaController
 import SongsMain.Tutorial.Application
 import SongsMain.Variables.MusicAppSettings
 import Utilities.Utils.Companion.dP
@@ -51,6 +52,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.media3.common.Player
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.example.composepls.R
@@ -109,9 +111,8 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
         // tabs adapter setup
-
-
         setupViewPager()
+
 
 
 
@@ -230,6 +231,12 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
     }
 
+    override fun onDestroyView() {
+
+
+
+        super.onDestroyView()
+    }
 
     override fun onDestroy() {
 
