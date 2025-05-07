@@ -34,7 +34,7 @@ import java.io.File
 import java.time.LocalDateTime
 
 
-private object myMediaPlayer {
+ object myMediaPlayer {
 
     val bus: EventBus = EventBus.getDefault()
     var mediaplayer: MediaPlayer = MediaPlayer()

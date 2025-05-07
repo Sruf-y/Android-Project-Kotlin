@@ -25,6 +25,7 @@ object MyMediaController {
         if (!Media3Service.isServiceRunning) {
             ContextCompat.startForegroundService(
                 context,
+
                 Intent(context, Media3Service::class.java).apply {
                     action = "ACTION_START_FOREGROUND"
                 }

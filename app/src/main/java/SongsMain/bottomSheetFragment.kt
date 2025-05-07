@@ -430,7 +430,7 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
     }
 
     override fun onDestroy() {
-
+        MyMediaController.removeListener(this)
         bus.unregister(this)
         super.onDestroy()
     }
