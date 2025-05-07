@@ -42,7 +42,7 @@ import kotlin.getValue
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet) {
+class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Listener {
 
 
 
@@ -287,6 +287,8 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet) {
 
 
 
+
+        MyMediaController.addListener(this)
 
 
 

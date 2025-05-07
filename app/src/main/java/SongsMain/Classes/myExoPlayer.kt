@@ -146,16 +146,21 @@ object myExoPlayer {
 
                 SongsGlobalVars.RecentlyPlayed.apply {
                     songsList?.remove(song.from(SongsGlobalVars.allSongs))
+                    Log.i("WTF",song.from(SongsGlobalVars.allSongs)!!.toString())
                     add(song.from(SongsGlobalVars.allSongs)!!)
                 }
 
                 playlist?.let {
                     openPlaylist(it)
-                    //exoPlayer!!.setMediaItems(currentPlaylist!!.get().songsList!!.map { p->p.toMediaItem() })
+                    //exoPlayer!!.setMediaItems(currentPlaylist!!.get().songsList!!.map { p->p.toMediaItem() },it.get().songsList!!.indexOf(currentlyPlayingSong),0)
                 }
-                start()
 
                 bus.post(Events.SongWasChanged(lastSong, currentlyPlayingSong))
+
+
+                myExoPlayer.start()
+
+
 
             } catch (ex: Exception) {
                 Log.e(Logs.MEDIA_SOUND.toString(), "Error setting song", ex)
