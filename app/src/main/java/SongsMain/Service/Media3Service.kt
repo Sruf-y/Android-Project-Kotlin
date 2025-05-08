@@ -76,6 +76,7 @@ class Media3Service : MediaSessionService() {
 
     }
 
+
     override fun onCreate() {
         super.onCreate()
 
@@ -87,20 +88,7 @@ class Media3Service : MediaSessionService() {
         val exoPlayer = myExoPlayer.exoPlayer
 
 
-        myExoPlayer.exoPlayer!!.addListener(object : Player.Listener {
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                super.onIsPlayingChanged(isPlaying)
-            }
-
-            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                super.onMediaItemTransition(mediaItem, reason)
-            }
-
-        })
-
-        val COMMAND_REMOVE_NOTIFICATION = "close_notification"
-        val SESSION_COMMAND_REMOVE_NOTIFICATION = SessionCommand(COMMAND_REMOVE_NOTIFICATION, Bundle.EMPTY)
-
+        // 1.5 Wrap player to override commands called by notification default actions
         val forwardingPlayer = object : ForwardingPlayer(exoPlayer!!) {
 
             // override default buttons actions
@@ -133,7 +121,7 @@ class Media3Service : MediaSessionService() {
             override fun pause() {
 
                 myExoPlayer.pause()
-                stopForeground(STOP_FOREGROUND_DETACH)
+
 
             }
 
@@ -149,7 +137,6 @@ class Media3Service : MediaSessionService() {
                     .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, myExoPlayer.currentPlaylist?.get()?.hasNextAfter(
                         myExoPlayer.currentlyPlayingSong!!) == true
                     )
-                    .add(SESSION_COMMAND_REMOVE_NOTIFICATION.commandCode)
 
                     .build()
 
@@ -163,16 +150,10 @@ class Media3Service : MediaSessionService() {
 
 
 
-        val closebutton =
-            CommandButton.Builder()
-                .setIconResId(R.drawable.x)
-                .setSessionCommand(SessionCommand(COMMAND_REMOVE_NOTIFICATION, Bundle.EMPTY))
-                .build()
+
 
         // 2. Create MediaSession
         mediaSession = MediaSession.Builder(this, forwardingPlayer)
-            .setCallback(CustomMediaSessionCallback())
-            .setCustomLayout(listOf<CommandButton>(closebutton)) // set the ORDER of buttons i think
             .build()
 
         // 3. Configure Notification Manager
@@ -185,14 +166,11 @@ class Media3Service : MediaSessionService() {
         ).apply {
             setMediaDescriptionAdapter(createMediaDescriptionAdapter())
             setSmallIconResourceId(R.drawable.music_app_icon)
-            setNotificationListener(NotificationListener())
-            //custom actions
-            setCustomActionReceiver(CustomActionReceiver())
 
 
         }.build().apply {
             setPlayer(exoPlayer)
-            setMediaSessionToken(mediaSession.sessionCompatToken)
+            setMediaSessionToken(mediaSession.platformToken)
 
             setUsePlayPauseActions(false)
             setUseNextAction(false)
@@ -203,13 +181,13 @@ class Media3Service : MediaSessionService() {
 
 
 
-            //setUseChronometer(true)
+
         }
 
 
 
 
-        //setMediaNotificationProvider()
+
 
 
 
@@ -224,7 +202,7 @@ class Media3Service : MediaSessionService() {
 
     fun onEvent(event:Events.SongWasChanged){
 
-        notificationManager?.setPlayer(exoPlayer)
+
 
     }
 
@@ -241,10 +219,6 @@ class Media3Service : MediaSessionService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.action?.let { action ->
             when (action) {
-                "ACTION_CLOSE" -> {
-                    stopSelf()
-                    return START_NOT_STICKY
-                }
                 "ACTION_START_FOREGROUND" -> {
                     // Your custom action to start the notification
                     return START_STICKY
@@ -305,34 +279,6 @@ class Media3Service : MediaSessionService() {
         }
 
 
-
-    private inner class NotificationListener : PlayerNotificationManager.NotificationListener {
-        override fun onNotificationPosted(
-            notificationId: Int,
-            notification: Notification,
-            ongoing: Boolean
-        ) {
-
-            Log.d("Notification", "Posted with actions: ${notification.actions?.size}")
-
-
-            if (ongoing) {
-                startForeground(notificationId, notification)
-            }
-        }
-
-        override fun onNotificationCancelled(
-            notificationId: Int,
-            dismissedByUser: Boolean
-        ) {
-            if (dismissedByUser) {
-                stopSelf()
-            }
-        }
-    }
-
-
-
     override fun onDestroy() {
         notificationManager?.setPlayer(null)
         mediaSession.release()
@@ -355,144 +301,9 @@ class Media3Service : MediaSessionService() {
         val actionBuffer = Mutex()
 
 
-        val COMMAND_REMOVE_NOTIFICATION = "close_notification"
-        val SESSION_COMMAND_REMOVE_NOTIFICATION = SessionCommand(COMMAND_REMOVE_NOTIFICATION, Bundle.EMPTY)
     }
-
-
-
-
-
-
-    inner class CustomMediaSessionCallback: MediaSession.Callback {
-        // Configure commands available to the controller in onConnect()
-        override fun onCustomCommand(
-            session: MediaSession,
-            controller: MediaSession.ControllerInfo,
-            customCommand: SessionCommand,
-            args: Bundle
-        ): ListenableFuture<SessionResult> {
-
-            when(customCommand.customAction){
-                SESSION_COMMAND_REMOVE_NOTIFICATION.customAction->{
-                    onDestroy()
-                }
-            }
-
-
-            return super.onCustomCommand(session, controller, customCommand, args)
-        }
-
-
-
-
-
-
-
-
-        // TODO continue from here down, needs to be uncommented
-
-        // instructions here
-        // https://github.com/androidx/media/issues/38#issuecomment-1138578035
-
-//        override fun onCustomCommand(
-//            session: MediaSession,
-//            controller: MediaSession.ControllerInfo,
-//            customCommand: SessionCommand,
-//            args: Bundle
-//        ): ListenableFuture<SessionResult> {
-//            if (CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_ON == customCommand.customAction) {
-//                // Enable shuffling.
-//                player.shuffleModeEnabled = true
-//                // Change the custom layout to contain the `Disable shuffling` command.
-//                customLayout = ImmutableList.of(customCommands[1])
-//                // Send the updated custom layout to controllers.
-//                session.setCustomLayout(customLayout)
-//            } else if (CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_OFF == customCommand.customAction) {
-//                // Disable shuffling.
-//                player.shuffleModeEnabled = false
-//                // Change the custom layout to contain the `Enable shuffling` command.
-//                customLayout = ImmutableList.of(customCommands[0])
-//                // Send the updated custom layout to controllers.
-//                session.setCustomLayout(customLayout)
-//            }
-//            return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
-//        }
-//
-//        override fun onConnect(
-//            session: MediaSession,
-//            controller: MediaSession.ControllerInfo
-//        ): MediaSession.ConnectionResult {
-//            val connectionResult = super.onConnect(session, controller)
-//            val availableSessionCommands = connectionResult.availableSessionCommands.buildUpon()
-//            customCommands.forEach { commandButton ->
-//                // Add custom command to available session commands.
-//                commandButton.sessionCommand?.let { availableSessionCommands.add(it) }
-//            }
-//            return MediaSession.ConnectionResult.accept(
-//                availableSessionCommands.build(),
-//                connectionResult.availablePlayerCommands
-//            )
-//        }
-
-    }
-
-
-    private inner class CustomActionReceiver : PlayerNotificationManager.CustomActionReceiver {
-
-        override fun createCustomActions(
-            context: Context,
-            instanceId: Int
-        ): Map<String, NotificationCompat.Action> {
-
-
-            val removalIntent = PendingIntent.getService(
-                context,5000,
-                Intent(context,Media3Service::class.java).apply {
-                    action = COMMAND_REMOVE_NOTIFICATION
-                },
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            )
-
-
-
-
-            val removeAction = NotificationCompat.Action(
-                R.drawable.x,"Cancel",removalIntent
-            )
-
-            return mapOf(
-                COMMAND_REMOVE_NOTIFICATION to removeAction
-            )
-        }
-
-        override fun getCustomActions(player: Player): MutableList<String> {
-                return mutableListOf(COMMAND_REMOVE_NOTIFICATION)
-        }
-
-        override fun onCustomAction(player: Player, action: String, intent: Intent) {
-            when (action) {
-
-                SESSION_COMMAND_REMOVE_NOTIFICATION.customAction->{
-                    stopSelf()
-                }
-            }
-        }
-    }
-
-
-
 
 
 
 }
-
-
-
-
-
-
-
-
-
 
