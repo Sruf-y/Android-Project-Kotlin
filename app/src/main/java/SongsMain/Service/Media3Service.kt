@@ -192,7 +192,7 @@ class Media3Service : MediaSessionService() {
 
         }.build().apply {
             setPlayer(exoPlayer)
-            setMediaSessionToken(mediaSession.sessionCompatToken)
+            setMediaSessionToken(mediaSession.platformToken)
 
             setUsePlayPauseActions(false)
             setUseNextAction(false)

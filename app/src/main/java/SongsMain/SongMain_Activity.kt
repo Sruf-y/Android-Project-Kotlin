@@ -489,6 +489,7 @@ class SongMain_Activity : AppCompatActivity(){
                 MediaStore.Audio.Media.DISPLAY_NAME,
                 MediaStore.Audio.Media.DURATION,
                 MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
                 MediaStore.Audio.Media.DATE_MODIFIED
             )
 
@@ -519,6 +520,7 @@ class SongMain_Activity : AppCompatActivity(){
                         cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST))
                     val dateAddedinSeconds =
                         cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED))
+                    val albumName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM))
                     val contentUri = ContentUris.withAppendedId(FROM, id)
 
 
@@ -548,13 +550,14 @@ class SongMain_Activity : AppCompatActivity(){
 
 
                     val song = Song(
-                        id,
-                        contentUri.toString(),
-                        title,
-                        thumbnailFile.toString(),
-                        author,
-                        duration,
-                        dateAddedinSeconds
+                        id= id,
+                        songUri = contentUri.toString(),
+                        title = title,
+                        thumbnail = thumbnailFile.toString(),
+                        author = author,
+                        duration = duration,
+                        dateAdded = dateAddedinSeconds,
+                        albumName = albumName
                     )
 
 

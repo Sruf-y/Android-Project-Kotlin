@@ -1,7 +1,11 @@
 package SongsMain.Classes
 
 import SongsMain.Variables.SongsGlobalVars
+import android.net.Uri
+import android.os.Bundle
 import android.os.Parcelable
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -23,6 +27,7 @@ class Song(
   .atZone(ZoneId.systemDefault())  // Convert to ZonedDateTime
   .toInstant()                     // Convert to Instant
   .epochSecond,
+    var albumName:String = "",
     var timesListened:Int=0,
     var lastPlayed:String? = null,
     var isHidden:Boolean = false,
@@ -39,6 +44,41 @@ class Song(
 
   companion object {
       // Add this to your Song class or as an extension
+
+      fun Song.toMediaItemCompat(): MediaBrowserCompat.MediaItem {
+          val extras = Bundle().apply {
+              putLong(METADATA_KEY_MEDIA_ID, id)
+              putString(METADATA_KEY_TITLE, title)
+              putString(METADATA_KEY_ARTIST, author)
+              putString(METADATA_KEY_ALBUM_ART_URI, thumbnail)
+              putLong(METADATA_KEY_DURATION, duration)
+              putBoolean("isFavorite", isFavorite)
+              putInt("timesListened", timesListened)
+          }
+
+          val description = MediaDescriptionCompat.Builder()
+              .setMediaId(id.toString())
+              .setTitle(title)
+              .setSubtitle(author)
+              .setIconUri(thumbnail.takeIf { it.isNotEmpty() }?.toUri())
+              .setExtras(extras)
+              .build()
+
+          return MediaBrowserCompat.MediaItem(
+              description,
+              MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
+          )
+      }
+
+      // Constants for metadata keys (you can define these at the top of your file)
+      private const val METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID"
+      private const val METADATA_KEY_TITLE = "android.media.metadata.TITLE"
+      private const val METADATA_KEY_ARTIST = "android.media.metadata.ARTIST"
+      private const val METADATA_KEY_ALBUM_ART_URI = "android.media.metadata.ALBUM_ART_URI"
+      private const val METADATA_KEY_DURATION = "android.media.metadata.DURATION"
+
+
+
       fun Song.toMediaItem(): MediaItem {
           return MediaItem.Builder()
               .setMediaId(this.id.toString())  // Unique identifier

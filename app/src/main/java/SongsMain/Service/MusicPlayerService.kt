@@ -8,10 +8,12 @@ import SongsMain.Classes.myMediaPlayer
 import SongsMain.SongMain_Activity
 import SongsMain.Variables.SongsGlobalVars
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
+import android.os.Binder
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -417,6 +419,23 @@ class MusicPlayerService: MediaLibraryService() {
 
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private fun getStopServicePendingIntent(): PendingIntent {
         Log.i("TESTS","Service has been sent stop pending intent (getStopServicePendingIntent)")
