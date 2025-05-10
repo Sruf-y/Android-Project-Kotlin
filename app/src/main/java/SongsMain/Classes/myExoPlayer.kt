@@ -39,7 +39,7 @@ object myExoPlayer {
             exoPlayer = ExoPlayer.Builder(context)
                 .setAudioAttributes(
                     androidx.media3.common.AudioAttributes.DEFAULT,
-                    true // Handle audio focus
+                    false // Handle audio focus
                 )
                 .setHandleAudioBecomingNoisy(true) // Pause when headphones unplugged
                 .build()

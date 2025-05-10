@@ -2,50 +2,38 @@ package SongsMain.Tutorial
 
 
 import DataClasses_Ojects.Logs
-import DataClasses_Ojects.MediaProgressViewModel
 import SongsMain.Classes.Events
 import SongsMain.Classes.Song
-import SongsMain.Classes.myMediaPlayer
+import SongsMain.Classes.myExoPlayer
 import SongsMain.SongMain_Activity
-import SongsMain.SongsMain_Base
 import SongsMain.Variables.SongsGlobalVars.CHANNEL_ID
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.media.MediaMetadata
 import android.os.Binder
+import android.os.Bundle
 import android.os.IBinder
-import android.provider.MediaStore
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.IconCompat
-import androidx.core.net.toUri
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelStore
 import com.example.composepls.R
 import de.greenrobot.event.EventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
-import java.security.Provider
-import kotlin.getValue
-import androidx.core.graphics.createBitmap
+import androidx.media3.common.util.UnstableApi
 
+
+@OptIn(UnstableApi::class)
 class MusicPlayerService: Service() {
 
 
@@ -78,6 +66,7 @@ class MusicPlayerService: Service() {
     val NOTIFICATION_ID = 105
 
 
+    @OptIn(UnstableApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         when (intent?.action) {
@@ -85,29 +74,27 @@ class MusicPlayerService: Service() {
             MediaPlayerServiceActions.SERVICESTOP.name -> {
                 serviceStop()
                 return START_NOT_STICKY}
-            MediaPlayerServiceActions.TOGGLE.name -> myMediaPlayer.toggle()
+            MediaPlayerServiceActions.TOGGLE.name -> myExoPlayer.toggle()
             MediaPlayerServiceActions.BACKWARD.name -> {
-                myMediaPlayer.playPreviousInPlaylist()
+                myExoPlayer.playPreviousInPlaylist()
             }
             MediaPlayerServiceActions.FORWARD.name -> {
-                myMediaPlayer.playNextInPlaylist()
+                myExoPlayer.playNextInPlaylist()
             }
             MediaPlayerServiceActions.SEEK.name -> {
                 val position = intent.getIntExtra("position", 0)
-                myMediaPlayer.mediaplayer.seekTo(position)
+                myExoPlayer.seekTo(position.toLong())
             }
             MediaPlayerServiceActions.OPENAPP.name -> { /* Optional: open app intent */ }
 
 
 
             else -> {
-                if (myMediaPlayer.isInitialized_) {
-                    myMediaPlayer.initializeMediaPlayer()
-                }
+                myExoPlayer.initializePlayer(this)
 
                 // Re-initialize metadata/session if needed
 
-                setupMediaSession()
+                setupAudioManagerRequest()
 
 
                 isRunning = true
@@ -140,14 +127,11 @@ class MusicPlayerService: Service() {
     }
 
 
-
-
-
-
+    @OptIn(UnstableApi::class)
     fun CreateNotification(song:Song?=null,setSongAsStarted:Boolean=false){
 
 
-        val play_pause_icon = if (myMediaPlayer._Playing || myMediaPlayer.isPlaying || setSongAsStarted) {
+        val play_pause_icon = if ( myExoPlayer.isPlaying || setSongAsStarted) {
             R.drawable.pause_button_music_player
         } else {
             R.drawable.play_button_music_player
@@ -156,24 +140,30 @@ class MusicPlayerService: Service() {
         val SONG = if (song != null) {
             song
         } else {
-            myMediaPlayer.currentlyPlayingSong
+            myExoPlayer.currentlyPlayingSong
         }
 
 
 
 
-        CoroutineScope(Dispatchers.Default).launch {
+            CoroutineScope(Dispatchers.Main).launch {
 
 
 
 
-            val song_art = null//Functions.Images.loadFromFile(File(SONG?.thumbnail!!))
-
+                var song_art:Bitmap? = null
+                try {
+                    song_art = Functions.Images.loadFromFile(File(SONG?.thumbnail))
+                }catch (ex: NullPointerException){
+                    Log.e("NULL","Song_art for notification threw a nullpointer",ex)
+                }
 
             val metadata = MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, myMediaPlayer.currentlyPlayingSong?.title ?: "<unknown>")
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,myMediaPlayer.currentlyPlayingSong?.author ?: "<unknown>")
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, myMediaPlayer.mediaplayer.duration.toLong())
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, myExoPlayer.currentlyPlayingSong?.title ?: "<unknown>")
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,myExoPlayer.currentlyPlayingSong?.author ?: "<unknown>")
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
+                    myExoPlayer.currentlyPlayingSong?.duration ?: 0
+                )
                 .apply {
 
                     if(song_art!=null){
@@ -188,23 +178,22 @@ class MusicPlayerService: Service() {
                 }
                 .build()
 
-//            mediaSession.setPlaybackState(
-//                PlaybackStateCompat.Builder()
-//                    .setState(
-//                        if (myMediaPlayer.isPlaying) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED,
-//                        myMediaPlayer.getCurrentPosition().toLong(),
-//                        1.0f
-//                    )
-//                    .setActions(
-//                        PlaybackStateCompat.ACTION_PLAY_PAUSE or
-//                                PlaybackStateCompat.ACTION_PLAY or
-//                                PlaybackStateCompat.ACTION_PAUSE or
-//                                PlaybackStateCompat.ACTION_SEEK_TO or
-//                                PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
-//                                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-//                    )
-//                    .build()
-//            )
+            mediaSession.setPlaybackState(
+                PlaybackStateCompat.Builder()
+                    .setState(
+                        if (myExoPlayer.isPlaying || setSongAsStarted) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED,
+                        myExoPlayer.getCurrentPosition(),
+                        1.0f
+                    )
+
+                    .setActions(PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
+                    .addCustomAction(MediaPlayerServiceActions.SERVICESTOP.name,"myaction_name", R.drawable.x)
+                    .setActions(
+                        PlaybackStateCompat.ACTION_SEEK_TO or
+                                PlaybackStateCompat.ACTION_PLAY_PAUSE
+                    )
+                    .build()
+            )
 
 
             mediaSession.setMetadata(metadata)
@@ -220,18 +209,15 @@ class MusicPlayerService: Service() {
 
 
 
-
             val notification = NotificationCompat.Builder(this@MusicPlayerService, CHANNEL_ID)
                 .setSmallIcon(R.drawable.music_app_icon)
                 .setDeleteIntent(getStopServicePendingIntent())
+
                 .setStyle(androidx.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
-                    .setShowActionsInCompactView(0, 1, 2,3))
-                //.setProgress()
-                .addAction(R.drawable.skip_to_previous, "Previous", prevPendingIntent())
-                .addAction(play_pause_icon, "Play/Pause", playPausePendingIntent())
-                .addAction(R.drawable.skip_to_next, "Next", nextPendingIntent())
-                .addAction(R.drawable.x,"Close",getStopServicePendingIntent())
+                    .setShowActionsInCompactView(0, 1, 2)
+                )
+
                 .setOngoing(true)
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
@@ -261,30 +247,77 @@ class MusicPlayerService: Service() {
         isRunning = true
         bus.register(this)
 
+
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            .setOnAudioFocusChangeListener(audioFocusChangeListener)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+            )
+            .build()
+
+
+
+
+
+
+
+
         mediaSession = MediaSessionCompat(this, "MusicPlayerService").apply {
             setCallback(object : MediaSessionCompat.Callback() {
-                override fun onPlay() = myMediaPlayer.start()
-                override fun onPause() = myMediaPlayer.pause()
-                override fun onSeekTo(pos: Long)  {
-                    myMediaPlayer.mediaplayer.seekTo(pos.toInt())
+                override fun onCustomAction(action: String?, extras: Bundle?) {
+                    when(action){
+                        MediaPlayerServiceActions.SERVICESTOP.name->{serviceStop()}
+                    }
+                }
+
+                override fun onPlay()  { myExoPlayer.start()
                     CreateNotification()
                 }
-                override fun onSkipToPrevious() = myMediaPlayer.playPreviousInPlaylist()
-                override fun onSkipToNext() = myMediaPlayer.playNextInPlaylist()
-                override fun onRewind() = myMediaPlayer.rewind()
+                override fun onPause()  { myExoPlayer.pause()
+                    CreateNotification()
+                }
+                override fun onSeekTo(pos: Long)  {
+                    myExoPlayer.isPlaying.apply {
+
+                        myExoPlayer.seekTo(pos)
+                        CreateNotification(setSongAsStarted = this)
+                    }
+
+
+                }
+                override fun onSkipToPrevious()  {
+                    if(myExoPlayer.getCurrentPosition()<3000) {
+                        myExoPlayer.playPreviousInPlaylist()
+
+                    }
+                    else{
+                        myExoPlayer.seekTo(0,true)
+                        CreateNotification()
+                    }
+                }
+                override fun onSkipToNext()  {
+                    myExoPlayer.playNextInPlaylist()
+                    CreateNotification(setSongAsStarted = true)
+                }
+                override fun onRewind()  { myExoPlayer.rewind() }
             })
             isActive = true
         }
 
 
         // stuff about audio focus (also throws exception if i pause before its reinitialized sooo)
-        myMediaPlayer.initializeMediaPlayer()
+        myExoPlayer.initializePlayer(this)
+        setupAudioManagerRequest()
+
+        //CreateNotification()
 
 
-
-        //myMediaPlayer.mediaplayer.pause()
+        //myExoPlayer.mediaplayer.pause()
         onEvent(Events.SongWasStarted())
-        CreateNotification()
 
 
 
@@ -295,7 +328,8 @@ class MusicPlayerService: Service() {
     }
 
 
-    private fun setupMediaSession(){
+
+    private fun setupAudioManagerRequest(){
 
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
@@ -324,36 +358,37 @@ class MusicPlayerService: Service() {
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
             AudioManager.AUDIOFOCUS_LOSS -> {
-                myMediaPlayer.pause()
+                myExoPlayer.pause()
             }
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> myMediaPlayer.pause()
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> myMediaPlayer.setVolume(0.2f, 0.2f)
-            AudioManager.AUDIOFOCUS_GAIN -> myMediaPlayer.setVolume(1.0f, 1.0f)
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> myExoPlayer.pause()
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> myExoPlayer.setVolume(0.2f, 0.2f)
+            AudioManager.AUDIOFOCUS_GAIN -> myExoPlayer.setVolume(1.0f, 1.0f)
         }
     }
 
     fun onEvent(event:Events.SongWasStarted){
 
-        //myMediaPlayer.mediaplayer.pause()
-        setupMediaSession()
 
+        setupAudioManagerRequest()
         val result = audioManager.requestAudioFocus(audioFocusRequest)
 
-        if(result== AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
-            myMediaPlayer.mediaplayer.start()
-        }
-        else{
-            myMediaPlayer.pause()
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            // Only update notification after focus is granted
+            CreateNotification(myExoPlayer.currentlyPlayingSong, true)
+        } else {
+            // Handle the case where focus was denied
+            Log.w("AudioFocus", "Audio focus request was denied")
+            // You might want to pause playback here
         }
 
-        CreateNotification(myMediaPlayer.currentlyPlayingSong,true)
+        CreateNotification(myExoPlayer.currentlyPlayingSong,true)
     }
 
 
 
 
     override fun onDestroy() {
-        Log.i("TESTS","Service has been DESTROYED (onDestroy)")
+        Log.i("WTF","Service has been DESTROYED (onDestroy)")
         super.onDestroy()
     }
 
@@ -372,10 +407,10 @@ class MusicPlayerService: Service() {
 
         if(!SongMain_Activity.ActiveTracker.isRunningAnywhere)
         {
-            myMediaPlayer.release()
-            stopSelf()
-        }
+            myExoPlayer.release()
 
+        }
+        stopSelf()
 
     }
 

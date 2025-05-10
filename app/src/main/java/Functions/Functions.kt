@@ -379,23 +379,23 @@ object Images{
                                 ) // the result is returned
                             } catch (ex: Exception) {
                                 ex.printStackTrace()
-                                bitmap
+                                return@withContext bitmap
                             }
                         } else {
                             // Handle decode failure
                             Log.e(Logs.MEDIA_IMAGES.name, "Could not decode image: ${file.name}")
                             file.delete()
-                            null // mapNotNull will filter this out
+                            return@withContext null // mapNotNull will filter this out
                         }
                     } catch (e: Exception) {
                         // Handle potential exceptions like OutOfMemoryError
                         Log.e(Logs.MEDIA_IMAGES.name, "Error processing image: ${file.name}", e)
                         file.delete()
-                        null // mapNotNull will filter this out
+                        return@withContext null // mapNotNull will filter this out
                     }
                 } else {
                     Log.i(Logs.MEDIA_IMAGES.name, "Images.loadFromFile a file that does NOT exist")
-                    null
+                    return@withContext null
                 }
             }
         else
