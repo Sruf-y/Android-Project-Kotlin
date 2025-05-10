@@ -174,8 +174,7 @@ class Song(
     }
 
     override fun hashCode(): Int {
-        var result = duration.hashCode()
-        result = 31 * result + songUri.hashCode()
+        var result = 31 * songUri.hashCode()
         return result
     }
 

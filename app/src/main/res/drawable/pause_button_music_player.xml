@@ -21,19 +21,7 @@
 
                         L30,30
                         L30,70
-"/>
-                </vector>
 
-            </item>
-
-            <item>
-                <vector android:height="40dp" android:width="40dp"
-                    android:viewportWidth="100"
-                    android:viewportHeight="100">
-                    <path android:strokeWidth="1"
-                        android:strokeColor="@color/gray"
-                        android:fillColor="@color/white"
-                        android:pathData="
                         M60,30
                         L60,70
                         L70,70
@@ -41,10 +29,8 @@
 
                         L60,30
                         L60,70
-
 "/>
                 </vector>
-
             </item>
         </layer-list>
     </item>

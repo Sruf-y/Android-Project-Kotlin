@@ -70,7 +70,7 @@ class OpenDrawerEvent()
 
 
 
-class SongMain_Activity : AppCompatActivity(){
+class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
     private val controllerListener = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int){
@@ -216,11 +216,25 @@ class SongMain_Activity : AppCompatActivity(){
 
         MyMediaController.initialize(this)
 
+//        val sessionToken = SessionToken(this, ComponentName(this,
+//            Media3Service::class.java))
+//
+//
+//
+//        val controllerFuture = MediaController.Builder(this,sessionToken).buildAsync()
+//        controllerFuture.addListener({
+//            if (controllerFuture.isDone){
+//                mediaController=controllerFuture.get()
+//            }
+//        }, MoreExecutors.directExecutor()
+//        )
+//
 
 
-
-
+        MyMediaController.addListener(this)
+        startMusicService()
     }
+
 
 
 
@@ -375,8 +389,8 @@ class SongMain_Activity : AppCompatActivity(){
 
 
         }
-
-
+        MyMediaController.removeListener(this)
+        MyMediaController.release()
         mediaController?.release()
         super.onDestroy()
     }

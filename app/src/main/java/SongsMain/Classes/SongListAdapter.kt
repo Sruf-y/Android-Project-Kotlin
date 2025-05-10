@@ -9,9 +9,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorRes
+import androidx.annotation.OptIn
 import androidx.compose.ui.graphics.Shape
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -52,18 +54,21 @@ class SongListAdapter(var mList:ArrayList<Song>, val context:Context,var onItemC
         var myPosition=-1
 
 
-
-
-
-
-
-         fun bind(song:Song,position: Int){
+        @OptIn(UnstableApi::class)
+        fun bind(song:Song,position: Int){
 
             myPosition=position
 
 
+
             displayTitle.text = song.title
-             displayTitle.setTextColor(ContextCompat.getColor(Application.instance, R.color.white))
+            displayTitle.setTextColor(ContextCompat.getColor(Application.instance, R.color.white))
+
+            if(myExoPlayer.currentlyPlayingSong!=null)
+             if(song == myExoPlayer.currentlyPlayingSong){
+                 displayTitle.setTextColor(ContextCompat.getColor(Application.instance, R.color.amber))
+             }
+
 
             displayAuthor.text = song.author
 

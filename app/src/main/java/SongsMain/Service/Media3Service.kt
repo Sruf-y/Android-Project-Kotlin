@@ -41,6 +41,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
@@ -52,10 +53,15 @@ class Media3Service : MediaSessionService() {
     private var notificationManager: PlayerNotificationManager?=null
 
     fun addToActionQueue(action:(()->Unit)){
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             actionBuffer.withLock {
-                action.invoke()
-                delay(300)
+                val await:Int = withContext(Dispatchers.Main) {
+                    action.invoke()
+                    return@withContext 1
+                }
+
+                delay(500)
+
             }
         }
     }
@@ -190,6 +196,7 @@ class Media3Service : MediaSessionService() {
             setCustomActionReceiver(CustomActionReceiver())
 
 
+
         }.build().apply {
             setPlayer(exoPlayer)
             setMediaSessionToken(mediaSession.platformToken)
@@ -255,7 +262,7 @@ class Media3Service : MediaSessionService() {
             }
         }
 
-        return super.onStartCommand(intent, flags, startId)
+        return START_STICKY
     }
 
 
@@ -383,57 +390,6 @@ class Media3Service : MediaSessionService() {
             return super.onCustomCommand(session, controller, customCommand, args)
         }
 
-
-
-
-
-
-
-
-        // TODO continue from here down, needs to be uncommented
-
-        // instructions here
-        // https://github.com/androidx/media/issues/38#issuecomment-1138578035
-
-//        override fun onCustomCommand(
-//            session: MediaSession,
-//            controller: MediaSession.ControllerInfo,
-//            customCommand: SessionCommand,
-//            args: Bundle
-//        ): ListenableFuture<SessionResult> {
-//            if (CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_ON == customCommand.customAction) {
-//                // Enable shuffling.
-//                player.shuffleModeEnabled = true
-//                // Change the custom layout to contain the `Disable shuffling` command.
-//                customLayout = ImmutableList.of(customCommands[1])
-//                // Send the updated custom layout to controllers.
-//                session.setCustomLayout(customLayout)
-//            } else if (CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_OFF == customCommand.customAction) {
-//                // Disable shuffling.
-//                player.shuffleModeEnabled = false
-//                // Change the custom layout to contain the `Enable shuffling` command.
-//                customLayout = ImmutableList.of(customCommands[0])
-//                // Send the updated custom layout to controllers.
-//                session.setCustomLayout(customLayout)
-//            }
-//            return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
-//        }
-//
-//        override fun onConnect(
-//            session: MediaSession,
-//            controller: MediaSession.ControllerInfo
-//        ): MediaSession.ConnectionResult {
-//            val connectionResult = super.onConnect(session, controller)
-//            val availableSessionCommands = connectionResult.availableSessionCommands.buildUpon()
-//            customCommands.forEach { commandButton ->
-//                // Add custom command to available session commands.
-//                commandButton.sessionCommand?.let { availableSessionCommands.add(it) }
-//            }
-//            return MediaSession.ConnectionResult.accept(
-//                availableSessionCommands.build(),
-//                connectionResult.availablePlayerCommands
-//            )
-//        }
 
     }
 

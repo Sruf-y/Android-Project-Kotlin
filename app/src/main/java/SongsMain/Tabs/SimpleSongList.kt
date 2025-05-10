@@ -149,7 +149,7 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
             audioRecycler.visibility = View.VISIBLE
 
-            onEvent(Events.SongWasChanged(null, myExoPlayer.currentlyPlayingSong))
+            //onEvent(Events.SongWasChanged(null, myExoPlayer.currentlyPlayingSong))
         }
 
     }

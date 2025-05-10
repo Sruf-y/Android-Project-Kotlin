@@ -14,7 +14,6 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.TextureView
 import androidx.core.net.toUri
-import androidx.lifecycle.AtomicReference
 import androidx.media3.common.DeviceInfo
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -32,9 +31,10 @@ import de.greenrobot.event.EventBus
 import okio.FileNotFoundException
 import java.io.File
 import java.time.LocalDateTime
+import java.util.concurrent.atomic.AtomicReference
 
 
- object myMediaPlayer {
+object myMediaPlayer {
 
     val bus: EventBus = EventBus.getDefault()
     var mediaplayer: MediaPlayer = MediaPlayer()
