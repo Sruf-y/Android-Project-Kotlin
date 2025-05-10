@@ -4,8 +4,8 @@ import DataClasses_Ojects.MediaProgressViewModel
 import Functions.setInsetsforItems
 import SongsMain.Classes.Events
 import SongsMain.Classes.Events.SongWasPaused
+import SongsMain.Classes.MyMediaController
 import SongsMain.Classes.myExoPlayer
-import SongsMain.Service.MyMediaController
 import SongsMain.Tutorial.Application
 import SongsMain.Variables.MusicAppSettings
 import Utilities.Utils.Companion.dP

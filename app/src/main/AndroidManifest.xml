@@ -103,7 +103,7 @@
 
 
         <service
-            android:name="SongsMain.Service.Media3Service"
+            android:name="SongsMain.Tutorial.MusicPlayerService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" >
 

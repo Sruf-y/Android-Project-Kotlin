@@ -5,15 +5,15 @@ import Functions.AskForPermissionsAtStart
 import Functions.ViewAttributes
 import Functions.concatenateWith
 import SongsMain.Classes.Events
+import SongsMain.Classes.MyMediaController
 import SongsMain.Classes.Playlist
 import SongsMain.Classes.Song
 import SongsMain.Classes.Song.Companion.takeYourPartFromGlobal
 import SongsMain.Classes.myExoPlayer
 import SongsMain.Variables.SongsGlobalVars
-import SongsMain.Service.Media3Service
-import SongsMain.Service.MyMediaController
 import SongsMain.Variables.Music_App_Settings
 import SongsMain.Tutorial.Application
+import SongsMain.Tutorial.MusicPlayerService
 import SongsMain.Variables.MusicAppSettings
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.redistributeLists
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.refreshGlobalSongList
@@ -196,7 +196,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
         myExoPlayer.initializePlayer(this)
 
-        myExoPlayer.initializePlayer(this)
+
 
 
         MusicAppSettings.restoreSettings()
@@ -325,11 +325,11 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
 
     fun startMusicService(){
-        if(!Media3Service.isServiceRunning)
+        if(!MusicPlayerService.isServiceRunning())
         {
-            Media3Service.isServiceRunning=true
 
-            serviceIntent = Intent(this, Media3Service::class.java).apply {
+
+            serviceIntent = Intent(this, MusicPlayerService::class.java).apply {
                 // Add this action to distinguish from normal starts
                 action = "ACTION_START_PLAYBACK"
             }
