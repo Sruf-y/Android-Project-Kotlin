@@ -4,13 +4,11 @@ package SongsMain.Tutorial
 import DataClasses_Ojects.Logs
 import SongsMain.Classes.Events
 import SongsMain.Classes.Song
-import SongsMain.Classes.Song.Companion.from
 import SongsMain.Classes.myExoPlayer
 import SongsMain.SongMain_Activity
-import SongsMain.SongsMain_Base
 import SongsMain.Variables.SongsGlobalVars
 import SongsMain.Variables.SongsGlobalVars.CHANNEL_ID
-import SongsMain.Variables.SongsGlobalVars.SongsOperations.setFavorite
+import SongsMain.Variables.SongsGlobalVars.SongsOperations.toggleFavorite
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
@@ -36,6 +34,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import androidx.media3.common.util.UnstableApi
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import java.io.FileNotFoundException
 
 
@@ -310,7 +310,8 @@ class MusicPlayerService: Service() {
 
                             stopForeground(STOP_FOREGROUND_REMOVE)
                             if (!SongMain_Activity.isRunningAnywhere) {
-                                serviceStop()
+
+                                this@MusicPlayerService.onDestroy()
                             }
 
                         }
@@ -319,7 +320,8 @@ class MusicPlayerService: Service() {
                             myExoPlayer.currentlyPlayingSong?.isFavorite?.let {
 
                                 // this SHOULD save the favorite state
-                                myExoPlayer.currentlyPlayingSong?.setFavorite(!it)
+                                myExoPlayer.currentlyPlayingSong?.toggleFavorite()
+
 
                                 CreateNotification()
 
@@ -417,7 +419,9 @@ class MusicPlayerService: Service() {
     fun onEvent(event:Events.SongWasPaused){
         CreateNotification()
     }
-
+    fun onEvent(event:Events.SongWas_UsedSeek){
+        CreateNotification()
+    }
 
     //
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
@@ -452,11 +456,18 @@ class MusicPlayerService: Service() {
 
 
 
+    @kotlin.OptIn(DelicateCoroutinesApi::class)
     override fun onDestroy() {
         Log.i("WTF","Service has been DESTROYED (onDestroy)")
+
+        GlobalScope.launch {
+            SongsGlobalVars.SongsStorageOperations.saveSongLists()
+        }
+        SongsGlobalVars.SongsStorageOperations.saveCurrentlyPlayedSong()
+
+        serviceStop()
         super.onDestroy()
     }
-
 
 
     private fun serviceStart() {

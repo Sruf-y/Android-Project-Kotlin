@@ -15,6 +15,7 @@ import SongsMain.Variables.Music_App_Settings
 import SongsMain.Tutorial.Application
 import SongsMain.Tutorial.MusicPlayerService
 import SongsMain.Variables.MusicAppSettings
+import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.redistributeLists
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.refreshGlobalSongList
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.refreshSongLists
@@ -124,6 +125,8 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
             makeCurrentFragment(fragmentContainer, SongsMain.bottomSheetFragment())
 
+
+
         }
 
 
@@ -202,6 +205,9 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
         MusicAppSettings.restoreSettings()
 
+
+
+
         if(savedInstanceState==null){
             // restore app settings
 
@@ -217,22 +223,11 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
         MyMediaController.initialize(this)
 
-//        val sessionToken = SessionToken(this, ComponentName(this,
-//            Media3Service::class.java))
-//
-//
-//
-//        val controllerFuture = MediaController.Builder(this,sessionToken).buildAsync()
-//        controllerFuture.addListener({
-//            if (controllerFuture.isDone){
-//                mediaController=controllerFuture.get()
-//            }
-//        }, MoreExecutors.directExecutor()
-//        )
-//
-
-
         MyMediaController.addListener(this)
+
+
+        if(!MusicPlayerService.isServiceRunning())
+            SongsStorageOperations.restoreCurrentlyPlayedSong()
         //startMusicService()
     }
 
@@ -475,6 +470,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
         super.onPause()
         //Glide.getPhotoCacheDir(this)?.deleteRecursively()
 
+        SongsGlobalVars.SongsStorageOperations.saveCurrentlyPlayedSong()
         CoroutineScope(Dispatchers.IO).launch {
 
             val savedSuccesfully = saveSongLists()

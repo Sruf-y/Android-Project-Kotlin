@@ -29,7 +29,7 @@ class Playlists : Fragment(R.layout.fragment_playlists) {
 
     fun designatedList(): ArrayList<Playlist>{
 
-        (SongsGlobalVars.listOfAllPlaylists.get()).apply {
+        (SongsGlobalVars.listOfAllPlaylists.getList()).apply {
             if(this.isEmpty())
                 return ArrayList<Playlist>()
             else

@@ -54,47 +54,36 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.5">
 
-                <ImageView
-                    android:id="@+id/expanded_background"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:alpha="0.4"
-                    android:clickable="true"
-                    android:scaleType="centerCrop"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.5" />
-
                 <CheckBox
                     android:id="@+id/expanded_checkbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:button="@drawable/play_pause_button_music_player_toggle"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:background="@drawable/indian_music_button_toggle"
+                    android:button="@null"
                     android:enabled="false"
-                    android:scaleX="3"
-                    android:scaleY="3"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@+id/expanded_play_pause"
+                    app:layout_constraintEnd_toEndOf="@+id/expanded_play_pause"
                     app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/expanded_play_pause"
+                    app:layout_constraintTop_toTopOf="@+id/expanded_play_pause"
                     app:layout_constraintVertical_bias="0.5" />
 
                 <SeekBar
                     android:id="@+id/expanded_seekbar"
                     android:layout_width="0dp"
-                    android:layout_height="20dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:background="@null"
                     android:max="100"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:progress="0"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:progress="10"
+                    android:progressBackgroundTintMode="src_over"
+                    android:progressDrawable="@drawable/progressbardrawable"
+                    android:splitTrack="false"
+                    android:thumb="@drawable/progress_thumb"
+                    app:layout_constraintBottom_toTopOf="@+id/expanded_play_pause"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/expanded_play_pause" />
+                    app:layout_constraintTop_toBottomOf="@+id/expanded_title" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/expanded_play_pause"
@@ -105,7 +94,7 @@
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.5">
+                    app:layout_constraintVertical_bias="0.74">
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -122,7 +111,30 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.26999998" />
+
+                <ImageView
+                    android:id="@+id/expanded_next_button"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/ic_next"
+                    app:layout_constraintBottom_toBottomOf="@+id/expanded_play_pause"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.16"
+                    app:layout_constraintStart_toEndOf="@+id/expanded_play_pause"
+                    app:layout_constraintTop_toTopOf="@+id/expanded_play_pause" />
+
+                <ImageView
+                    android:id="@+id/expanded_previous_button"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/ic_previous"
+                    app:layout_constraintBottom_toBottomOf="@+id/expanded_play_pause"
+                    app:layout_constraintEnd_toStartOf="@+id/expanded_play_pause"
+                    app:layout_constraintHorizontal_bias="0.84"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/expanded_play_pause" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -261,6 +273,16 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:id="@+id/expanded_background"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="0.4"
+            android:clickable="true"
+            android:scaleType="centerCrop"
+            app:layout_anchor="@+id/bottomsheet"
+            app:layout_anchorGravity="center" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

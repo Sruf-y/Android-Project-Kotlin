@@ -172,7 +172,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@color/transparent"
-                    android:button="@drawable/radiobutton_button"
+                    android:button="@drawable/favorite_heart_button"
                     android:enabled="true"
                     android:focusable="auto"
                     android:scaleX="5"

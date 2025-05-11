@@ -1,19 +1,23 @@
 package SongsMain.Variables
 
+import DataClasses_Ojects.Logs
 import SongsMain.Classes.Events
 import SongsMain.Classes.Playlist
+import SongsMain.Classes.Playlist.Companion.from
 import SongsMain.Classes.Song
 import SongsMain.Classes.Song.Companion.from
 import SongsMain.Classes.Song.Companion.takeYourPartFromGlobal
 import SongsMain.Classes.myExoPlayer
-import SongsMain.Classes.myMediaPlayer
 import SongsMain.Tutorial.Application
 import android.content.Context
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import de.greenrobot.event.EventBus
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,19 +41,24 @@ object SongsGlobalVars {
 
 
     object listOfAllPlaylists{
-        private var auxlista:Queue<Playlist> = LinkedList<Playlist>()
+        private var auxlista:Queue<AtomicReference<Playlist>> = LinkedList<AtomicReference<Playlist>>()
 
         fun reload(){
             auxlista.clear()
-            auxlista.addAll(listOf<Playlist>(SongsGlobalVars.RecentlyPlayed,SongsGlobalVars.MyFavoritesPlaylist,
-                SongsGlobalVars.hiddenSongs,
-                SongsGlobalVars.publicSongs))
-
-            auxlista.addAll(SongsGlobalVars.userMadePlaylists)
+            auxlista.addAll(listOf<AtomicReference<Playlist>>(AtomicReference(SongsGlobalVars.RecentlyPlayed),AtomicReference(SongsGlobalVars.MyFavoritesPlaylist),
+                AtomicReference(SongsGlobalVars.hiddenSongs),
+                AtomicReference(SongsGlobalVars.publicSongs)))
+            SongsGlobalVars.userMadePlaylists.forEach {
+                auxlista.add(AtomicReference(it))
+            }
         }
 
-        fun get():List<Playlist>{
+        fun getListOfRefferences():List<AtomicReference<Playlist>>{
             return auxlista.toList()
+        }
+
+        fun getList():List<Playlist>{
+            return auxlista.map{p->p.get()}
         }
     }
 
@@ -71,6 +80,108 @@ object SongsGlobalVars {
          var saveBuffer_free=true
          var loadBuffer_free=true
 
+
+
+
+        /**
+         * Saves the currentlyplaying song AND the playlist it is from. If both exist and are not null
+         *
+         * NEEDS TO RUN ON MAIN THREAD
+         * */
+
+        @OptIn(UnstableApi::class,DelicateCoroutinesApi::class)
+        fun saveCurrentlyPlayedSong(){
+
+                val directory = File(Application.instance.filesDir,"SavedLastPlayed")
+
+                if(myExoPlayer.currentPlaylist!=null &&
+                    myExoPlayer.currentlyPlayingSong!=null &&
+                    myExoPlayer.currentPlaylist!!.get().songsList?.contains(myExoPlayer.currentlyPlayingSong)==true)
+                {
+                    Functions.saveAsJson(
+                        Application.instance,
+                        "CurrentlyPlayingSong",
+                        myExoPlayer.currentlyPlayingSong!!,
+                        directory
+                    )
+
+                    Functions.saveAsJson(
+                        Application.instance,
+                        "CurrentPlaylist",
+                        myExoPlayer.currentPlaylist!!.get(),
+                        directory
+                    )
+
+                    Functions.saveAsJson(
+                        Application.instance,
+                        "SongPosition",
+                        myExoPlayer.getCurrentPosition().toDouble(),
+                        directory
+                    )
+                }
+
+        }
+
+        /**
+         * Restores the last playing song if it existed and was in a valid playlist
+         *
+         * NEEDS TO RUN ON MAIN THREAD
+         * */
+
+
+        @OptIn(UnstableApi::class)
+        fun restoreCurrentlyPlayedSong(){
+            val directory = File(Application.instance.filesDir,"SavedLastPlayed")
+            val currentsong = Functions.loadFromJson(
+                Application.instance,
+                "CurrentlyPlayingSong",
+                Song.emptySong,
+                directory
+            )
+
+            val currentplaylist = Functions.loadFromJson(
+                Application.instance,
+                "CurrentPlaylist",
+                Playlist.emptyplaylist,
+                directory
+            )
+
+            var song_position:Double = Functions.loadFromJson(
+                Application.instance,
+                "SongPosition",
+                Double.MIN_VALUE,
+                directory
+            )
+
+
+
+
+
+            if(currentsong!=Song.emptySong && currentplaylist!=Playlist.emptyplaylist){
+
+
+
+
+
+                val actualPlaylist =
+                    listOfAllPlaylists.getListOfRefferences()[listOfAllPlaylists.getList().indexOf(currentplaylist)]
+
+
+                val playlistToOpen = actualPlaylist.get().from()
+
+                if(playlistToOpen!=null) {
+
+                    myExoPlayer.setSong(currentsong,playlistToOpen)
+
+
+
+                    Log.e(Logs.ERRORS.name,"Restored song_position was ${song_position}")
+                    myExoPlayer.seekTo(song_position.toLong())
+                }
+
+
+            }
+        }
 
 
 
@@ -336,7 +447,7 @@ object SongsGlobalVars {
 
     object SongsOperations{
         @OptIn(UnstableApi::class)
-        fun Song.setFavorite(favorite:Boolean){
+        fun Song.toggleFavorite(){
 
 
 
@@ -372,7 +483,7 @@ object SongsGlobalVars {
                     // in case i am listening to the songs in the favorites playlist,
                     // removing the song puts me in no playlist. Handling this
 
-                    if(publicSongs.songsList?.contains(myExoPlayer.currentlyPlayingSong!!)?:false){
+                    if(publicSongs.songsList?.contains(myExoPlayer.currentlyPlayingSong!!) == true){
                         myExoPlayer.openPlaylist(AtomicReference<Playlist>(publicSongs))
                     }
                     else{
@@ -380,19 +491,23 @@ object SongsGlobalVars {
                     }
                 }
 
+
+
+
+
+//                // also update in the current playlist
+//                myExoPlayer.currentlyPlayingSong?.from(myExoPlayer.currentPlaylist?.get()?.songsList!!)?.isFavorite =it.isFavorite
+
+
+
+
+
                 SongsGlobalVars.SongsStorageOperations.SaveSpecifficList.Favorites_List()
             }
 
             
 
-//            myExoPlayer.currentPlaylist?.get().let {
-//                if(it!=null){
-//                    if(it.songsList==null){
-//                        it.songsList= ArrayList<Song>()
-//                    }
-//                    this.from(it.songsList!!).isFavorite=
-//                }
-//            }
+
 
 
         }

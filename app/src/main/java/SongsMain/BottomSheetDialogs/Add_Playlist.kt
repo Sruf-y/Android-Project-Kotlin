@@ -184,7 +184,7 @@ class Add_Playlist : BottomSheetDialogFragment(R.layout.fragment_add__playlist) 
 
                 confirmButton.setOnClickListener {
                     editPlaylistName.text.length.apply {
-                        if(this>0 && this<maxchar && !(SongsGlobalVars.listOfAllPlaylists.get().map { p->p.title }.contains(editPlaylistName.text.toString()))){
+                        if(this>0 && this<maxchar && !(SongsGlobalVars.listOfAllPlaylists.getList().map { p->p.title }.contains(editPlaylistName.text.toString()))){
                             if(title==null) {
                                 SongsGlobalVars.userMadePlaylists.add(
                                     Playlist(

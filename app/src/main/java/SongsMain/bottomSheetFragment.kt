@@ -28,6 +28,7 @@ import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.viewModels
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
+import coil3.Image
 import com.bumptech.glide.Glide
 import com.example.composepls.R
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -74,6 +75,8 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
     lateinit var expanded_Seekbar: SeekBar
     lateinit var expanded_Background: ImageView
     lateinit var expanded_musicTitle: TextView
+    lateinit var expanded_next: ImageView
+    lateinit var expanded_prev: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -202,6 +205,8 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
         //expanded_SkipBackward
         expanded_musicToggle=requireView().findViewById(R.id.expanded_play_pause)
         expanded_musicToggleCheckbox=requireView().findViewById(R.id.expanded_checkbox)
+        expanded_prev=requireView().findViewById(R.id.expanded_previous_button)
+        expanded_next=requireView().findViewById(R.id.expanded_next_button)
 
 
 
@@ -236,12 +241,19 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
         bottomsheetCol_musictitle.isSelected = true;
 
 
+        requireView().findViewById<CheckBox>(R.id.colapsedCheckbox).isChecked= myExoPlayer.isPlaying
         bottomsheetCol_musicToggle.setOnClickListener {
 
             myExoPlayer.toggle()
         }
         expanded_musicToggle.setOnClickListener {
             myExoPlayer.toggle()
+        }
+        expanded_next.setOnClickListener {
+            myExoPlayer.playNextInPlaylist()
+        }
+        expanded_prev.setOnClickListener {
+            myExoPlayer.skipToPreviousInPlaylist()
         }
 
 
@@ -276,6 +288,8 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
                 expanded_Seekbar.progress=myprogress
                 progressViewModel2.startUpdates()
 
+                bus.post(Events.SongWas_UsedSeek())
+
             }
         })
 
@@ -292,6 +306,12 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
 
 
 
+    }
+
+    @OptIn(UnstableApi::class)
+    fun onEvent(event:Events.SongWas_UsedSeek){
+
+        expanded_Seekbar.progress= myExoPlayer.getCurrentPosition().toInt()
     }
 
 

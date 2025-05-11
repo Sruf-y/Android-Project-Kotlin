@@ -1,6 +1,7 @@
 package SongsMain.Classes
 
 import DataClasses_Ojects.Logs
+import SongsMain.Variables.SongsGlobalVars
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Parcelable
@@ -9,11 +10,29 @@ import com.example.composepls.R
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.concurrent.atomic.AtomicReference
 
 
 @Parcelize
 data class Playlist(var title: String,var songsList: ArrayList<Song>?=null,var isUserOrdered:Boolean=true,var thumbnail: Int?=null,var isUserEditable:Boolean = true):
     Parcelable {
+
+
+
+        companion object{
+            val emptyplaylist = Playlist("")
+
+            fun Playlist.from(): AtomicReference<Playlist>? {
+
+                SongsGlobalVars.listOfAllPlaylists.getListOfRefferences().forEach {
+                    if(it.get()==this){
+                        return it
+                    }
+                }
+                return null
+            }
+        }
+
 
 
 

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:height="15dp" android:gravity="center">
+        <layer-list  >
+
+            <item android:id="@android:id/background">
+
+                <shape  >
+                    <gradient
+                        android:startColor="#A6A6E7"
+                        android:centerColor="#9292AD"
+                        android:centerY="0.30"
+                        android:endColor="#687078"
+                        android:angle="270"
+                        />
+                    <corners android:radius="15dp"/>
+                </shape>
+            </item>
+
+            <item android:id="@android:id/secondaryProgress">
+                <scale android:scaleWidth="100%">
+                    <shape>
+                        <gradient
+                            android:startColor="@color/white"
+                            android:centerColor="@color/red"
+                            android:centerY="0.75"
+                            android:endColor="@color/white"
+                            android:angle="270"
+                            />
+                        <corners android:radius="15dp"/>
+                    </shape>
+                </scale>
+            </item>
+
+            <item android:id="@android:id/progress">
+                <scale android:scaleWidth="100%">
+                    <shape>
+                        <gradient
+                            android:startColor="#CCB773"
+                            android:centerColor="#E7C916"
+                            android:centerY="0.30"
+                            android:endColor="#BF9125"
+                            android:angle="270"
+                            />
+                        <corners android:topLeftRadius="15dp" android:bottomLeftRadius="15dp"/>
+                    </shape>
+                </scale>
+            </item>
+
+        </layer-list>
+    </item>
+</layer-list>
+

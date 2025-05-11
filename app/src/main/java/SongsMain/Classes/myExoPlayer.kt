@@ -30,9 +30,8 @@ object myExoPlayer {
 
     // Player state tracking
     private var _isPlaying = false
-    var isPlaying: Boolean
-        get() = exoPlayer?.isPlaying ?: _isPlaying
-        set(value) { _isPlaying = value }
+    val isPlaying: Boolean
+        get() = exoPlayer?.isPlaying!!
 
     fun initializePlayer(context: Context) {
         if (!isInitialized) {
@@ -69,7 +68,7 @@ object myExoPlayer {
     fun seekTo(pos: Long, rawPosition: Boolean = true) {
         exoPlayer?.let { player ->
             val positionMs = if (rawPosition) pos else (pos / 100) * player.duration.coerceAtLeast(1)
-            player.seekTo(positionMs.coerceIn(0, player.duration))
+            player.seekTo(positionMs.coerceIn(0, currentlyPlayingSong?.duration))
             bus.post(Events.SongWas_UsedSeek())
         }
     }
@@ -183,6 +182,7 @@ object myExoPlayer {
     }
 
     fun start() {
+
         exoPlayer?.let { player ->
             if (currentlyPlayingSong != null && !player.isPlaying) {
                 player.play()

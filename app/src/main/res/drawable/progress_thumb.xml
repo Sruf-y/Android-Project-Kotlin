@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/circle_vector.xml -->
+<vector android:width="30dp"
+    android:height="30dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <path
+        android:name="innercircle"
+        android:fillColor="@color/white"
+        android:pathData="M50,25
+                          A25,25 0 1,1 49.999,25
+                          Z" />
+
+    <path
+        android:name="outerring"
+        android:strokeColor="@color/blue"
+        android:strokeWidth="15"
+        android:pathData="M50,7.5
+                          A42.5,42.5 0 1,1 49.999,7.5
+                          Z"
+        />
+</vector>

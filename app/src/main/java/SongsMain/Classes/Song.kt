@@ -12,6 +12,7 @@ import androidx.media3.common.MediaMetadata
 import androidx.versionedparcelable.VersionedParcelize
 import kotlinx.parcelize.Parcelize
 import java.io.File
+import java.io.Serializable
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -19,9 +20,9 @@ import java.time.ZoneId
 class Song(
     var id:Long,
  var songUri: String,
- var title: String,
+ var title: String="",
  var thumbnail: String = "",
- var author: String,
+ var author: String="",
  var duration: Long,
  var dateAdded: Long = LocalDateTime.now()
   .atZone(ZoneId.systemDefault())  // Convert to ZonedDateTime
@@ -31,19 +32,29 @@ class Song(
     var timesListened:Int=0,
     var lastPlayed:String? = null,
     var isHidden:Boolean = false,
-    var isFavorite: Boolean = false) : java.io.Serializable, Parcelable {
+    var isFavorite: Boolean = false) : Serializable, Parcelable {
 
 
 
-  constructor( id:Long,songUri:String, title: String, thumbnail:String="", author:String, duration: Long, isHidden:Boolean,isFavorite:Boolean):this(id,songUri,title,thumbnail,author,duration){
-   this.isHidden=isHidden
-   this.isFavorite=isFavorite
-
-  }
+//  constructor( id:Long,songUri:String, title: String, thumbnail:String="", author:String, duration: Long, isHidden:Boolean,isFavorite:Boolean):this(id,songUri,title,thumbnail,author,duration){
+//   this.isHidden=isHidden
+//   this.isFavorite=isFavorite
+//
+//  }
 
 
   companion object {
       // Add this to your Song class or as an extension
+
+      val emptySong:Song=Song(
+          id = -1,
+          songUri = "",
+          duration = -1
+      )
+
+
+
+
 
       fun Song.toMediaItemCompat(): MediaBrowserCompat.MediaItem {
           val extras = Bundle().apply {
@@ -166,6 +177,7 @@ class Song(
 
 
         if (songUri != other.songUri) return false
+        if(id != other.id) return false
 //   if (thumbnail != null && other.thumbnail != null) {
 //    if (thumbnail != other.thumbnail) return false
 //   }
@@ -176,8 +188,11 @@ class Song(
 
     override fun hashCode(): Int {
         var result = 31 * songUri.hashCode()
+        result = result + 31 * id.hashCode()
         return result
     }
+
+
 
 
 }
