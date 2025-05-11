@@ -39,8 +39,8 @@
                 <objectAnimator
                     android:propertyName="strokeColor"
                     android:duration="250"
-                    android:valueFrom="#1e88e5"
-                    android:valueTo="#d3d3d3"
+                    android:valueFrom="@color/blue"
+                    android:valueTo="@color/gray_light"
                     android:valueType="colorType"
                     android:interpolator="@android:anim/linear_interpolator"/>
             </set>
@@ -59,16 +59,16 @@
                 <objectAnimator
                     android:propertyName="fillColor"
                     android:duration="250"
-                    android:valueFrom="#1e88e5"
-                    android:valueTo="#d3d3d3"
+                    android:valueFrom="@color/blue"
+                    android:valueTo="@color/gray_light"
                     android:valueType="colorType"
                     android:interpolator="@android:anim/linear_interpolator"/>
                 <objectAnimator
                     android:propertyName="fillColor"
                     android:startOffset="250"
                     android:duration="1"
-                    android:valueFrom="#d3d3d3"
-                    android:valueTo="#00000000"
+                    android:valueFrom="@color/gray_light"
+                    android:valueTo="@color/transparent"
                     android:valueType="colorType"
                     android:interpolator="@android:anim/linear_interpolator"/>
             </set>
