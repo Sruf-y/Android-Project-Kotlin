@@ -42,6 +42,7 @@ class search : AppCompatActivity() {
     lateinit var recyclerLayoutManager: LinearLayoutManager
     lateinit var audioRecycler: RecyclerView
     lateinit var adaptor: SongListAdapter
+    lateinit var noitemsfound: TextView
 
 
     @OptIn(UnstableApi::class)
@@ -51,7 +52,7 @@ class search : AppCompatActivity() {
 
 
         main = this.findViewById(R.id.main)
-
+        noitemsfound=this.findViewById(R.id.noitemsfound)
 
         val myStatusBarStyle = SystemBarStyle.dark(getColor(R.color.transparent))
         val myNavigationBarStyle = SystemBarStyle.dark(getColor(R.color.black))
@@ -109,8 +110,18 @@ class search : AppCompatActivity() {
                         }
                     }
 
-                    adaptor.notifyDataSetChanged()
 
+
+                    if(adaptor.mList.isEmpty()){
+                        audioRecycler.visibility=View.GONE
+                        noitemsfound.visibility=View.VISIBLE
+                    }
+                    else{
+                        audioRecycler.visibility=View.VISIBLE
+                        noitemsfound.visibility=View.GONE
+                    }
+
+                    adaptor.notifyDataSetChanged()
 
                 }
                 else{

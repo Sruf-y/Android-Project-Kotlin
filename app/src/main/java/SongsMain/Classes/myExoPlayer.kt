@@ -95,7 +95,19 @@ object myExoPlayer {
         }
     }
 
+    /**
+     * Goes to the previous in playlist if it exists. If the song is more than [10] seconds in, it instead rewinds
+     * */
     fun playPreviousInPlaylist() {
+        if (myExoPlayer.getCurrentPosition() < 10000) {
+            myExoPlayer.skipToPreviousInPlaylist()
+
+        }else{
+            myExoPlayer.seekTo(0,true)
+        }
+    }
+
+    fun skipToPreviousInPlaylist(){
         currentPlaylist?.get()?.let { playlist ->
             currentlyPlayingSong?.let { currentSong ->
                 if (playlist.hasPreviousBefore(currentSong)) {
@@ -154,6 +166,7 @@ object myExoPlayer {
                     openPlaylist(it)
                     //exoPlayer!!.setMediaItems(currentPlaylist!!.get().songsList!!.map { p->p.toMediaItem() },it.get().songsList!!.indexOf(currentlyPlayingSong),0)
                 }
+
 
                 bus.post(Events.SongWasChanged(lastSong, currentlyPlayingSong))
 

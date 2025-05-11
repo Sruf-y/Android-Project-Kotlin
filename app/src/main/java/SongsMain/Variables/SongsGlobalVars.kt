@@ -1,10 +1,17 @@
 package SongsMain.Variables
 
+import SongsMain.Classes.Events
 import SongsMain.Classes.Playlist
 import SongsMain.Classes.Song
+import SongsMain.Classes.Song.Companion.from
 import SongsMain.Classes.Song.Companion.takeYourPartFromGlobal
+import SongsMain.Classes.myExoPlayer
+import SongsMain.Classes.myMediaPlayer
 import SongsMain.Tutorial.Application
 import android.content.Context
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
+import de.greenrobot.event.EventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -13,6 +20,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.LinkedList
 import java.util.Queue
+import java.util.concurrent.atomic.AtomicReference
 
 object SongsGlobalVars {
     val CHANNEL_ID = "CHANNEL_ID_botofan"
@@ -22,7 +30,7 @@ object SongsGlobalVars {
         return File(Application.instance.filesDir,"MusicDir")
     }
 
-
+    private val bus = EventBus.getDefault()
 
     // i don't plan on doing anything with this honestly
     var playingQueue:ArrayList<Song> = ArrayList<Song>()
@@ -48,16 +56,16 @@ object SongsGlobalVars {
     var userMadePlaylists: ArrayList<Playlist> = ArrayList<Playlist>()
 
 
-    var MyFavoritesPlaylist: Playlist = Playlist("Favorites", ArrayList<Song>(),false)
-    var RecentlyPlayed: Playlist = Playlist("Recently Played",ArrayList<Song>(),false)
+    var MyFavoritesPlaylist: Playlist = Playlist("Favorites", ArrayList<Song>(),false,null,true)
+    var RecentlyPlayed: Playlist = Playlist("Recently Played",ArrayList<Song>(),false,null,false)
 
 
 
 
     var allSongs: ArrayList<Song> = ArrayList<Song>()
 
-    var hiddenSongs: Playlist = Playlist("Hidden Songs",ArrayList<Song>(),false)
-    var publicSongs: Playlist = Playlist("Public Songs",ArrayList<Song>(),false)
+    var hiddenSongs: Playlist = Playlist("Hidden Songs",ArrayList<Song>(),false,null,true)
+    var publicSongs: Playlist = Playlist("Public Songs",ArrayList<Song>(),false,null,false)
 
     object SongsStorageOperations{
          var saveBuffer_free=true
@@ -68,7 +76,7 @@ object SongsGlobalVars {
 
 
         /**
-         * Reloads from memory ONLY "SongsGlobalValues.alllist". It does NOT distribute NOR refresh any other playlists/lists
+         * Reloads from internal memory ONLY "SongsGlobalValues.alllist". It does NOT distribute NOR refresh any other playlists/lists
          * */
         suspend fun refreshGlobalSongList():Boolean{
             return withContext(Dispatchers.IO) {
@@ -87,7 +95,7 @@ object SongsGlobalVars {
         }
 
         /**
-         * Reloads from memory all lists except the pre-existing "SongsGlobalValues.alllist".
+         * Reloads from internal memory all lists except the pre-existing "SongsGlobalValues.alllist".
          *
          * It does NOT also redistribute from the global list. Call redistributeLists() for that.
          * */
@@ -326,7 +334,69 @@ object SongsGlobalVars {
         }
     }
 
+    object SongsOperations{
+        @OptIn(UnstableApi::class)
+        fun Song.setFavorite(favorite:Boolean){
 
+
+
+
+
+            this.from(allSongs)?.let {
+                if(it.isFavorite){
+                    it.isFavorite=false
+
+                    if(MyFavoritesPlaylist.songsList==null){
+                        MyFavoritesPlaylist.songsList= ArrayList<Song>()
+                    }
+                    // este favorit, verific daca este in lista de favorite si il scot daca exista
+                    if(MyFavoritesPlaylist.songsList?.contains(it)?:false){
+                        MyFavoritesPlaylist.songsList?.remove(it)
+                    }
+                }
+                else{
+                    it.isFavorite=true
+                    //verific daca nu este in lista de favorite, daca nu, il adaug.
+                    if(!(MyFavoritesPlaylist.songsList?.contains(it)?:false)){
+                        if(MyFavoritesPlaylist.songsList==null){
+                            MyFavoritesPlaylist.songsList= ArrayList<Song>()
+                        }
+
+                        MyFavoritesPlaylist.songsList?.add(it)
+                    }
+                }
+                bus.post(Events.PlaylistWasChanged(MyFavoritesPlaylist))
+
+                if(myExoPlayer.currentPlaylist?.get()==MyFavoritesPlaylist){
+
+                    // in case i am listening to the songs in the favorites playlist,
+                    // removing the song puts me in no playlist. Handling this
+
+                    if(publicSongs.songsList?.contains(myExoPlayer.currentlyPlayingSong!!)?:false){
+                        myExoPlayer.openPlaylist(AtomicReference<Playlist>(publicSongs))
+                    }
+                    else{
+                        myExoPlayer.openPlaylist(AtomicReference<Playlist>(hiddenSongs))
+                    }
+                }
+
+                SongsGlobalVars.SongsStorageOperations.SaveSpecifficList.Favorites_List()
+            }
+
+            
+
+//            myExoPlayer.currentPlaylist?.get().let {
+//                if(it!=null){
+//                    if(it.songsList==null){
+//                        it.songsList= ArrayList<Song>()
+//                    }
+//                    this.from(it.songsList!!).isFavorite=
+//                }
+//            }
+
+
+        }
+    }
 
 
     var globalDataLoadBuffer_Free = true

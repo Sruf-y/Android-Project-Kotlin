@@ -44,8 +44,8 @@ class Playlists : Fragment(R.layout.fragment_playlists) {
     lateinit var layoutManager: LinearLayoutManager
     val bus= EventBus.getDefault()
 
-    lateinit var plusButton: ImageView
-    lateinit var optionsButton: ImageView
+    lateinit var plusButton: ShapeableImageView
+    lateinit var optionsButton: ShapeableImageView
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -212,7 +212,7 @@ class Playlists : Fragment(R.layout.fragment_playlists) {
     }
 
 
-    fun onEvent(event: Events.PlaylistEvents.NotifyAdded){
+    fun onEvent(event: Events.InPlaylistEvents.NotifyAdded){
         var mlistSize = adaptor.mList.size
         adaptor.mList.add(SongsGlobalVars.userMadePlaylists.last())
 
@@ -220,7 +220,7 @@ class Playlists : Fragment(R.layout.fragment_playlists) {
 
         nrOfPlaylistsVIEW.text="Playlists: "+adaptor.mList.size
     }
-    fun onEvent(event: Events.PlaylistEvents.NotifyDeleted){
+    fun onEvent(event: Events.InPlaylistEvents.NotifyDeleted){
 
         val playlist = adaptor.mList.find { p->p==event.playlistToDelete }
 
@@ -236,7 +236,7 @@ class Playlists : Fragment(R.layout.fragment_playlists) {
 
 
     }
-    fun onEvent(event: Events.PlaylistEvents.NotifyChanged){
+    fun onEvent(event: Events.InPlaylistEvents.NotifyChanged){
         if(event.playlistThatChanged!=null) {
 
 

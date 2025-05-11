@@ -4,14 +4,19 @@ package SongsMain.Tutorial
 import DataClasses_Ojects.Logs
 import SongsMain.Classes.Events
 import SongsMain.Classes.Song
+import SongsMain.Classes.Song.Companion.from
 import SongsMain.Classes.myExoPlayer
 import SongsMain.SongMain_Activity
+import SongsMain.SongsMain_Base
+import SongsMain.Variables.SongsGlobalVars
 import SongsMain.Variables.SongsGlobalVars.CHANNEL_ID
+import SongsMain.Variables.SongsGlobalVars.SongsOperations.setFavorite
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
@@ -31,6 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import androidx.media3.common.util.UnstableApi
+import java.io.FileNotFoundException
 
 
 @OptIn(UnstableApi::class)
@@ -47,6 +53,22 @@ class MusicPlayerService: Service() {
 
     }
     companion object {
+
+        fun updateNotificationMusic(){
+
+        }
+
+        enum class MediaPlayerServiceActions{
+            SERVICESTART,
+            SERVICESTOP,
+            TOGGLE,
+            FORWARD,
+            BACKWARD,
+            SEEK,
+            OPENAPP,
+            FAVORITE
+        }
+
         private var isRunning = false
 
         fun isServiceRunning() = isRunning
@@ -131,11 +153,7 @@ class MusicPlayerService: Service() {
     fun CreateNotification(song:Song?=null,setSongAsStarted:Boolean=false){
 
 
-        val play_pause_icon = if ( myExoPlayer.isPlaying || setSongAsStarted) {
-            R.drawable.pause_button_music_player
-        } else {
-            R.drawable.play_button_music_player
-        }
+
 
         val SONG = if (song != null) {
             song
@@ -148,14 +166,31 @@ class MusicPlayerService: Service() {
 
             CoroutineScope(Dispatchers.Main).launch {
 
+                var favorite_drawable = R.drawable.favorite_heart_unchecked
 
+                if(SONG!=null){
+                    if(SONG.isFavorite){
+                        favorite_drawable=R.drawable.favorite_heart_checked
+                    }
+                }
 
-
+                var file:File? = null
                 var song_art:Bitmap? = null
                 try {
-                    song_art = Functions.Images.loadFromFile(File(SONG?.thumbnail))
+                    if(SONG?.thumbnail!=null) {
+                        file = File(SONG?.thumbnail)
+                        if (file.exists()) {
+                            val bytes = file.readBytes()
+
+                            song_art = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                        }
+                    }
+
+
                 }catch (ex: NullPointerException){
-                    Log.e("NULL","Song_art for notification threw a nullpointer",ex)
+                    Log.e(Logs.ERRORS.name,"Song_art for notification threw a nullpointer 'file' is [${file}].",ex)
+                }catch (ex: FileNotFoundException){
+                    Log.e(Logs.ERRORS.name,"Song thumbnail file not found, path was ${SONG?.thumbnail}",ex)
                 }
 
             val metadata = MediaMetadataCompat.Builder()
@@ -187,11 +222,14 @@ class MusicPlayerService: Service() {
                     )
 
                     .setActions(PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
-                    .addCustomAction(MediaPlayerServiceActions.SERVICESTOP.name,"myaction_name", R.drawable.x)
+                    .addCustomAction(MediaPlayerServiceActions.FAVORITE.name,"favorite_button",favorite_drawable)
                     .setActions(
                         PlaybackStateCompat.ACTION_SEEK_TO or
-                                PlaybackStateCompat.ACTION_PLAY_PAUSE
+                                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
+                                PlaybackStateCompat.ACTION_PLAY_PAUSE or
+                                PlaybackStateCompat.ACTION_SKIP_TO_NEXT
                     )
+                    .addCustomAction(MediaPlayerServiceActions.SERVICESTOP.name,"x_button", R.drawable.x)
                     .build()
             )
 
@@ -221,21 +259,19 @@ class MusicPlayerService: Service() {
                 .setOngoing(true)
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
-                .apply {
-                    if(song_art!=null)
-                    {
-                        //setLargeIcon(song_art)
-                    }
-                }
                 .build()
 
-            startForeground(NOTIFICATION_ID, notification)
+
+                startForeground(NOTIFICATION_ID, notification)
+
+
         }
     }
 
 
     override fun onTaskRemoved(rootIntent: Intent?) {
-        //serviceStop()
+
+        SongMain_Activity.isRunningAnywhere=false
         super.onTaskRemoved(rootIntent)
     }
 
@@ -264,23 +300,47 @@ class MusicPlayerService: Service() {
 
 
 
-
+        // callback, here you can handle default actions and CUSTOM ACTIONS
 
         mediaSession = MediaSessionCompat(this, "MusicPlayerService").apply {
             setCallback(object : MediaSessionCompat.Callback() {
                 override fun onCustomAction(action: String?, extras: Bundle?) {
-                    when(action){
-                        MediaPlayerServiceActions.SERVICESTOP.name->{serviceStop()}
+                    when (action) {
+                        MediaPlayerServiceActions.SERVICESTOP.name -> {
+
+                            stopForeground(STOP_FOREGROUND_REMOVE)
+                            if (!SongMain_Activity.isRunningAnywhere) {
+                                serviceStop()
+                            }
+
+                        }
+
+                        MediaPlayerServiceActions.FAVORITE.name -> {
+                            myExoPlayer.currentlyPlayingSong?.isFavorite?.let {
+
+                                // this SHOULD save the favorite state
+                                myExoPlayer.currentlyPlayingSong?.setFavorite(!it)
+
+                                CreateNotification()
+
+
+
+                            }
+                        }
                     }
                 }
 
-                override fun onPlay()  { myExoPlayer.start()
+                override fun onPlay() {
+                    myExoPlayer.start()
                     CreateNotification()
                 }
-                override fun onPause()  { myExoPlayer.pause()
+
+                override fun onPause() {
+                    myExoPlayer.pause()
                     CreateNotification()
                 }
-                override fun onSeekTo(pos: Long)  {
+
+                override fun onSeekTo(pos: Long) {
                     myExoPlayer.isPlaying.apply {
 
                         myExoPlayer.seekTo(pos)
@@ -289,15 +349,13 @@ class MusicPlayerService: Service() {
 
 
                 }
-                override fun onSkipToPrevious()  {
-                    if(myExoPlayer.getCurrentPosition()<3000) {
+
+                override fun onSkipToPrevious() {
+
                         myExoPlayer.playPreviousInPlaylist()
 
-                    }
-                    else{
-                        myExoPlayer.seekTo(0,true)
-                        CreateNotification()
-                    }
+                        CreateNotification(setSongAsStarted = true)
+
                 }
                 override fun onSkipToNext()  {
                     myExoPlayer.playNextInPlaylist()
@@ -317,6 +375,12 @@ class MusicPlayerService: Service() {
 
 
         //myExoPlayer.mediaplayer.pause()
+
+
+
+
+
+
         onEvent(Events.SongWasStarted())
 
 
@@ -326,6 +390,7 @@ class MusicPlayerService: Service() {
 
 
     }
+
 
 
 
@@ -381,7 +446,7 @@ class MusicPlayerService: Service() {
             // You might want to pause playback here
         }
 
-        CreateNotification(myExoPlayer.currentlyPlayingSong,true)
+
     }
 
 
@@ -427,15 +492,7 @@ class MusicPlayerService: Service() {
         )
     }
 
-    enum class MediaPlayerServiceActions{
-        SERVICESTART,
-        SERVICESTOP,
-        TOGGLE,
-        FORWARD,
-        BACKWARD,
-        SEEK,
-        OPENAPP
-    }
+
 
 
 

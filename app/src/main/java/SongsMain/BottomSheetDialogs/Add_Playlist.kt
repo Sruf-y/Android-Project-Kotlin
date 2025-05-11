@@ -5,14 +5,11 @@ import SongsMain.Classes.Events
 import SongsMain.Classes.Playlist
 import SongsMain.Variables.MusicAppSettings
 import SongsMain.Variables.SongsGlobalVars
-import Utilities.Utils.Companion.dP
-import android.app.Application
 import android.app.Dialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
@@ -197,7 +194,7 @@ class Add_Playlist : BottomSheetDialogFragment(R.layout.fragment_add__playlist) 
                                 )
                                 SongsGlobalVars.listOfAllPlaylists.reload()
                                 SongsGlobalVars.SongsStorageOperations.SaveSpecifficList.List_Of_Playlists()
-                                bus.post(Events.PlaylistEvents.NotifyAdded())
+                                bus.post(Events.InPlaylistEvents.NotifyAdded())
                                 dialog.dismiss()
                             }else{
                                 // title was given, is in rename mode
@@ -205,7 +202,7 @@ class Add_Playlist : BottomSheetDialogFragment(R.layout.fragment_add__playlist) 
                                 SongsGlobalVars.userMadePlaylists.find { p->p.title==title }?.title=editPlaylistName.text.toString()
                                 SongsGlobalVars.listOfAllPlaylists.reload()
                                 SongsGlobalVars.SongsStorageOperations.SaveSpecifficList.List_Of_Playlists()
-                                bus.post(Events.PlaylistEvents.NotifyChanged(title.toString(),songToChange))
+                                bus.post(Events.InPlaylistEvents.NotifyChanged(title.toString(),songToChange))
 
                                 dialog.dismiss()
 

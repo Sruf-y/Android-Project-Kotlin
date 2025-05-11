@@ -21,7 +21,7 @@ object Events {
     class MakeCurrentMainFragment(val fragment: Fragment)
     class MakeCurrent_BottomSheet_Fragment(val fragment: Fragment)
 
-    object PlaylistEvents{
+    object InPlaylistEvents{
         class NotifyAdded()
         class NotifyDeleted(val playlistToDelete: Playlist?)
         class NotifyChanged(val previousTitle:String,val playlistThatChanged: Playlist?)
@@ -30,4 +30,5 @@ object Events {
 
     //class ShowSetting_BottomDialog(val bottomDialog: BottomSheetDialogFragment)
 
+    class PlaylistWasChanged(val playlist:Playlist)
 }

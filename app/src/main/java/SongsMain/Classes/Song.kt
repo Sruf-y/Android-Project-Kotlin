@@ -141,10 +141,11 @@ class Song(
                     // adica exista in val2 SI este pe o pozitie pe care o am ca "this"
 
                     it.isHidden = val2[this].isHidden
-                    it.isHidden = val2[this].isHidden
                     it.timesListened = val2[this].timesListened
                     it.lastPlayed = val2[this].lastPlayed
                     it.title=val2[this].title
+                    it.thumbnail=val2[this].thumbnail
+                    it.isFavorite=val2[this].isFavorite
                 }
             }
         }

@@ -129,7 +129,7 @@ class Remove_Playlist : BottomSheetDialogFragment(R.layout.fragment_remove__play
 
                         SongsGlobalVars.SongsStorageOperations.SaveSpecifficList.List_Of_Playlists()
 
-                        bus.post(Events.PlaylistEvents.NotifyDeleted(playlist))
+                        bus.post(Events.InPlaylistEvents.NotifyDeleted(playlist))
                         dialog.dismiss()
                     }
                 }

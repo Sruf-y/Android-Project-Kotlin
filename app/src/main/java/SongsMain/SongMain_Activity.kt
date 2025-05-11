@@ -56,7 +56,9 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import de.greenrobot.event.EventBus
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -90,7 +92,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
          lateinit var serviceIntent:Intent
 
         var isRunningAnywhere: Boolean = true
-        var isPaused: Boolean=false
+
     }
 
     var mediaController: MediaController? = null
@@ -105,7 +107,6 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
         AskForPermissionsAtStart( this,GlobalValues.System.RequiredPermissions.subList(0,4))
 
         SongMain_Activity.ActiveTracker.isRunningAnywhere=true
-        SongMain_Activity.ActiveTracker.isPaused=false
 
 
 
@@ -172,7 +173,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
                 when(id){
                     R.id.nav_settings->{
                         makeCurrentFragment(fragmentContainer,Music_App_Settings(),addtoBackStack = true)
-                        return true
+
                     }
                 }
                 drawer.close()
@@ -232,7 +233,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
 
         MyMediaController.addListener(this)
-        startMusicService()
+        //startMusicService()
     }
 
 
@@ -378,17 +379,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
         bus.unregister(this)
 
-        SongMain_Activity.ActiveTracker.isRunningAnywhere=false
-        SongMain_Activity.ActiveTracker.isPaused=false
 
-        CoroutineScope(Dispatchers.IO).launch {
-
-            val savedSuccesfully = saveSongLists()
-
-
-
-
-        }
         MyMediaController.removeListener(this)
         MyMediaController.release()
         mediaController?.release()
@@ -397,7 +388,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
     override fun onResume() {
         super.onResume()
-        SongMain_Activity.ActiveTracker.isPaused=false
+
 
     }
 
@@ -405,10 +396,11 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
     /**
      * Application start loading of data and distribution.
      * */
+    @kotlin.OptIn(DelicateCoroutinesApi::class)
     fun doStartDataLoad(){
         if(SongsGlobalVars.globalDataLoadBuffer_Free) {
             SongsGlobalVars.globalDataLoadBuffer_Free=false
-            lifecycleScope.launch {
+            GlobalScope.launch {
                 val songsLoadedSuccesfully = refreshGlobalSongList()
 
                 val playlistsLoadedSuccesfully = refreshSongLists()
@@ -483,8 +475,15 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
         super.onPause()
         //Glide.getPhotoCacheDir(this)?.deleteRecursively()
 
+        CoroutineScope(Dispatchers.IO).launch {
 
-        SongMain_Activity.ActiveTracker.isPaused=true
+            val savedSuccesfully = saveSongLists()
+
+
+
+
+        }
+
 
     }
 

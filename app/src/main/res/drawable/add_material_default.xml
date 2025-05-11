@@ -2,9 +2,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     >
 
-    <item>
-        <ripple android:color="@color/gray_light"/>
-    </item>
 
 
 

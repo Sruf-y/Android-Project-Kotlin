@@ -2,22 +2,22 @@
     <item
         android:id="@+id/unchecked"
         android:state_checked="false"
-        android:drawable="@drawable/favorite_heart_unchecked" />
+        android:drawable="@drawable/radiobutton_unchecked" />
 
     <item
         android:id="@+id/checked"
         android:state_checked="true"
-        android:drawable="@drawable/favorite_heart_checked" />
+        android:drawable="@drawable/radiobutton_checked" />
 
     <transition
         android:fromId="@id/unchecked"
         android:toId="@id/checked"
-        android:drawable="@drawable/heart_anim_unchecked_to_checked">
-        </transition>
+        android:drawable="@drawable/radiobutton_checking">
+    </transition>
 
     <transition
         android:fromId="@id/checked"
         android:toId="@id/unchecked"
-        android:drawable="@drawable/heart_anim_checked_to_unchecked">
-        </transition>
+        android:drawable="@drawable/radiobutton_unchecking">
+    </transition>
 </animated-selector>

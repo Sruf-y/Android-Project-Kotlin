@@ -9,5 +9,6 @@ enum class Logs {
     FILE_IO,
     MATH,
     LIFECYCLE,
-    MEDIA_SOUND
+    MEDIA_SOUND,
+    ERRORS
 }

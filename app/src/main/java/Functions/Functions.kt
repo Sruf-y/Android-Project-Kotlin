@@ -373,10 +373,9 @@ object Images{
                         if (bitmap != null) {
 
                             try {
-                                Images.returnFixBitmapRotation(
+                                return@withContext Images.returnFixBitmapRotation(
                                     bitmap,
-                                    file
-                                ) // the result is returned
+                                    file) // the result is returned
                             } catch (ex: Exception) {
                                 ex.printStackTrace()
                                 return@withContext bitmap

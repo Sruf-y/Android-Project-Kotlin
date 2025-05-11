@@ -5,6 +5,7 @@ import Functions.saveAsJson
 import Functions.setInsetsforItems
 import SongsMain.Classes.Events
 import SongsMain.Tutorial.Application
+import SongsMain.bottomSheetFragment
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
@@ -130,7 +131,9 @@ class Music_App_Settings : Fragment(R.layout.fragment_music__app__settings) {
 
             isEnabled=false
 
-            backbutton.onBackPressed()
+            //backbutton.onBackPressed()
+
+            bus.post(Events.MakeCurrentMainFragment(bottomSheetFragment.newInstance("","")))
         }
 
 

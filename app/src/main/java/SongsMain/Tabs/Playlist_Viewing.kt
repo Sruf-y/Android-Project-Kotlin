@@ -50,6 +50,10 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
     lateinit var playlist_thumbnail_imageview: ImageView
 
 
+    lateinit var plusButton: ImageView
+    lateinit var optionsButton: ImageView
+
+
     @OptIn(UnstableApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -112,6 +116,19 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
             audiorecycler.adapter = adaptor
             audiorecycler.layoutManager = layoutManager
 
+
+
+            plusButton=requireView().findViewById(R.id.plusButton)
+            optionsButton = requireView().findViewById(R.id.optionsButton)
+
+
+            playlist?.isUserEditable?.let {
+                if(!(it)){
+                    // playlist generat de aplicatie, nu este userEditable
+                    plusButton.visibility=View.GONE
+                }
+            }
+
             adaptor.updateData(playlist?.songsList?:ArrayList<Song>())
 
             audiorecycler.post {
@@ -131,6 +148,14 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
 
         }
 
+    }
+
+    fun onEvent(event:Events.PlaylistWasChanged){
+        refreshLayout.isRefreshing=true
+
+        adaptor.updateData(playlist?.songsList?: ArrayList<Song>())
+
+        refreshLayout.isRefreshing=false
     }
 
 

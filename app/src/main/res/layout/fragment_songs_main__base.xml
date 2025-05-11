@@ -192,7 +192,6 @@
             android:layout_height="match_parent"
             android:accessibilityHeading="true"
             android:accessibilityLiveRegion="polite"
-            android:paddingBottom="40dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
