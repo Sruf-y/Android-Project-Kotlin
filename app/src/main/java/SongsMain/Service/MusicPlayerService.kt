@@ -2,6 +2,7 @@ package SongsMain.Tutorial
 
 
 import DataClasses_Ojects.Logs
+import SongsMain.Classes.Analytics.GeneralAnalytics.saveAnalytics
 import SongsMain.Classes.Events
 import SongsMain.Classes.Song
 import SongsMain.Classes.myExoPlayer
@@ -373,17 +374,14 @@ class MusicPlayerService: Service() {
         myExoPlayer.initializePlayer(this)
         setupAudioManagerRequest()
 
-        //CreateNotification()
-
-
-        //myExoPlayer.mediaplayer.pause()
 
 
 
 
 
 
-        onEvent(Events.SongWasStarted())
+
+        CreateNotification()
 
 
 
@@ -459,6 +457,8 @@ class MusicPlayerService: Service() {
     @kotlin.OptIn(DelicateCoroutinesApi::class)
     override fun onDestroy() {
         Log.i("WTF","Service has been DESTROYED (onDestroy)")
+
+        saveAnalytics()
 
         GlobalScope.launch {
             SongsGlobalVars.SongsStorageOperations.saveSongLists()

@@ -1,25 +1,22 @@
 package SongsMain
 
+import SongsMain.Classes.Analytics.GeneralAnalytics
 import SongsMain.Classes.Events
 import SongsMain.Classes.Song
 import SongsMain.Classes.SongListAdapter
 import SongsMain.Classes.myExoPlayer
 import SongsMain.Variables.SongsGlobalVars
-import SongsMain.Variables.MusicAppSettings
+import SongsMain.Settings.MusicAppSettings
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.TextView
 import androidx.activity.SystemBarStyle
-import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.util.concurrent.atomic.AtomicReference
 import androidx.media3.common.util.UnstableApi
@@ -73,6 +70,8 @@ class search : AppCompatActivity() {
 
                 myExoPlayer.setSong(song, AtomicReference(SongsGlobalVars.publicSongs))
                 myExoPlayer.start()
+
+                GeneralAnalytics.songs_searched++
 
             }, { song ->
 
@@ -149,7 +148,7 @@ class search : AppCompatActivity() {
 
 
     fun applySettings(){
-        main.background= ContextCompat.getDrawable(this,MusicAppSettings.theme)
+        main.background= ContextCompat.getDrawable(this, MusicAppSettings.theme)
     }
 
     fun onEvent(event:Events.SongWasChanged){

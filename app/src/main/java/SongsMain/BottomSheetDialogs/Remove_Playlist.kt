@@ -2,7 +2,7 @@ package SongsMain.BottomSheetDialogs
 
 import SongsMain.Classes.Events
 import SongsMain.Classes.Playlist
-import SongsMain.Variables.MusicAppSettings
+import SongsMain.Settings.MusicAppSettings
 import SongsMain.Variables.SongsGlobalVars
 import android.app.Dialog
 import android.os.Bundle

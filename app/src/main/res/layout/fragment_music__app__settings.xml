@@ -6,23 +6,30 @@
     android:layout_height="match_parent"
     android:background="@drawable/gradient_right_corner"
     android:stateListAnimator="@android:animator/fade_out"
-    tools:context="SongsMain.Variables.Music_App_Settings">
+    tools:context="SongsMain.Settings.Music_App_Settings">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:divider="@drawable/horizontal_divider"
+            android:dividerPadding="30dp"
             android:orientation="vertical"
             android:showDividers="middle">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="250dp">
+                android:layout_height="270dp">
 
                 <TextView
                     android:id="@+id/themestext"
@@ -44,57 +51,29 @@
                     android:layout_height="177dp"
                     android:layout_marginHorizontal="10dp"
                     android:background="@drawable/outline"
+                    android:clipToOutline="true"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/themestext">
+                    app:layout_constraintTop_toBottomOf="@+id/themestext"
+                    app:layout_constraintVertical_bias="0.32">
 
-                    <ImageView
-                        android:id="@+id/theme1"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/alarm_background"
-                        android:clipToOutline="true"
-                        android:foreground="@drawable/alarm_foreground_outline"
-                        android:src="@drawable/gradient_right_corner"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/theme2"
-                        app:layout_constraintHorizontal_bias="0.5"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.5" />
-
-                    <ImageView
-                        android:id="@+id/theme2"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/alarm_background"
-                        android:clipToOutline="true"
-                        android:foreground="@drawable/alarm_foreground_outline"
-                        android:src="@drawable/gradient2"
+                    <GridView
+                        android:id="@+id/themesGrid"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:horizontalSpacing="5dp"
+                        android:nestedScrollingEnabled="true"
+                        android:numColumns="3"
+                        android:paddingHorizontal="5dp"
+                        android:paddingVertical="5dp"
+                        android:stretchMode="spacingWidth"
+                        android:verticalSpacing="5dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.5" />
-
-                    <ImageView
-                        android:id="@+id/theme3"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/alarm_background"
-                        android:clipToOutline="true"
-                        android:foreground="@drawable/alarm_foreground_outline"
-                        android:src="@drawable/gradient3"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.5"
-                        app:layout_constraintStart_toEndOf="@+id/theme2"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.5" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -103,7 +82,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="150dp">
+                android:layout_height="130dp">
 
                 <TextView
                     android:id="@+id/textView5"
@@ -118,7 +97,7 @@
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.3" />
+                    app:layout_constraintVertical_bias="0.19" />
 
                 <RadioGroup
                     android:id="@+id/radiogroup"
@@ -129,7 +108,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView5">
+                    app:layout_constraintTop_toBottomOf="@+id/textView5"
+                    app:layout_constraintVertical_bias="0.37">
 
                     <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/radioButton"
@@ -165,25 +145,23 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="200dp">
+                android:layout_height="100dp">
 
-                <CheckBox
-                    android:id="@+id/checkBox3"
+                <EditText
+                    android:id="@+id/editTextNumber"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/transparent"
-                    android:button="@drawable/favorite_heart_button"
-                    android:enabled="true"
-                    android:focusable="auto"
-                    android:scaleX="5"
-                    android:scaleY="5"
-                    android:visibility="visible"
+                    android:ems="10"
+                    android:hint="Text Size"
+                    android:inputType="number|numberDecimal"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/flash_glow_for_items"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_bias="0.422"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.5" />
+                    app:layout_constraintVertical_bias="0.509" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>

@@ -83,7 +83,8 @@
                     app:layout_constraintBottom_toTopOf="@+id/expanded_play_pause"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/expanded_title" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.75" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/expanded_play_pause"
@@ -100,19 +101,20 @@
 
                 <TextView
                     android:id="@+id/expanded_title"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
                     android:enabled="false"
                     android:gravity="center"
                     android:text="No song playing"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    app:layout_constraintBottom_toTopOf="@+id/expanded_play_pause"
+                    app:layout_constraintBottom_toTopOf="@+id/expanded_seekbar"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.26999998" />
+                    app:layout_constraintVertical_bias="0.56" />
 
                 <ImageView
                     android:id="@+id/expanded_next_button"

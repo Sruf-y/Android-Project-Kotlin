@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 
 @Parcelize
-data class Playlist(var title: String,var songsList: ArrayList<Song>?=null,var isUserOrdered:Boolean=true,var thumbnail: Int?=null,var isUserEditable:Boolean = true):
+data class Playlist(var title: String, var songsList: ArrayList<Song> = ArrayList<Song>(), var isUserOrdered:Boolean=true, var thumbnail: Int?=null, var isUserEditable:Boolean = true):
     Parcelable {
 
 

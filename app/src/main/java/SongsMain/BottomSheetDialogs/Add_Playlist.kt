@@ -1,9 +1,10 @@
 package SongsMain.BottomSheetDialogs
 
 import Functions.ViewAttributes
+import SongsMain.Classes.Analytics.GeneralAnalytics
 import SongsMain.Classes.Events
 import SongsMain.Classes.Playlist
-import SongsMain.Variables.MusicAppSettings
+import SongsMain.Settings.MusicAppSettings
 import SongsMain.Variables.SongsGlobalVars
 import android.app.Dialog
 import android.os.Bundle
@@ -186,6 +187,8 @@ class Add_Playlist : BottomSheetDialogFragment(R.layout.fragment_add__playlist) 
                     editPlaylistName.text.length.apply {
                         if(this>0 && this<maxchar && !(SongsGlobalVars.listOfAllPlaylists.getList().map { p->p.title }.contains(editPlaylistName.text.toString()))){
                             if(title==null) {
+
+                                // is in create mode
                                 SongsGlobalVars.userMadePlaylists.add(
                                     Playlist(
                                         editPlaylistName.text.toString(),
@@ -195,6 +198,10 @@ class Add_Playlist : BottomSheetDialogFragment(R.layout.fragment_add__playlist) 
                                 SongsGlobalVars.listOfAllPlaylists.reload()
                                 SongsGlobalVars.SongsStorageOperations.SaveSpecifficList.List_Of_Playlists()
                                 bus.post(Events.InPlaylistEvents.NotifyAdded())
+
+                                GeneralAnalytics.playlists_created++
+
+
                                 dialog.dismiss()
                             }else{
                                 // title was given, is in rename mode

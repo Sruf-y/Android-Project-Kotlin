@@ -161,7 +161,7 @@ object SongsGlobalVars {
 
 
 
-
+                listOfAllPlaylists.reload()
 
                 val actualPlaylist =
                     listOfAllPlaylists.getListOfRefferences()[listOfAllPlaylists.getList().indexOf(currentplaylist)]
@@ -171,7 +171,7 @@ object SongsGlobalVars {
 
                 if(playlistToOpen!=null) {
 
-                    myExoPlayer.setSong(currentsong,playlistToOpen)
+                    myExoPlayer.setSong(currentsong,playlistToOpen, startOnPrepared = false)
 
 
 
@@ -232,12 +232,12 @@ object SongsGlobalVars {
                     SongsGlobalVars.RecentlyPlayed = Functions.loadFromJson(
                         Application.instance,
                         "Recently Played",
-                        Playlist("Recently Played", null, false)
+                        Playlist("Recently Played", ArrayList<Song>(), false)
                     )
                     SongsGlobalVars.MyFavoritesPlaylist = Functions.loadFromJson(
                         Application.instance,
                         "Favorites",
-                        Playlist("Favorites", null, true)
+                        Playlist("Favorites", ArrayList<Song>(), true)
                     )
 
                     SongsGlobalVars.playingQueue.clear()
@@ -309,7 +309,7 @@ object SongsGlobalVars {
                             SongsGlobalVars.MyFavoritesPlaylist = Functions.loadFromJson(
                                 Application.instance,
                                 "Favorites",
-                                Playlist("Favorites", null, true)
+                                Playlist("Favorites", ArrayList<Song>(), true)
                             )
 
 

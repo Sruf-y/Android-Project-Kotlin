@@ -9,7 +9,7 @@ import SongsMain.Classes.Events
 import SongsMain.Classes.Events.SongWasPaused
 import SongsMain.Classes.myExoPlayer
 import SongsMain.Tutorial.Application
-import SongsMain.Variables.MusicAppSettings
+import SongsMain.Settings.MusicAppSettings
 import Utilities.Utils.Companion.dP
 import android.content.pm.ActivityInfo
 import android.graphics.Shader
@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
@@ -74,6 +75,8 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
     lateinit var tabsView: TabLayout
     lateinit var tabholder: ViewPager2
     lateinit var main:ConstraintLayout
+
+    lateinit var application_Title: TextView
 
 
 
@@ -112,8 +115,9 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
         // tabs adapter setup
         setupViewPager()
 
-
-
+        //TODO REMOVE THIS
+        application_Title=requireView().findViewById(R.id.textView6)
+        application_Title.textSize= MusicAppSettings.titleTextSize.value.toFloat()
 
 
 

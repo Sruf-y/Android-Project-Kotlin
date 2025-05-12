@@ -12,13 +12,14 @@
         android:layout_width="229dp"
         android:layout_height="192dp"
         android:contentDescription="@string/nav_header_desc"
-        android:scaleType="centerCrop"
+        android:scaleType="fitCenter"
+        android:tint="#2912C533"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5"
-        app:srcCompat="@mipmap/ic_launcher_foreground" />
+        app:srcCompat="@drawable/blank_gray_musical_note" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

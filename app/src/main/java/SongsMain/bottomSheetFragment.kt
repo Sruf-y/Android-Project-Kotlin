@@ -7,7 +7,7 @@ import SongsMain.Classes.Events.SongWasPaused
 import SongsMain.Classes.MyMediaController
 import SongsMain.Classes.myExoPlayer
 import SongsMain.Tutorial.Application
-import SongsMain.Variables.MusicAppSettings
+import SongsMain.Settings.MusicAppSettings
 import Utilities.Utils.Companion.dP
 import android.content.pm.ActivityInfo
 import android.graphics.Shader
@@ -24,7 +24,10 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.OptIn
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.commit
+import androidx.fragment.app.findFragment
 import androidx.fragment.app.viewModels
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -67,6 +70,7 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
     lateinit var bottomsheetCol_musicImage: ShapeableImageView
     lateinit var bottomsheetCol_musicBackground: ImageView
     lateinit var progressbarCol: ProgressBar
+    lateinit var bottom_checkbox_musicToggle: CheckBox
 
     lateinit var expanded_musicToggle: ConstraintLayout
     lateinit var expanded_musicToggleCheckbox: CheckBox
@@ -127,7 +131,7 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
 
 
         if(savedInstanceState==null){
-            makeCurrentFragment(fragmentContainer, SongsMain_Base())
+            makeCurrentFragment(fragmentContainer, SongsMain_Base(),false,null)
         }
 
         val bottomsheet: ConstraintLayout = requireView().findViewById(R.id.bottomsheet)
@@ -207,7 +211,7 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
         expanded_musicToggleCheckbox=requireView().findViewById(R.id.expanded_checkbox)
         expanded_prev=requireView().findViewById(R.id.expanded_previous_button)
         expanded_next=requireView().findViewById(R.id.expanded_next_button)
-
+        bottom_checkbox_musicToggle=requireView().findViewById<CheckBox>(R.id.colapsedCheckbox)
 
 
 
@@ -241,7 +245,8 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
         bottomsheetCol_musictitle.isSelected = true;
 
 
-        requireView().findViewById<CheckBox>(R.id.colapsedCheckbox).isChecked= myExoPlayer.isPlaying
+        bottom_checkbox_musicToggle.isChecked= myExoPlayer.exoPlayer?.isPlaying == true
+
         bottomsheetCol_musicToggle.setOnClickListener {
 
             myExoPlayer.toggle()
@@ -306,28 +311,51 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
 
 
 
+
     }
 
     @OptIn(UnstableApi::class)
     fun onEvent(event:Events.SongWas_UsedSeek){
 
         expanded_Seekbar.progress= myExoPlayer.getCurrentPosition().toInt()
+
+
+
     }
 
 
 
     fun onEvent(event:Events.MakeCurrent_BottomSheet_Fragment){
-        makeCurrentFragment(fragmentContainer,event.fragment,true)
+        makeCurrentFragment(fragmentContainer,event.fragment,true,event.fragment.arguments)
     }
 
 
     fun onEvent(event:Events.ReturnToMainBase){
-        makeCurrentFragment(fragmentContainer, SongsMain.SongsMain_Base())
+        //makeCurrentFragment(fragmentContainer, SongsMain.SongsMain_Base())
 
     }
 
 
-    private fun makeCurrentFragment(container: FragmentContainerView, fragment: Fragment,addtoBackStack:Boolean=false) {
+    private fun makeCurrentFragment( container: FragmentContainerView, fragment:Fragment,addtoBackStack:Boolean=true,arguments:Bundle?,activity: FragmentActivity=requireActivity()) {
+
+        val transaction = activity.supportFragmentManager
+
+        transaction.commit {
+            setReorderingAllowed(true)
+
+            if(addtoBackStack)
+                addToBackStack(null)
+
+            setCustomAnimations(R.anim.slide_from_right,R.anim.empty_no_animation)
+
+            if(!activity.supportFragmentManager.fragments.contains(fragment)) {
+                add(container.id, fragment::class.java, arguments, fragment::class.java.name)
+
+            }
+        }
+    }
+
+    private fun makeCurrentFragment2(container: FragmentContainerView, fragment: Fragment,addtoBackStack:Boolean=true) {
         val transaction = requireActivity().supportFragmentManager.beginTransaction()
         transaction.setReorderingAllowed(true)
         if(addtoBackStack)
@@ -345,29 +373,29 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
     }
 
 
-
-
+    @OptIn(UnstableApi::class)
     fun onEvent(event:SongWasPaused) {
 
         //for collapsed
         progressViewModel.stopUpdates()
-        requireView().findViewById<CheckBox>(R.id.colapsedCheckbox).isChecked=false
+        bottom_checkbox_musicToggle.isChecked= myExoPlayer.isPlaying
 
         //for expanded
         progressViewModel2.stopUpdates()
-        expanded_musicToggleCheckbox.isChecked=false
+        expanded_musicToggleCheckbox.isChecked=myExoPlayer.isPlaying
     }
 
+    @OptIn(UnstableApi::class)
     fun onEvent(event: Events.SongWasStarted) {
 
 
 
         progressViewModel.startUpdates()
-        requireView().findViewById<CheckBox>(R.id.colapsedCheckbox).isChecked=true
+        bottom_checkbox_musicToggle.isChecked=myExoPlayer.isPlaying
 
         //for expanded
         progressViewModel2.startUpdates()
-        expanded_musicToggleCheckbox.isChecked=true
+        expanded_musicToggleCheckbox.isChecked=myExoPlayer.isPlaying
     }
 
     @OptIn(UnstableApi::class)

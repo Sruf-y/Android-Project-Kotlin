@@ -4,23 +4,22 @@ import DataClasses_Ojects.Logs
 import Functions.AskForPermissionsAtStart
 import Functions.ViewAttributes
 import Functions.concatenateWith
+import SongsMain.Classes.Analytics.GeneralAnalytics.restoreAnalytics
+import SongsMain.Classes.Analytics.GeneralAnalytics.saveAnalytics
 import SongsMain.Classes.Events
 import SongsMain.Classes.MyMediaController
-import SongsMain.Classes.Playlist
 import SongsMain.Classes.Song
-import SongsMain.Classes.Song.Companion.takeYourPartFromGlobal
 import SongsMain.Classes.myExoPlayer
 import SongsMain.Variables.SongsGlobalVars
-import SongsMain.Variables.Music_App_Settings
-import SongsMain.Tutorial.Application
+import SongsMain.Settings.Music_App_Settings
 import SongsMain.Tutorial.MusicPlayerService
-import SongsMain.Variables.MusicAppSettings
+import SongsMain.Settings.MusicAppSettings
+import SongsMain.Tutorial.Application
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.redistributeLists
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.refreshGlobalSongList
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.refreshSongLists
 import SongsMain.Variables.SongsGlobalVars.SongsStorageOperations.saveSongLists
-import android.content.ComponentName
 import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -34,33 +33,25 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePaddingRelative
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
-import androidx.lifecycle.lifecycleScope
-import androidx.media3.common.MediaMetadata
+import androidx.fragment.app.commit
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
-import androidx.media3.session.SessionCommand
-import androidx.media3.session.SessionResult
-import androidx.media3.session.SessionToken
 import com.example.composepls.R
 import com.google.android.material.navigation.NavigationView
-import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.ListenableFuture
-import com.google.common.util.concurrent.MoreExecutors
 import de.greenrobot.event.EventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -110,6 +101,8 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
         SongMain_Activity.ActiveTracker.isRunningAnywhere=true
 
 
+        // TODO REMOVE THIS LATER
+        MusicAppSettings.titleTextSize = Functions.loadFromJson(Application.instance,"TitleSize", MusicAppSettings.titleTextSize)
 
 
 
@@ -216,7 +209,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
             doStartDataLoad()
         }
 
-
+        MusicAppSettings.applySettings(mutableListOf(navView))
 
 
 
@@ -226,9 +219,14 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
         MyMediaController.addListener(this)
 
 
-        if(!MusicPlayerService.isServiceRunning())
+        if(!MusicPlayerService.isServiceRunning()) {
             SongsStorageOperations.restoreCurrentlyPlayedSong()
-        //startMusicService()
+
+            restoreAnalytics()
+        }
+
+
+
     }
 
 
@@ -273,7 +271,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
     fun onEvent(event: Events.SettingsWereChanged){
         MusicAppSettings.applySettings(null,{
-            ViewAttributes(navView).Background().Set(this,MusicAppSettings.theme)
+            ViewAttributes(navView).Background().Set(this, MusicAppSettings.theme)
 
             when(MusicAppSettings.orientation){
                 0->{requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT }
@@ -344,14 +342,26 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
 
 
-//    private fun replaceCurrentFragment(activity: FragmentActivity, container: FragmentContainerView, fragmentClass: Class<out Fragment>, args:Bundle=Bundle()) {
-//        activity.supportFragmentManager.commit {
-//            setReorderingAllowed(true)
-//            replace(container.id, fragmentClass, args, fragmentClass.name)
-//        }
-//    }
+    private fun makeCurrentFragment( container: FragmentContainerView, fragment:Fragment,addtoBackStack:Boolean=false,activity: FragmentActivity=this) {
 
-    private fun makeCurrentFragment(container: FragmentContainerView, fragment: Fragment,addtoBackStack:Boolean=false) {
+        val transaction = activity.supportFragmentManager
+
+        transaction.commit {
+            setReorderingAllowed(true)
+
+            if(addtoBackStack)
+                addToBackStack(null)
+
+
+            setCustomAnimations(R.anim.slide_from_right,R.anim.empty_no_animation)
+
+            if(!activity.supportFragmentManager.fragments.contains(fragment))
+                add(container.id, fragment::class.java, null, fragment::class.java.name)
+
+        }
+    }
+
+    private fun makeCurrentFragment2(container: FragmentContainerView, fragment: Fragment,addtoBackStack:Boolean=false) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.setReorderingAllowed(true)
         if(addtoBackStack)
@@ -383,6 +393,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
     override fun onResume() {
         super.onResume()
+
 
 
     }
@@ -471,6 +482,10 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
         //Glide.getPhotoCacheDir(this)?.deleteRecursively()
 
         SongsGlobalVars.SongsStorageOperations.saveCurrentlyPlayedSong()
+
+        saveAnalytics()
+
+
         CoroutineScope(Dispatchers.IO).launch {
 
             val savedSuccesfully = saveSongLists()

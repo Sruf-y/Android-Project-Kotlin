@@ -70,10 +70,11 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="1.0" />
 
-                <ImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/plusButton"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
+                    android:background="@drawable/ripple_circle_white"
                     android:clickable="true"
                     android:padding="5dp"
                     android:scaleType="center"
@@ -81,12 +82,14 @@
                     app:layout_constraintEnd_toStartOf="@+id/optionsButton"
                     app:layout_constraintTop_toTopOf="@+id/optionsButton"
                     app:layout_constraintVertical_bias="1.0"
+                    app:shapeAppearance="@style/roundedImageViewRounded"
                     app:srcCompat="@drawable/add_material_default" />
 
-                <ImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/optionsButton"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
+                    android:background="@drawable/ripple_circle_white"
                     android:clickable="true"
                     android:padding="5dp"
                     android:scaleType="center"
@@ -94,6 +97,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="1.0"
+                    app:shapeAppearance="@style/roundedImageViewRounded"
                     app:srcCompat="@drawable/options_vertical_default" />
 
 

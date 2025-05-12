@@ -57,6 +57,21 @@ object myExoPlayer {
                         }
                     })
                 }
+
+
+            exoPlayer?.addListener(object:Player.Listener{
+                override fun onIsPlayingChanged(isPlaying: Boolean) {
+
+                    if(isPlaying){
+                        bus.post(Events.SongWasStarted())
+                    }else{
+                        bus.post(Events.SongWasPaused())
+                    }
+
+
+                    super.onIsPlayingChanged(isPlaying)
+                }
+            })
             isInitialized = true
         }
     }
@@ -125,7 +140,7 @@ object myExoPlayer {
         return exoPlayer?.audioSessionId ?: 0
     }
 
-    fun setSong(song: Song, playlist: AtomicReference<Playlist>? = null) {
+    fun setSong(song: Song, playlist: AtomicReference<Playlist>? = null,startOnPrepared:Boolean=true) {
         initializePlayer(Application.instance)
 
 
@@ -170,7 +185,8 @@ object myExoPlayer {
                 bus.post(Events.SongWasChanged(lastSong, currentlyPlayingSong))
 
 
-                myExoPlayer.start()
+                if(startOnPrepared)
+                    myExoPlayer.start()
 
 
 

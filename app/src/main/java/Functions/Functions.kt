@@ -133,6 +133,9 @@ import java.io.IOException
  * Requires the view to NOT be aware of the keyboard beforehand. Only other system insets
  * */
 fun setAnimationForKeyboard(view: View,initialTranslationY:Float = 0f,typeMask:Int=WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()) {
+
+
+
     ViewCompat.setWindowInsetsAnimationCallback(
         view,
         object : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
@@ -1140,6 +1143,11 @@ fun setSystemBarToSwipeUp(window:Window){
 
 }
 
+
+
+/**
+ * Deprecated, do not use
+ * */
 fun adjustViewsForKeyboard(view:View){
     ViewCompat.setOnApplyWindowInsetsListener(view){v,insets->
         val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());

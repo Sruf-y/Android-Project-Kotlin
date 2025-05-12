@@ -7,8 +7,10 @@ import SongsMain.Classes.PlaylistListAdapter
 import SongsMain.Classes.Song
 import SongsMain.Classes.SongListAdapter
 import SongsMain.Classes.myExoPlayer
+import SongsMain.Settings.MusicAppSettings
 import SongsMain.Tutorial.Application
 import SongsMain.Variables.SongsGlobalVars
+import android.graphics.drawable.shapes.Shape
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -29,6 +31,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.example.composepls.R
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.imageview.ShapeableImageView
 import de.greenrobot.event.EventBus
 import java.util.concurrent.atomic.AtomicReference
 
@@ -50,8 +53,8 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
     lateinit var playlist_thumbnail_imageview: ImageView
 
 
-    lateinit var plusButton: ImageView
-    lateinit var optionsButton: ImageView
+    lateinit var plusButton: ShapeableImageView
+    lateinit var optionsButton: ShapeableImageView
 
 
     @OptIn(UnstableApi::class)
@@ -77,6 +80,10 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
         }
 
         if(playlist!=null){
+
+
+            MusicAppSettings.applySettings(mutableListOf(main))
+
 
 
                 Glide.with(Application.instance)
@@ -136,7 +143,7 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
             }
 
         }else{
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            //requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
 
