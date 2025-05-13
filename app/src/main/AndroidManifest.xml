@@ -44,9 +44,7 @@
         android:theme="@style/Theme.BotofanThemeNoActionBar">
 
 
-        <activity
-            android:name="SongsMain.Tabs.FullScreenSong"
-            android:exported="false" />
+        
 
         <provider
             android:name="androidx.core.content.FileProvider"

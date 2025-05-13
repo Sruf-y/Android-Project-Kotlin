@@ -8,6 +8,7 @@ import SongsMain.Classes.MyMediaController
 import SongsMain.Classes.myExoPlayer
 import SongsMain.Tutorial.Application
 import SongsMain.Settings.MusicAppSettings
+import SongsMain.Tabs.Fullscreen_Song
 import Utilities.Utils.Companion.dP
 import android.content.pm.ActivityInfo
 import android.graphics.Shader
@@ -124,6 +125,12 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
         scena1 = requireView().findViewById<ConstraintLayout>(R.id.scene1)
         scena2 = requireView().findViewById<ConstraintLayout>(R.id.scene2)
         fragmentContainer=requireView().findViewById(R.id.bottomsheet_FragmentContainer)
+
+
+        scena2.setOnClickListener {
+            if(myExoPlayer.currentlyPlayingSong!=null)
+                bus.post(Events.MakeCurrentMainFragment(Fullscreen_Song.newInstance(myExoPlayer.currentlyPlayingSong!!)))
+        }
 
         applySettings()
 

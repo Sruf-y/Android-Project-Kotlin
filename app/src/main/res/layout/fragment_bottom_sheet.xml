@@ -47,6 +47,7 @@
                 android:background="#E4BFB3"
                 android:backgroundTint="#5C000000"
                 android:backgroundTintMode="src_over"
+                android:clickable="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"

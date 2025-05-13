@@ -116,7 +116,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
         if (savedInstanceState == null) {
             Log.i("TESTS","(Main_Activity) Activity set the initial fragment! +${LocalTime.now()}")
 
-            makeCurrentFragment(fragmentContainer, SongsMain.bottomSheetFragment())
+            makeCurrentFragment(fragmentContainer, SongsMain.bottomSheetFragment(),false,null)
 
 
 
@@ -168,7 +168,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
                 when(id){
                     R.id.nav_settings->{
-                        makeCurrentFragment(fragmentContainer,Music_App_Settings(),addtoBackStack = true)
+                        makeCurrentFragment(fragmentContainer,Music_App_Settings(),addtoBackStack = true, arguments = null)
 
                     }
                 }
@@ -266,7 +266,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
 
     fun onEvent(event:Events.MakeCurrentMainFragment){
-        makeCurrentFragment(fragmentContainer,event.fragment, addtoBackStack = true)
+        makeCurrentFragment(fragmentContainer,event.fragment, addtoBackStack = true,event.fragment.arguments)
     }
 
     fun onEvent(event: Events.SettingsWereChanged){
@@ -342,7 +342,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
 
 
-    private fun makeCurrentFragment( container: FragmentContainerView, fragment:Fragment,addtoBackStack:Boolean=false,activity: FragmentActivity=this) {
+    private fun makeCurrentFragment( container: FragmentContainerView, fragment:Fragment,addtoBackStack:Boolean=true,arguments:Bundle?,activity: FragmentActivity=this) {
 
         val transaction = activity.supportFragmentManager
 
@@ -352,12 +352,12 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
             if(addtoBackStack)
                 addToBackStack(null)
 
-
             setCustomAnimations(R.anim.slide_from_right,R.anim.empty_no_animation)
 
-            if(!activity.supportFragmentManager.fragments.contains(fragment))
-                add(container.id, fragment::class.java, null, fragment::class.java.name)
+            if(!activity.supportFragmentManager.fragments.contains(fragment)) {
+                add(container.id, fragment::class.java, arguments, fragment::class.java.name)
 
+            }
         }
     }
 
