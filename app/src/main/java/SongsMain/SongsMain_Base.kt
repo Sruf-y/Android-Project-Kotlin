@@ -155,7 +155,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
 
 
-
+        bus.register(this)
 
 
 
@@ -236,7 +236,7 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
     override fun onDestroyView() {
 
-
+        bus.unregister(this)
 
         super.onDestroyView()
     }
@@ -249,6 +249,8 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
     override fun onResume() {
         super.onResume()
+
+        applySettings()
 
         // reselecting the tab
         Functions.getSharedPrefferencesStorage(Application.instance).apply {
@@ -271,7 +273,9 @@ class SongsMain_Base : Fragment(R.layout.fragment_songs_main__base) {
 
     }
 
-
+    fun onEvent(event:Events.SettingsWereChanged){
+        applySettings()
+    }
 
 
 

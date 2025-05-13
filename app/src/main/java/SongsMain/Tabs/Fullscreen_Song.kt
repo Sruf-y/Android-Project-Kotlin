@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.OptIn
@@ -33,7 +34,7 @@ class Fullscreen_Song : Fragment(R.layout.fragment_fullscreen__song) {
     lateinit var song_title: TextView
     lateinit var song_next: ImageView
     lateinit var song_previous: ImageView
-    lateinit var song_toggle: ConstraintLayout
+    lateinit var song_toggle: CheckBox
 
     lateinit var main: ConstraintLayout
 
@@ -54,17 +55,18 @@ class Fullscreen_Song : Fragment(R.layout.fragment_fullscreen__song) {
 
         bus.register(this)
 
+
+        main = requireView().findViewById(R.id.main)
+        song_image=requireView().findViewById(R.id.fullscreensongimage)
+        song_title=requireView().findViewById(R.id.fullscreensongtitle)
+        song_next=requireView().findViewById(R.id.fullscreen_next)
+        song_previous=requireView().findViewById(R.id.fullscreen_previous)
+        song_toggle=requireView().findViewById(R.id.constraintLayout6)
+
         if(song!=null && myExoPlayer.currentlyPlayingSong!=null){
 
-            main = requireView().findViewById(R.id.main)
-            song_image=requireView().findViewById(R.id.fullscreensongimage)
-            song_title=requireView().findViewById(R.id.fullscreensongtitle)
-            song_next=requireView().findViewById(R.id.fullscreen_next)
-            song_previous=requireView().findViewById(R.id.fullscreen_previous)
-            song_toggle=requireView().findViewById(R.id.constraintLayout6)
 
-
-
+            song_toggle.isChecked=myExoPlayer.isPlaying
 
             Glide.with(Application.instance)
                 .load(File(myExoPlayer.currentlyPlayingSong!!.thumbnail))
@@ -106,6 +108,13 @@ class Fullscreen_Song : Fragment(R.layout.fragment_fullscreen__song) {
 
         song_title.text= myExoPlayer.currentlyPlayingSong!!.title
 
+        song_toggle.isChecked=myExoPlayer.isPlaying
+
+    }
+
+    @OptIn(UnstableApi::class)
+    fun onEvent(event: Events.SongWasPaused){
+        song_toggle.isChecked=myExoPlayer.isPlaying
     }
 
 

@@ -1,7 +1,6 @@
 package SongsMain
 
 import DataClasses_Ojects.MediaProgressViewModel
-import Functions.setInsetsforItems
 import SongsMain.Classes.Events
 import SongsMain.Classes.Events.SongWasPaused
 import SongsMain.Classes.MyMediaController
@@ -10,14 +9,11 @@ import SongsMain.Tutorial.Application
 import SongsMain.Settings.MusicAppSettings
 import SongsMain.Tabs.Fullscreen_Song
 import Utilities.Utils.Companion.dP
-import android.content.pm.ActivityInfo
 import android.graphics.Shader
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -28,11 +24,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
-import androidx.fragment.app.findFragment
 import androidx.fragment.app.viewModels
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import coil3.Image
 import com.bumptech.glide.Glide
 import com.example.composepls.R
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -72,11 +66,12 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
     lateinit var bottomsheetCol_musicBackground: ImageView
     lateinit var progressbarCol: ProgressBar
     lateinit var bottom_checkbox_musicToggle: CheckBox
+    lateinit var bottom_currentpos:TextView
+    lateinit var bottom_totalLength:TextView
+
 
     lateinit var expanded_musicToggle: ConstraintLayout
     lateinit var expanded_musicToggleCheckbox: CheckBox
-    lateinit var expanded_SkipForward: ConstraintLayout
-    lateinit var expanded_SkipBackward: ConstraintLayout
     lateinit var expanded_Seekbar: SeekBar
     lateinit var expanded_Background: ImageView
     lateinit var expanded_musicTitle: TextView
@@ -219,7 +214,8 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
         expanded_prev=requireView().findViewById(R.id.expanded_previous_button)
         expanded_next=requireView().findViewById(R.id.expanded_next_button)
         bottom_checkbox_musicToggle=requireView().findViewById<CheckBox>(R.id.colapsedCheckbox)
-
+        bottom_currentpos=requireView().findViewById(R.id.currentpos)
+        bottom_totalLength = requireView().findViewById(R.id.totallength)
 
 
         //collapsed values initial settings
@@ -242,6 +238,15 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
             progressbarCol.progress = progress
         }
         progressViewModel2.progress.observe(viewLifecycleOwner){progress->
+
+            val pos = progress/1000
+
+            val mins:Int = pos/60
+            val seconds:Int = pos%60
+            if(seconds>10)
+                bottom_currentpos.text="${mins}:${seconds}"
+            else
+                bottom_currentpos.text="${mins}:0${seconds}"
             expanded_Seekbar.progress= progress
         }
 
@@ -395,7 +400,11 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
     @OptIn(UnstableApi::class)
     fun onEvent(event: Events.SongWasStarted) {
 
+        val pos = myExoPlayer.currentlyPlayingSong!!.duration/1000
+        val mins: Long = pos/60
+        val seconds: Long = pos%60
 
+        bottom_totalLength.text="${mins}:${seconds}"
 
         progressViewModel.startUpdates()
         bottom_checkbox_musicToggle.isChecked=myExoPlayer.isPlaying
@@ -491,10 +500,16 @@ class bottomSheetFragment : Fragment(R.layout.fragment_bottom_sheet), Player.Lis
     }
 
 
+    fun onEvent(event:Events.SettingsWereChanged){
+        applySettings()
+    }
+
     override fun onResume() {
         super.onResume()
 
         bottomsheetCol_musictitle.isSelected = true;
+
+
     }
 
 }

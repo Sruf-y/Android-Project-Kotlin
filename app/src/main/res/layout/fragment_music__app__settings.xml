@@ -68,7 +68,7 @@
                         android:numColumns="3"
                         android:paddingHorizontal="5dp"
                         android:paddingVertical="5dp"
-                        android:stretchMode="spacingWidth"
+                        android:stretchMode="columnWidth"
                         android:verticalSpacing="5dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"

@@ -51,11 +51,12 @@
         app:layout_constraintStart_toEndOf="@+id/constraintLayout6"
         app:layout_constraintTop_toTopOf="@+id/constraintLayout6" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <CheckBox
         android:id="@+id/constraintLayout6"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:background="@drawable/indian_music_button_toggle"
+        android:button="@null"
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -64,5 +65,5 @@
         app:layout_constraintTop_toBottomOf="@+id/fullscreensongimage"
         app:layout_constraintVertical_bias="0.751">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </CheckBox>
 </androidx.constraintlayout.widget.ConstraintLayout>
