@@ -1,6 +1,8 @@
 package SongsMain.Tabs
 
+import SongsMain.Classes.Events
 import SongsMain.Classes.Song
+import SongsMain.Classes.myExoPlayer
 import SongsMain.Settings.MusicAppSettings
 import SongsMain.Tutorial.Application
 import SongsMain.Tutorial.MusicPlayerService
@@ -11,11 +13,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.OptIn
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.media3.common.util.UnstableApi
 import coil3.Image
 import com.bumptech.glide.Glide
 import com.example.composepls.R
 import com.google.android.material.imageview.ShapeableImageView
+import de.greenrobot.event.EventBus
 import java.io.File
 
 private const val ARG_PARAM1 = "SONG"
@@ -32,6 +37,8 @@ class Fullscreen_Song : Fragment(R.layout.fragment_fullscreen__song) {
 
     lateinit var main: ConstraintLayout
 
+    val bus = EventBus.getDefault()
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,12 +48,13 @@ class Fullscreen_Song : Fragment(R.layout.fragment_fullscreen__song) {
         }
     }
 
+    @OptIn(UnstableApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        bus.register(this)
 
-
-        if(song!=null){
+        if(song!=null && myExoPlayer.currentlyPlayingSong!=null){
 
             main = requireView().findViewById(R.id.main)
             song_image=requireView().findViewById(R.id.fullscreensongimage)
@@ -59,19 +67,25 @@ class Fullscreen_Song : Fragment(R.layout.fragment_fullscreen__song) {
 
 
             Glide.with(Application.instance)
-                .load(File(song!!.thumbnail))
+                .load(File(myExoPlayer.currentlyPlayingSong!!.thumbnail))
                 .error(R.drawable.blank_gray_musical_note)
                 .placeholder(R.drawable.blank_gray_musical_note)
                 .into(song_image)
 
 
-            song_title.text=song!!.title
+            song_title.text= myExoPlayer.currentlyPlayingSong!!.title
 
             MusicAppSettings.applySettings(mutableListOf(main))
 
             // TODO
 
-
+            song_next.setOnClickListener {
+                myExoPlayer.playNextInPlaylist()
+            }
+            song_previous.setOnClickListener {
+                myExoPlayer.playPreviousInPlaylist()
+            }
+            song_toggle.setOnClickListener { myExoPlayer.toggle() }
 
         }
 
@@ -80,6 +94,32 @@ class Fullscreen_Song : Fragment(R.layout.fragment_fullscreen__song) {
 
 
     }
+
+    @OptIn(UnstableApi::class)
+    fun onEvent(event: Events.SongWasStarted){
+        Glide.with(Application.instance)
+            .load(File(myExoPlayer.currentlyPlayingSong!!.thumbnail))
+            .error(R.drawable.blank_gray_musical_note)
+            .placeholder(R.drawable.blank_gray_musical_note)
+            .into(song_image)
+
+
+        song_title.text= myExoPlayer.currentlyPlayingSong!!.title
+
+    }
+
+
+    override fun onDestroy() {
+
+        bus.unregister(this)
+
+        super.onDestroy()
+    }
+
+
+
+
+
 
     companion object {
 
