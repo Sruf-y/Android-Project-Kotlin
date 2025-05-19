@@ -1,6 +1,7 @@
 package SongsMain.Classes
 
 
+import Functions.ViewAttributes
 import SongsMain.Tutorial.Application
 import android.content.Context
 import android.os.Bundle

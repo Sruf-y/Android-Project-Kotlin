@@ -129,6 +129,30 @@ import java.io.IOException
 //
 //}
 
+
+
+
+fun Uri.fileExists(context: Context): Boolean {
+    if (this.scheme == "content") {
+        return try {
+            context.contentResolver.openInputStream(this)?.use {
+                true // File exists
+            } ?: false
+        } catch (e: Exception) {
+            false // File does not exist or cannot be accessed
+        }
+    }
+    return false
+}
+
+
+
+
+
+
+
+
+
 /**
  * Requires the view to NOT be aware of the keyboard beforehand. Only other system insets
  * */
@@ -610,7 +634,10 @@ fun <T> differencesBetweenArrays(val1: ArrayList<T>, val2: ArrayList<T>): ArrayL
 
         val1.forEach {
             if(!val2.contains(it)){
-                auxarray.add(ModifiedItem(TypeOfUpdate.removed,it))
+
+                val modifier = ModifiedItem(TypeOfUpdate.removed,it)
+                if(!auxarray.contains(modifier))
+                    auxarray.add(modifier)
             }
         }
 

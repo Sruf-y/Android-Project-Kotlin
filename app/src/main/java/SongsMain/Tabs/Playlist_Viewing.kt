@@ -150,7 +150,7 @@ class Playlist_Viewing : Fragment(R.layout.fragment_playlist__viewing) {
         refreshLayout.setOnRefreshListener {
 
             adaptor.updateData(playlist?.songsList?: ArrayList<Song>())
-
+            adaptor.notifyDataSetChanged()
             refreshLayout.isRefreshing=false
 
         }

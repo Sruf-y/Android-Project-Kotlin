@@ -307,7 +307,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
 
     fun onEvent(event:Events.RequestGlobalDataUpdate){
 
-        doStartDataLoad()
+        doStartDataLoad(doFullQuery = true)
 
     }
 
@@ -403,7 +403,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
      * Application start loading of data and distribution.
      * */
     @kotlin.OptIn(DelicateCoroutinesApi::class)
-    fun doStartDataLoad(){
+    fun doStartDataLoad(doFullQuery: Boolean=false){
         if(SongsGlobalVars.globalDataLoadBuffer_Free) {
             SongsGlobalVars.globalDataLoadBuffer_Free=false
             GlobalScope.launch {
@@ -430,7 +430,7 @@ class SongMain_Activity : AppCompatActivity(),Player.Listener{
                         Functions.differencesBetweenArrays(songsList, SongsGlobalVars.allSongs)
                             .apply {
 
-                                if (this.isNotEmpty()) {
+                                if (this.isNotEmpty() || doFullQuery) {
 
                                     Log.i(
                                         "TESTS",

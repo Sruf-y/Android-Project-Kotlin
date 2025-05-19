@@ -1,20 +1,31 @@
 package SongsMain.Classes
 
+import Functions.fileExists
+import SongsMain.Tutorial.Application
 import SongsMain.Variables.SongsGlobalVars
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
+import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.versionedparcelable.VersionedParcelize
+import coil3.toCoilUri
 import kotlinx.parcelize.Parcelize
 import java.io.File
 import java.io.Serializable
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.AbstractQueue
+import java.util.Deque
+import java.util.PriorityQueue
+import java.util.concurrent.SynchronousQueue
 
 @Parcelize
 class Song(
@@ -110,15 +121,32 @@ class Song(
           return aux // Returns the actual reference from the list
       }
 
+
       fun ArrayList<Song>?.takeYourPartFromGlobal(from: ArrayList<Song> = SongsGlobalVars.allSongs){
 
-          this?.forEachIndexed {index, song->
-              from.find { it->
+          val marked_for_deletion:ArrayList<Song> = ArrayList<Song>()
+
+          this?.forEachIndexed {index, song-> // song from playlist
+
+
+              if(!song.songUri.toUri().fileExists(Application.instance)){
+                  Log.i("wtf","Song doesn't exist at takeYourPartFromGlobal: "+song.songUri)
+                  marked_for_deletion.add(song)
+                  return@forEachIndexed
+              }
+
+              from.find { it-> // it = song from allsongs
                   it==song
               }.apply {
                   if(this!=null)
                     this@takeYourPartFromGlobal[index]=this.from(from)!!
               }
+
+          }
+
+          marked_for_deletion.forEach { it->
+              Log.i("WTF","A fost sters"+it.toString())
+              this?.remove(it)
           }
       }
 
@@ -137,35 +165,27 @@ class Song(
 
     /**
      *
-     *
+     *Completes the first song list with the atributes of the second one, which should usually be the outdated one
      *
      * */
    fun compareAndCompleteTheFirst(resultInto: ArrayList<Song>, val2: ArrayList<Song>) {
 
 
-
-
     resultInto.forEach {
         if (val2.contains(it)) {
             val2.indexOf(it).apply {
-                if (this >= 0) {
-                    // adica exista in val2 SI este pe o pozitie pe care o am ca "this"
+                // adica exista in val2 SI este pe o pozitie pe care o am ca "this"
 
-                    it.isHidden = val2[this].isHidden
-                    it.timesListened = val2[this].timesListened
-                    it.lastPlayed = val2[this].lastPlayed
-                    it.title=val2[this].title
-                    it.thumbnail=val2[this].thumbnail
-                    it.isFavorite=val2[this].isFavorite
-                }
+                it.isHidden = val2[this].isHidden
+                it.timesListened = val2[this].timesListened
+                it.lastPlayed = val2[this].lastPlayed
+                it.title = val2[this].title
+                it.thumbnail = val2[this].thumbnail
+                it.isFavorite = val2[this].isFavorite
             }
         }
     }
-
-
    }
-
-
   }
 
 

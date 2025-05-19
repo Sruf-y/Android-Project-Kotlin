@@ -110,9 +110,8 @@ class SimpleSongList : Fragment(R.layout.fragment_simple_song_list) {
 
 
 
-
-        adaptor.mList=designatedList
-        adaptor.notifyDataSetChanged()
+        adaptor.updateData(SongsGlobalVars.publicSongs.songsList)
+        //adaptor.notifyDataSetChanged()
 
 
 

@@ -47,7 +47,7 @@ object myExoPlayer {
                         override fun onPlaybackStateChanged(state: Int) {
                             when (state) {
                                 Player.STATE_READY -> isPrepared = true
-                                Player.STATE_ENDED -> playNextInPlaylist()
+                                Player.STATE_ENDED -> playNextInPlaylist(allowLoop = false)
                                 Player.STATE_IDLE -> isPrepared = false
                             }
                         }
@@ -90,7 +90,7 @@ object myExoPlayer {
 
     fun openPlaylist(playlist: AtomicReference<Playlist>) {
         currentPlaylist = playlist
-        playlist.get().songsList?.let { songs ->
+        playlist.get().songsList.let { songs ->
             if (songs.isNotEmpty()) {
                 exoPlayer?.repeatMode = if (isLoopingInPlaylist)
                     Player.REPEAT_MODE_ALL else Player.REPEAT_MODE_OFF
@@ -98,12 +98,21 @@ object myExoPlayer {
         }
     }
 
-    fun playNextInPlaylist() {
+
+    /**
+     * Plays the next in playlist.
+     * @param allowLoop loop to the first song. If set to false, it will not loop to the first song on function call.
+     * */
+    fun playNextInPlaylist(allowLoop: Boolean=true) {
         currentPlaylist?.get()?.let { playlist ->
             currentlyPlayingSong?.let { currentSong ->
                 if (playlist.hasNextAfter(currentSong)) {
-                    val nextIndex = playlist.songsList!!.indexOf(currentSong) + 1
-                    setSong(playlist.songsList!![nextIndex])
+                    val nextIndex = playlist.songsList.indexOf(currentSong) + 1
+                    setSong(playlist.songsList[nextIndex])
+                }
+                else{
+                    if(allowLoop)
+                        setSong(playlist.songsList[0])
                 }
             }
         }

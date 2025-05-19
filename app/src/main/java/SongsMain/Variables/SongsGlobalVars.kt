@@ -171,12 +171,20 @@ object SongsGlobalVars {
 
                 if(playlistToOpen!=null) {
 
-                    myExoPlayer.setSong(currentsong,playlistToOpen, startOnPrepared = false)
+                    try {
+
+                        myExoPlayer.setSong(currentsong, playlistToOpen, startOnPrepared = false)
+
+                        Log.e(Logs.ERRORS.name,"Restored song_position was ${song_position}")
+                        myExoPlayer.seekTo(song_position.toLong())
 
 
 
-                    Log.e(Logs.ERRORS.name,"Restored song_position was ${song_position}")
-                    myExoPlayer.seekTo(song_position.toLong())
+
+                    }catch (ex: NullPointerException){
+                        Log.e(Logs.ERRORS.name,"Null song set when restoring currentlyplaying.",ex)
+                    }
+
                 }
 
 
@@ -391,12 +399,18 @@ object SongsGlobalVars {
                     it.songsList.takeYourPartFromGlobal()
                 }
 
+
+                SongsGlobalVars.hiddenSongs.songsList.clear()
+                SongsGlobalVars.publicSongs.songsList.clear()
+
                 SongsGlobalVars.allSongs.forEach {
                     if(it.isHidden){
-                        SongsGlobalVars.hiddenSongs.songsList?.add(it)
+
+                        SongsGlobalVars.hiddenSongs.songsList.add(it)
                     }
                     else{
-                        SongsGlobalVars.publicSongs.songsList?.add(it)
+
+                        SongsGlobalVars.publicSongs.songsList.add(it)
                     }
                 }
 
